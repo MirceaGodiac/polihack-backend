@@ -1,0 +1,36 @@
+{
+  "schema_version": "1.0.0",
+  "parser_version": "0.1.0",
+  "generated_at": "2026-04-25T00:00:00+00:00",
+  "source_count": 1,
+  "units_count": 6,
+  "edges_count": 5,
+  "reference_candidates_count": 0,
+  "input_files": [
+    "tests/fixtures/corpus/mini_codul_muncii/legacy_units.json"
+  ],
+  "sources": [
+    {
+      "law_id": "ro.codul_muncii",
+      "law_title": "Codul muncii",
+      "source_id": null,
+      "source_url": null
+    }
+  ],
+  "files": {
+    "legal_units": "legal_units.json",
+    "legal_edges": "legal_edges.json",
+    "corpus_manifest": "corpus_manifest.json",
+    "validation_report": "validation_report.json",
+    "reference_candidates": "reference_candidates.json"
+  },
+  "content_hash": "13f9c179978794a0c02c58c8414036dbbc0d28864fee0e45daedb46f216a2d81",
+  "bundle_hash": "93507501ccc0e4b165fc01d04a62c45d4585ec0c5400c967af61d78a68dace44",
+  "warnings": [
+    "legal_concepts_empty_for_most_units_by_v1_policy",
+    "reference_candidates_not_implemented_or_not_all_resolved",
+    "source_url_unknown",
+    "status_unknown",
+    "unknown_fields_left_null_by_policy"
+  ]
+}

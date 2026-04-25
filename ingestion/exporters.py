@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+import hashlib
+import json
 import re
 from datetime import date
+from pathlib import Path
 from typing import Any, Mapping
 
 from pydantic import BaseModel
@@ -18,6 +21,15 @@ from ingestion.normalizer import normalize_legal_text
 
 
 CITABLE_LEVELS = {"articol", "alineat", "litera", "punct"}
+DEFAULT_PARSER_VERSION = "0.1.0"
+DEFAULT_GENERATED_AT = "1970-01-01T00:00:00+00:00"
+CANONICAL_BUNDLE_FILENAMES = {
+    "legal_units": "legal_units.json",
+    "legal_edges": "legal_edges.json",
+    "corpus_manifest": "corpus_manifest.json",
+    "validation_report": "validation_report.json",
+    "reference_candidates": "reference_candidates.json",
+}
 
 
 def parsed_legal_unit_to_legal_unit_dict(
@@ -167,6 +179,219 @@ def legacy_unit_to_legal_unit_dict(
     return parsed_legal_unit_to_legal_unit_dict(parsed)
 
 
+def build_canonical_bundle(
+    legacy_units: list[Mapping[str, Any]],
+    act_metadata: ParserActMetadata | BaseModel | Mapping[str, Any],
+    *,
+    parser_version: str = DEFAULT_PARSER_VERSION,
+    generated_at: str = DEFAULT_GENERATED_AT,
+    input_files: list[str] | None = None,
+    source_descriptors: list[dict[str, Any]] | None = None,
+    reference_candidates: list[Mapping[str, Any]] | None = None,
+) -> dict[str, Any]:
+    metadata = _metadata_dict(act_metadata)
+    legal_units = _canonical_units_from_legacy(legacy_units, metadata)
+    legal_edges = _build_contains_edges(legal_units, parser_version=parser_version)
+    exported_reference_candidates = _export_reference_candidates(reference_candidates or [])
+    validation_report = build_canonical_validation_report(
+        legal_units,
+        legal_edges,
+        exported_reference_candidates,
+        parser_version=parser_version,
+    )
+    content_hash = _hash_json(
+        {
+            "legal_units": legal_units,
+            "legal_edges": legal_edges,
+            "reference_candidates": exported_reference_candidates,
+            "validation_report": validation_report,
+        }
+    )
+    corpus_manifest = build_canonical_corpus_manifest(
+        metadata,
+        legal_units,
+        legal_edges,
+        exported_reference_candidates,
+        validation_report,
+        parser_version=parser_version,
+        generated_at=generated_at,
+        input_files=input_files or [],
+        source_descriptors=source_descriptors,
+        content_hash=content_hash,
+    )
+
+    return {
+        "legal_units": legal_units,
+        "legal_edges": legal_edges,
+        "corpus_manifest": corpus_manifest,
+        "validation_report": validation_report,
+        "reference_candidates": exported_reference_candidates,
+    }
+
+
+def export_canonical_bundle(
+    legacy_units: list[Mapping[str, Any]],
+    act_metadata: ParserActMetadata | BaseModel | Mapping[str, Any],
+    out_dir: str | Path,
+    *,
+    parser_version: str = DEFAULT_PARSER_VERSION,
+    generated_at: str = DEFAULT_GENERATED_AT,
+    input_files: list[str] | None = None,
+    source_descriptors: list[dict[str, Any]] | None = None,
+    reference_candidates: list[Mapping[str, Any]] | None = None,
+) -> dict[str, Path]:
+    bundle = build_canonical_bundle(
+        legacy_units,
+        act_metadata,
+        parser_version=parser_version,
+        generated_at=generated_at,
+        input_files=input_files,
+        source_descriptors=source_descriptors,
+        reference_candidates=reference_candidates,
+    )
+
+    output_dir = Path(out_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    paths = {
+        artifact: output_dir / filename
+        for artifact, filename in CANONICAL_BUNDLE_FILENAMES.items()
+    }
+    for artifact, path in paths.items():
+        _write_json(bundle[artifact], path)
+    return paths
+
+
+def build_canonical_corpus_manifest(
+    act_metadata: Mapping[str, Any],
+    legal_units: list[dict[str, Any]],
+    legal_edges: list[dict[str, Any]],
+    reference_candidates: list[dict[str, Any]],
+    validation_report: dict[str, Any],
+    *,
+    parser_version: str,
+    generated_at: str,
+    input_files: list[str],
+    source_descriptors: list[dict[str, Any]] | None,
+    content_hash: str,
+) -> dict[str, Any]:
+    sources = source_descriptors or [
+        {
+            "law_id": act_metadata.get("law_id"),
+            "law_title": act_metadata.get("law_title"),
+            "source_id": act_metadata.get("source_id"),
+            "source_url": act_metadata.get("source_url"),
+        }
+    ]
+    warnings = sorted(set(validation_report.get("warnings", [])))
+    return {
+        "schema_version": "1.0.0",
+        "parser_version": parser_version,
+        "generated_at": generated_at,
+        "source_count": len(sources),
+        "units_count": len(legal_units),
+        "edges_count": len(legal_edges),
+        "reference_candidates_count": len(reference_candidates),
+        "input_files": sorted(input_files),
+        "sources": sources,
+        "files": dict(CANONICAL_BUNDLE_FILENAMES),
+        "content_hash": content_hash,
+        "bundle_hash": _hash_json(
+            {
+                "schema_version": "1.0.0",
+                "parser_version": parser_version,
+                "units_count": len(legal_units),
+                "edges_count": len(legal_edges),
+                "reference_candidates_count": len(reference_candidates),
+                "content_hash": content_hash,
+            }
+        ),
+        "warnings": warnings,
+    }
+
+
+def build_canonical_validation_report(
+    legal_units: list[dict[str, Any]],
+    legal_edges: list[dict[str, Any]],
+    reference_candidates: list[dict[str, Any]],
+    *,
+    parser_version: str,
+) -> dict[str, Any]:
+    units_count = len(legal_units)
+    edges_count = len(legal_edges)
+    unit_ids = [unit["id"] for unit in legal_units]
+    unique_unit_ids = set(unit_ids)
+    duplicate_free_score = 1.0 if len(unit_ids) == len(unique_unit_ids) else 0.0
+    valid_edge_count = sum(
+        1
+        for edge in legal_edges
+        if edge.get("source_id") in unique_unit_ids and edge.get("target_id") in unique_unit_ids
+    )
+    hierarchy_integrity = _safe_rate(valid_edge_count, edges_count)
+    source_url_coverage = _safe_rate(
+        sum(1 for unit in legal_units if unit.get("source_url")),
+        units_count,
+    )
+    raw_text_non_empty_rate = _safe_rate(
+        sum(1 for unit in legal_units if str(unit.get("raw_text") or "").strip()),
+        units_count,
+    )
+    stable_id_rate = _safe_rate(
+        sum(1 for unit in legal_units if _is_stable_legal_unit_id(str(unit.get("id", "")))),
+        units_count,
+    )
+    unit_completeness = _safe_rate(
+        sum(1 for unit in legal_units if _has_minimum_legal_unit_fields(unit)),
+        units_count,
+    )
+    reference_resolution_rate = (
+        _safe_rate(
+            sum(
+                1
+                for candidate in reference_candidates
+                if candidate.get("resolution_status")
+                in {"resolved_high_confidence", "resolved_medium_confidence"}
+            ),
+            len(reference_candidates),
+        )
+        if reference_candidates
+        else 0.0
+    )
+    quality_metrics = {
+        "unit_completeness": unit_completeness,
+        "hierarchy_integrity": hierarchy_integrity,
+        "duplicate_free_score": duplicate_free_score,
+        "source_url_coverage": source_url_coverage,
+        "raw_text_non_empty_rate": raw_text_non_empty_rate,
+        "stable_id_rate": stable_id_rate,
+        "reference_resolution_rate": reference_resolution_rate,
+    }
+    warnings = _canonical_bundle_warnings(legal_units, reference_candidates)
+    corpus_quality = round(
+        sum(quality_metrics.values()) / len(quality_metrics),
+        4,
+    )
+    import_blocking_passed = (
+        duplicate_free_score == 1.0
+        and hierarchy_integrity == 1.0
+        and raw_text_non_empty_rate == 1.0
+        and stable_id_rate == 1.0
+        and unit_completeness == 1.0
+    )
+    return {
+        "schema_version": "1.0",
+        "parser_version": parser_version,
+        "corpus_quality": corpus_quality,
+        "import_blocking_passed": import_blocking_passed,
+        "units_count": units_count,
+        "edges_count": edges_count,
+        "chunks_count": 0,
+        "reference_candidates_count": len(reference_candidates),
+        "quality_metrics": quality_metrics,
+        "warnings": warnings,
+        "errors": [] if import_blocking_passed else ["invalid_bundle_integrity"],
+    }
+
+
 def render_hierarchy_path(hierarchy_path: list[tuple[str, str]]) -> list[str]:
     rendered: list[str] = []
     for level_type, value in hierarchy_path:
@@ -201,6 +426,183 @@ def citable_path_from_unit_id(unit_id: str, law_id: str | None = None) -> list[t
         elif segment.startswith("pct_"):
             path.append(("punct", segment.removeprefix("pct_")))
     return path
+
+
+def _canonical_units_from_legacy(
+    legacy_units: list[Mapping[str, Any]],
+    metadata: Mapping[str, Any],
+) -> list[dict[str, Any]]:
+    root_unit = _build_act_root_unit(metadata)
+    units_by_id: dict[str, dict[str, Any]] = {root_unit["id"]: root_unit}
+
+    for legacy_unit in legacy_units:
+        unit = legacy_unit_to_legal_unit_dict(legacy_unit, metadata)
+        unit["hierarchy_path"] = _bundle_hierarchy_path(unit)
+        units_by_id[unit["id"]] = unit
+
+    return [units_by_id[unit_id] for unit_id in sorted(units_by_id)]
+
+
+def _build_act_root_unit(metadata: Mapping[str, Any]) -> dict[str, Any]:
+    law_title = str(metadata.get("law_title") or "unknown")
+    law_id = metadata.get("law_id") or make_law_id(law_title)
+    parsed = build_parsed_legal_unit(
+        law_title=law_title,
+        law_id=law_id,
+        raw_text=law_title,
+        hierarchy_path=[],
+        source_id=metadata.get("source_id"),
+        source_url=metadata.get("source_url"),
+        status=metadata.get("status"),
+        act_type=metadata.get("act_type"),
+        act_number=metadata.get("act_number"),
+        publication_date=metadata.get("publication_date"),
+        effective_date=metadata.get("effective_date"),
+        version_start=metadata.get("version_start"),
+        version_end=metadata.get("version_end"),
+        parser_warnings=["act_root_unit_from_metadata"],
+    )
+    unit = parsed_legal_unit_to_legal_unit_dict(parsed)
+    unit["hierarchy_path"] = _bundle_hierarchy_path(unit)
+    return unit
+
+
+def _bundle_hierarchy_path(unit: Mapping[str, Any]) -> list[str]:
+    domain_label = _domain_label(str(unit.get("legal_domain") or "unknown"))
+    prefix = ["Legislatia Romaniei", domain_label, str(unit.get("law_title") or unit.get("law_id"))]
+    existing = list(unit.get("hierarchy_path") or [])
+    if existing[: len(prefix)] == prefix:
+        return existing
+    return prefix + existing
+
+
+def _domain_label(domain: str) -> str:
+    if domain == "unknown":
+        return "Unknown"
+    return domain.replace("_", " ").title()
+
+
+def _build_contains_edges(
+    legal_units: list[dict[str, Any]],
+    *,
+    parser_version: str,
+) -> list[dict[str, Any]]:
+    unit_ids = {unit["id"] for unit in legal_units}
+    edges: list[dict[str, Any]] = []
+    for unit in legal_units:
+        parent_id = unit.get("parent_id")
+        if not parent_id or parent_id not in unit_ids:
+            continue
+        edge_id = f"edge.contains.{parent_id}.{unit['id']}"
+        edges.append(
+            {
+                "id": edge_id,
+                "source_id": parent_id,
+                "target_id": unit["id"],
+                "type": "contains",
+                "weight": 1.0,
+                "confidence": 1.0,
+                "metadata": {
+                    "source": "canonical_bundle_export",
+                    "parser_version": parser_version,
+                },
+            }
+        )
+    return sorted(edges, key=lambda edge: edge["id"])
+
+
+def _export_reference_candidates(
+    reference_candidates: list[Mapping[str, Any]],
+) -> list[dict[str, Any]]:
+    # P3 deliberately does not create reference edges. Legacy candidates are not
+    # promoted unless a later phase provides a reliable canonical resolver.
+    if not reference_candidates:
+        return []
+    exported: list[dict[str, Any]] = []
+    for candidate in reference_candidates:
+        exported.append(
+            {
+                "source_unit_id": candidate.get("source_unit_id", ""),
+                "raw_reference": candidate.get("raw_reference", ""),
+                "reference_type": candidate.get("reference_type", "unknown"),
+                "target_law_hint": candidate.get("target_law_hint"),
+                "target_article": candidate.get("target_article"),
+                "target_paragraph": candidate.get("target_paragraph"),
+                "target_letter": candidate.get("target_letter"),
+                "target_point": candidate.get("target_point"),
+                "resolved_target_id": candidate.get("resolved_target_id") or candidate.get("target_id"),
+                "resolution_status": candidate.get("resolution_status") or candidate.get("status") or "unresolved",
+                "resolution_confidence": candidate.get("resolution_confidence") or candidate.get("confidence") or 0.0,
+                "resolver_notes": candidate.get("resolver_notes") or [],
+            }
+        )
+    return sorted(exported, key=lambda item: (item["source_unit_id"], item["raw_reference"]))
+
+
+def _canonical_bundle_warnings(
+    legal_units: list[dict[str, Any]],
+    reference_candidates: list[dict[str, Any]],
+) -> list[str]:
+    warnings = {"unknown_fields_left_null_by_policy"}
+    if any(unit.get("source_url") is None for unit in legal_units):
+        warnings.add("source_url_unknown")
+    if any(unit.get("status") == "unknown" for unit in legal_units):
+        warnings.add("status_unknown")
+    empty_concepts = sum(1 for unit in legal_units if not unit.get("legal_concepts"))
+    if empty_concepts >= max(1, len(legal_units) // 2):
+        warnings.add("legal_concepts_empty_for_most_units_by_v1_policy")
+    if not reference_candidates or any(
+        candidate.get("resolution_status")
+        not in {"resolved_high_confidence", "resolved_medium_confidence"}
+        for candidate in reference_candidates
+    ):
+        warnings.add("reference_candidates_not_implemented_or_not_all_resolved")
+    if any(unit.get("legal_domain") == "unknown" for unit in legal_units):
+        warnings.add("legal_domain_unknown")
+    return sorted(warnings)
+
+
+def _has_minimum_legal_unit_fields(unit: Mapping[str, Any]) -> bool:
+    required = [
+        "id",
+        "canonical_id",
+        "law_id",
+        "law_title",
+        "status",
+        "hierarchy_path",
+        "raw_text",
+        "legal_domain",
+        "legal_concepts",
+    ]
+    return all(key in unit and unit.get(key) is not None for key in required)
+
+
+def _is_stable_legal_unit_id(unit_id: str) -> bool:
+    if re.search(
+        r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+        unit_id,
+        re.IGNORECASE,
+    ):
+        return False
+    return bool(re.fullmatch(r"ro\.[a-z0-9_]+(?:\.[a-z]+_[a-z0-9_]+)*", unit_id))
+
+
+def _safe_rate(numerator: int, denominator: int) -> float:
+    if denominator == 0:
+        return 1.0
+    return round(numerator / denominator, 4)
+
+
+def _write_json(payload: Any, path: Path) -> None:
+    path.write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+
+def _hash_json(payload: Any) -> str:
+    canonical = json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
 
 def _metadata_dict(metadata: ParserActMetadata | BaseModel | Mapping[str, Any]) -> dict[str, Any]:

@@ -1,0 +1,51 @@
+[
+  {
+    "id": "ro.codul_muncii.art_41",
+    "type": "articol",
+    "raw_text": "Art. 41\nDreptul la munca nu poate fi ingradit.",
+    "hierarchy_path": [
+      "41"
+    ],
+    "corpus_id": "ro.codul_muncii"
+  },
+  {
+    "id": "ro.codul_muncii.art_41.alin_1",
+    "type": "alineat",
+    "raw_text": "(1) Dreptul la munca este garantat.",
+    "hierarchy_path": [
+      "41",
+      "1"
+    ],
+    "corpus_id": "ro.codul_muncii"
+  },
+  {
+    "id": "ro.codul_muncii.art_17",
+    "type": "articol",
+    "raw_text": "Art. 17\nAnterior incheierii contractului individual de munca.",
+    "hierarchy_path": [
+      "17"
+    ],
+    "corpus_id": "ro.codul_muncii"
+  },
+  {
+    "id": "ro.codul_muncii.art_17.alin_3",
+    "type": "alineat",
+    "raw_text": "(3) Persoana selectata va fi informata cu privire la:",
+    "hierarchy_path": [
+      "17",
+      "3"
+    ],
+    "corpus_id": "ro.codul_muncii"
+  },
+  {
+    "id": "ro.codul_muncii.art_17.alin_3.lit_k",
+    "type": "litera",
+    "raw_text": "k) durata perioadei de proba.",
+    "hierarchy_path": [
+      "17",
+      "3",
+      "k"
+    ],
+    "corpus_id": "ro.codul_muncii"
+  }
+]

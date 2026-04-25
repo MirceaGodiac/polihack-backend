@@ -1,0 +1,62 @@
+[
+  {
+    "id": "edge.contains.ro.codul_muncii.art_17.alin_3.ro.codul_muncii.art_17.alin_3.lit_k",
+    "source_id": "ro.codul_muncii.art_17.alin_3",
+    "target_id": "ro.codul_muncii.art_17.alin_3.lit_k",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.codul_muncii.art_17.ro.codul_muncii.art_17.alin_3",
+    "source_id": "ro.codul_muncii.art_17",
+    "target_id": "ro.codul_muncii.art_17.alin_3",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.codul_muncii.art_41.ro.codul_muncii.art_41.alin_1",
+    "source_id": "ro.codul_muncii.art_41",
+    "target_id": "ro.codul_muncii.art_41.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.codul_muncii.ro.codul_muncii.art_17",
+    "source_id": "ro.codul_muncii",
+    "target_id": "ro.codul_muncii.art_17",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.codul_muncii.ro.codul_muncii.art_41",
+    "source_id": "ro.codul_muncii",
+    "target_id": "ro.codul_muncii.art_41",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  }
+]
