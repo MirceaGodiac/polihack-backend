@@ -3,11 +3,13 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+import time
 from collections.abc import Iterator
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Protocol, TypeVar
+from typing import Any, Callable, Protocol, TypeVar
 
+import httpx
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator, model_validator
 
 from ingestion.chunks import stable_text_hash
@@ -72,6 +74,113 @@ class DeterministicFakeEmbeddingProvider:
             _deterministic_vector(text, model_name=model_name, dimension=self.dimension)
             for text in texts
         ]
+
+
+class OpenAICompatibleEmbeddingProvider:
+    RETRYABLE_STATUS_CODES = {429, 500, 502, 503, 504}
+    RETRYABLE_EXCEPTIONS = (httpx.TimeoutException, httpx.NetworkError)
+
+    def __init__(
+        self,
+        base_url: str,
+        api_key: str | None = None,
+        timeout_seconds: float = 60.0,
+        max_retries: int = 2,
+        *,
+        transport: httpx.BaseTransport | None = None,
+        sleep_func: Callable[[float], None] = time.sleep,
+    ):
+        normalized_base_url = str(base_url or "").strip().rstrip("/")
+        if not normalized_base_url:
+            raise ValueError("base URL missing: base_url must be non-empty")
+        if timeout_seconds <= 0:
+            raise ValueError("timeout_seconds must be greater than 0")
+        if max_retries < 0:
+            raise ValueError("max_retries must be greater than or equal to 0")
+
+        self.base_url = normalized_base_url
+        self.api_key = api_key
+        self.timeout_seconds = timeout_seconds
+        self.max_retries = max_retries
+        self.embedding_url = f"{self.base_url}/embeddings"
+        self._transport = transport
+        self._sleep = sleep_func
+
+    def embed_texts(self, texts: list[str], model_name: str) -> list[list[float]]:
+        headers = {"Content-Type": "application/json"}
+        if self.api_key:
+            headers["Authorization"] = f"Bearer {self.api_key}"
+        payload = {"model": model_name, "input": texts}
+
+        with httpx.Client(
+            timeout=self.timeout_seconds,
+            transport=self._transport,
+        ) as client:
+            response = self._post_with_retries(client, headers=headers, payload=payload)
+        return self._parse_embedding_response(response, expected_count=len(texts))
+
+    def _post_with_retries(
+        self,
+        client: httpx.Client,
+        *,
+        headers: dict[str, str],
+        payload: dict[str, Any],
+    ) -> httpx.Response:
+        last_retryable_error: Exception | None = None
+        for attempt in range(self.max_retries + 1):
+            try:
+                response = client.post(self.embedding_url, headers=headers, json=payload)
+            except self.RETRYABLE_EXCEPTIONS as exc:
+                last_retryable_error = exc
+                if attempt < self.max_retries:
+                    self._sleep(_retry_delay_seconds(attempt))
+                    continue
+                raise RuntimeError(
+                    "embedding provider request failed after retries: "
+                    f"{exc.__class__.__name__}"
+                ) from exc
+
+            if response.status_code in self.RETRYABLE_STATUS_CODES and attempt < self.max_retries:
+                self._sleep(_retry_delay_seconds(attempt))
+                continue
+            if response.status_code < 200 or response.status_code >= 300:
+                raise RuntimeError(
+                    "embedding provider HTTP status "
+                    f"{response.status_code}: {_response_reason(response)}"
+                )
+            return response
+
+        if last_retryable_error is not None:
+            raise RuntimeError(
+                "embedding provider request failed after retries: "
+                f"{last_retryable_error.__class__.__name__}"
+            ) from last_retryable_error
+        raise RuntimeError("embedding provider request failed after retries")
+
+    def _parse_embedding_response(
+        self,
+        response: httpx.Response,
+        *,
+        expected_count: int,
+    ) -> list[list[float]]:
+        try:
+            payload = response.json()
+        except ValueError as exc:
+            raise ValueError("malformed response: invalid JSON") from exc
+        if not isinstance(payload, dict):
+            raise ValueError("malformed response: root must be a JSON object")
+
+        data = payload.get("data")
+        if not isinstance(data, list):
+            raise ValueError("malformed response: data must be a list")
+
+        embeddings = _parse_openai_embedding_data(data)
+        if len(embeddings) != expected_count:
+            raise ValueError(
+                "embedding count mismatch: "
+                f"expected {expected_count}, got {len(embeddings)}"
+            )
+        return embeddings
 
 
 @dataclass(frozen=True)
@@ -346,3 +455,41 @@ def _deterministic_vector(
         integer_value = int.from_bytes(digest[:8], "big")
         values.append(integer_value / float(2**64 - 1))
     return values
+
+
+def _parse_openai_embedding_data(data: list[Any]) -> list[list[float]]:
+    has_any_index = any(isinstance(item, dict) and "index" in item for item in data)
+    has_all_index = all(isinstance(item, dict) and "index" in item for item in data)
+    if has_any_index and not has_all_index:
+        raise ValueError(
+            "malformed response: index must be present for every embedding item or absent for all"
+        )
+
+    items = list(data)
+    if has_all_index:
+        for item in items:
+            if isinstance(item.get("index"), bool) or not isinstance(item.get("index"), int):
+                raise ValueError("malformed response: index must be an integer")
+        items = sorted(items, key=lambda item: item["index"])
+
+    embeddings: list[list[float]] = []
+    for item_index, item in enumerate(items):
+        if not isinstance(item, dict):
+            raise ValueError("malformed response: data items must be JSON objects")
+        if "embedding" not in item:
+            raise ValueError("malformed response: data item missing embedding")
+        try:
+            embeddings.append(validate_embedding_vector(item["embedding"]))
+        except ValueError as exc:
+            raise ValueError(
+                f"invalid vector in embedding response at data item {item_index}: {exc}"
+            ) from exc
+    return embeddings
+
+
+def _retry_delay_seconds(attempt: int) -> float:
+    return 0.5 * (2**attempt)
+
+
+def _response_reason(response: httpx.Response) -> str:
+    return response.reason_phrase or "HTTP error"
