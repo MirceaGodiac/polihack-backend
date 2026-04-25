@@ -49,6 +49,15 @@ def main() -> None:
     for artifact, path in paths.items():
         print(f"{artifact}: {path}")
 
+    validation_report_path = paths["validation_report"]
+    validation_report = json.loads(validation_report_path.read_text(encoding="utf-8"))
+    if validation_report.get("import_blocking_passed") is False:
+        print(
+            "import_blocking_passed=false; canonical bundle is not import-ready",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
 
 if __name__ == "__main__":
     main()
