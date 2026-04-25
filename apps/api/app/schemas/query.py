@@ -93,6 +93,38 @@ class VerifierStatus(BaseModel):
     refusal_reason: str | None = None
 
 
+class ExactCitation(BaseModel):
+    raw_text: str
+    citation_type: Literal[
+        "article",
+        "paragraph",
+        "letter",
+        "point",
+        "thesis",
+        "law",
+        "ordinance",
+        "government_decision",
+        "named_code",
+        "compound",
+    ]
+    article: str | None = None
+    paragraph: str | None = None
+    letter: str | None = None
+    point: str | None = None
+    thesis: str | None = None
+    act_type: str | None = None
+    act_number: str | None = None
+    act_year: str | None = None
+    act_hint: str | None = None
+    law_id_hint: str | None = None
+    confidence: float = Field(..., ge=0.0, le=1.0)
+    is_relative: bool = False
+    needs_resolution: bool = True
+    lookup_filters: dict[str, Any] = Field(default_factory=dict)
+    span_start: int | None = None
+    span_end: int | None = None
+
+
 class QueryPlan(BaseModel):
     question: str
     normalized_question: str
@@ -110,7 +142,7 @@ class QueryPlan(BaseModel):
             "exception",
         ]
     ] = Field(default_factory=list)
-    exact_citations: list[str] = Field(default_factory=list)
+    exact_citations: list[ExactCitation] = Field(default_factory=list)
     temporal_context: str | None = None
     ambiguity_flags: list[str] = Field(default_factory=list)
     safety_flags: list[str] = Field(default_factory=list)

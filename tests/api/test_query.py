@@ -68,6 +68,25 @@ def test_post_api_query_debug_false_returns_null_debug():
     assert response.json()["debug"] is None
 
 
+def test_post_api_query_debug_true_includes_exact_citations():
+    response = post_query(
+        {
+            **VALID_QUERY,
+            "question": "Ce spune art. 41 din Codul muncii?",
+            "debug": True,
+        }
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    citation = payload["debug"]["query_understanding"]["exact_citations"][0]
+    assert payload["debug"]["query_understanding"]["legal_domain"] == "muncă"
+    assert citation["article"] == "41"
+    assert citation["law_id_hint"] == "ro.codul_muncii"
+    assert payload["answer"]["confidence"] == 0.0
+    assert payload["verifier"]["verifier_passed"] is False
+
+
 def test_post_api_query_rejects_short_question():
     response = post_query({**VALID_QUERY, "question": "Scurt"})
 
