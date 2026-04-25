@@ -381,6 +381,39 @@ def test_openai_compatible_provider_sorts_embeddings_by_index():
     assert provider.embed_texts(["text 0", "text 1"], "model") == [[0.0], [1.0]]
 
 
+@pytest.mark.parametrize(
+    "data",
+    [
+        [
+            {"embedding": [0.0], "index": 0},
+            {"embedding": [1.0], "index": 0},
+        ],
+        [
+            {"embedding": [0.0], "index": 0},
+            {"embedding": [1.0], "index": 2},
+        ],
+        [
+            {"embedding": [0.0], "index": -1},
+            {"embedding": [1.0], "index": 1},
+        ],
+    ],
+)
+def test_openai_compatible_provider_fails_on_non_contiguous_indexes(data):
+    provider = OpenAICompatibleEmbeddingProvider(
+        base_url="http://localhost:11434/v1",
+        transport=httpx.MockTransport(
+            lambda request: httpx.Response(200, json={"data": data})
+        ),
+        sleep_func=lambda delay: None,
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="indexes must be unique and contiguous from 0",
+    ):
+        provider.embed_texts(["text 0", "text 1"], "model")
+
+
 def test_openai_compatible_provider_fails_on_embedding_count_mismatch():
     provider = OpenAICompatibleEmbeddingProvider(
         base_url="http://localhost:11434/v1",

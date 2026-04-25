@@ -467,9 +467,16 @@ def _parse_openai_embedding_data(data: list[Any]) -> list[list[float]]:
 
     items = list(data)
     if has_all_index:
+        indexes: list[int] = []
         for item in items:
             if isinstance(item.get("index"), bool) or not isinstance(item.get("index"), int):
                 raise ValueError("malformed response: index must be an integer")
+            indexes.append(item["index"])
+        expected_indexes = set(range(len(items)))
+        if len(set(indexes)) != len(indexes) or set(indexes) != expected_indexes:
+            raise ValueError(
+                "malformed response: indexes must be unique and contiguous from 0"
+            )
         items = sorted(items, key=lambda item: item["index"])
 
     embeddings: list[list[float]] = []
