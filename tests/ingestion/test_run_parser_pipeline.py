@@ -26,6 +26,22 @@ SAMPLE_LEGISLATIE_HTML = """
 </html>
 """
 
+DIACRITICS_LEGISLATIE_HTML = """
+<html>
+  <head><title>Codul muncii</title></head>
+  <body>
+    <header>Căutare Meniu Acasă Tipărește</header>
+    <nav>Acasă Căutare Meniu</nav>
+    <main id="textdocumentleg">
+      <h1>Codul muncii</h1>
+      <p>Art. 1</p>
+      <p>(1) Legea este publicată în Monitorul Oficial.</p>
+      <p>(2) Informațiile privind muncă sunt stabilite prin lege.</p>
+    </main>
+  </body>
+</html>
+"""
+
 
 def test_run_pipeline_from_url_exports_canonical_bundle(tmp_path, monkeypatch):
     url = "https://example.gov/Public/DetaliiDocument/123456"
@@ -102,6 +118,42 @@ def test_run_pipeline_from_url_exports_canonical_bundle(tmp_path, monkeypatch):
     assert (tmp_path / "cleaned_lines.txt").exists()
     assert (tmp_path / "cleaner_report.json").exists()
     assert (tmp_path / "intermediate_units.json").exists()
+
+
+def test_run_pipeline_preserves_romanian_diacritics_in_embeddings_input(tmp_path, monkeypatch):
+    url = "https://example.gov/Public/DetaliiDocument/123456"
+    monkeypatch.setattr(
+        pipeline,
+        "scrape_html_source",
+        lambda requested_url: DIACRITICS_LEGISLATIE_HTML,
+    )
+
+    result = pipeline.run_pipeline(
+        url=url,
+        out_dir=tmp_path,
+        law_id="ro.codul_muncii",
+        law_title="Codul muncii",
+        source_id="fixture_diacritics",
+        status="active",
+        generated_at="2026-04-25T00:00:00+00:00",
+        write_debug=True,
+    )
+
+    cleaned_lines = (tmp_path / "cleaned_lines.txt").read_text(encoding="utf-8")
+    legal_units = result.artifact_paths["legal_units"].read_text(encoding="utf-8")
+    embeddings_input = result.artifact_paths["embeddings_input"].read_text(encoding="utf-8")
+
+    for payload in (cleaned_lines, legal_units, embeddings_input):
+        assert "publicată în" in payload
+        assert "Informațiile" in payload
+        assert "muncă" in payload
+        assert "publicatÄƒ" not in payload
+        assert "informaÈ›iile" not in payload
+        assert "muncÄƒ" not in payload
+
+    embedding_records = [json.loads(line) for line in embeddings_input.splitlines()]
+    serialized_records = json.dumps(embedding_records, ensure_ascii=False)
+    assert "muncă" in serialized_records
 
 
 def test_run_pipeline_accepts_non_legislatie_http_url(tmp_path, monkeypatch):

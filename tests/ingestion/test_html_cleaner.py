@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-from ingestion.html_cleaner import clean_html_to_lines
+from ingestion.html_cleaner import CleanTextResult, clean_html_to_lines
 from ingestion.structural_parser import StructuralParser
 
 
@@ -83,6 +83,56 @@ def test_cleaner_does_not_empty_simple_legal_html():
     assert result.lines == ["Articolul 1", "(1) Dreptul la muncă este garantat."]
     assert "legal_container_not_found" in result.warnings
     assert "used_body_fallback" in result.warnings
+
+
+def test_cleaner_skips_decomposed_descendants_without_crashing():
+    html = """
+    <html>
+      <body>
+        <div class="menu">
+          <span title="Cautare">Acasa Meniu Cautare Tipareste</span>
+        </div>
+        <main id="textdocumentleg">
+          <p>Articolul 1</p>
+          <p>(1) Dreptul la munca este garantat.</p>
+        </main>
+      </body>
+    </html>
+    """
+
+    result = clean_html_to_lines(html)
+
+    assert isinstance(result, CleanTextResult)
+    assert result.lines == ["Articolul 1", "(1) Dreptul la munca este garantat."]
+    assert result.selected_container == "#textdocumentleg"
+
+
+def test_cleaner_removes_navigation_from_minimal_legislative_html():
+    html = """
+    <html>
+      <body>
+        <header>Acasa Meniu Cautare Tipareste</header>
+        <nav>Menu Cautare Acasa</nav>
+        <main id="textdocumentleg">
+          <p>Articolul 1</p>
+          <p>(1) Prezenta lege stabileste reguli generale.</p>
+        </main>
+      </body>
+    </html>
+    """
+
+    result = clean_html_to_lines(html)
+    joined = "\n".join(result.lines)
+
+    assert result.lines == [
+        "Articolul 1",
+        "(1) Prezenta lege stabileste reguli generale.",
+    ]
+    assert result.selected_container == "#textdocumentleg"
+    assert "Acasa" not in joined
+    assert "Meniu" not in joined
+    assert "Cautare" not in joined
+    assert "Tipareste" not in joined
 
 
 def test_cleaned_lines_remain_structural_parser_compatible():
