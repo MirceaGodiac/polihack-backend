@@ -18,6 +18,8 @@ from ingestion.exporters import build_canonical_bundle
 FIXTURE_DIR = Path("tests/fixtures/corpus")
 LEGAL_UNITS_PATH = FIXTURE_DIR / "codul_muncii_legal_units.json"
 LEGAL_EDGES_PATH = FIXTURE_DIR / "codul_muncii_legal_edges.json"
+LEGAL_CHUNKS_PATH = FIXTURE_DIR / "codul_muncii_legal_chunks.json"
+EMBEDDINGS_INPUT_PATH = FIXTURE_DIR / "codul_muncii_embeddings_input.jsonl"
 VALIDATION_REPORT_PATH = FIXTURE_DIR / "codul_muncii_validation_report.json"
 REFERENCE_CANDIDATES_PATH = FIXTURE_DIR / "codul_muncii_reference_candidates.json"
 LEGACY_UNITS_PATH = FIXTURE_DIR / "codul_muncii_legacy_units.json"
@@ -54,6 +56,18 @@ def _units_by_id() -> dict[str, dict]:
 
 def _edges() -> list[dict]:
     return _load_json(LEGAL_EDGES_PATH)
+
+
+def _chunks() -> list[dict]:
+    return _load_json(LEGAL_CHUNKS_PATH)
+
+
+def _embedding_records() -> list[dict]:
+    return [
+        json.loads(line)
+        for line in EMBEDDINGS_INPUT_PATH.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
 
 
 def _query_plan() -> QueryPlan:
@@ -101,6 +115,8 @@ def test_codul_muncii_fixture_is_exporter_compatible():
 
     assert bundle["legal_units"] == _load_json(LEGAL_UNITS_PATH)
     assert bundle["legal_edges"] == _load_json(LEGAL_EDGES_PATH)
+    assert bundle["legal_chunks"] == _load_json(LEGAL_CHUNKS_PATH)
+    assert bundle["embeddings_input"] == _embedding_records()
     assert bundle["validation_report"] == _load_json(VALIDATION_REPORT_PATH)
     assert bundle["reference_candidates"] == _load_json(REFERENCE_CANDIDATES_PATH)
 
@@ -206,9 +222,13 @@ def test_validation_report_marks_demo_fixture_unknowns_and_no_reference_edges():
 
     assert report["units_count"] == 9
     assert report["edges_count"] == 8
+    assert report["chunks_count"] == len(_chunks())
+    assert report["embeddings_input_count"] == len(_embedding_records())
     assert report["reference_candidates_count"] == len(_load_json(REFERENCE_CANDIDATES_PATH))
     assert report["quality_metrics"]["source_url_coverage"] == 0.0
     assert report["quality_metrics"]["reference_resolution_rate"] == 0.0
+    assert report["quality_metrics"]["chunk_coverage_rate"] == 1.0
+    assert report["quality_metrics"]["embedding_input_hash_integrity"] == 1.0
     assert report["import_blocking_passed"] is True
     assert report["demo_path_passed"] is True
     assert report["blocking_errors"] == []
@@ -225,11 +245,28 @@ def test_validation_report_marks_demo_fixture_unknowns_and_no_reference_edges():
     assert "reference_resolution_deferred_to_later_phase" in warnings
     assert "reference_resolution_rate_informational_in_v1" in warnings
     assert "source_url_coverage_below_demo_threshold_explained_by_local_fixture" in warnings
+    assert "contextual_retrieval_context_derived_not_citable" in warnings
+    assert "embeddings_vectors_not_generated_in_p8" in warnings
+    assert "reference_candidates_used_as_unresolved_context_hints" in warnings
     reference_candidates = _load_json(REFERENCE_CANDIDATES_PATH)
     assert any(candidate["raw_reference"] == "alin. (3)" for candidate in reference_candidates)
     assert any(candidate["raw_reference"] == "prezentul cod" for candidate in reference_candidates)
     assert all(candidate["resolved_target_id"] is None for candidate in reference_candidates)
     assert {edge["type"] for edge in _edges()} == {"contains"}
+
+
+def test_codul_muncii_art_41_alin_4_chunk_keeps_raw_text_and_derived_context_separate():
+    units = _units_by_id()
+    chunks = {chunk["legal_unit_id"]: chunk for chunk in _chunks()}
+    chunk = chunks["ro.codul_muncii.art_41.alin_4"]
+
+    assert chunk["text"] == units["ro.codul_muncii.art_41.alin_4"]["raw_text"]
+    assert chunk["retrieval_context"] != chunk["text"]
+    assert "Context ierarhic: Legislatia Romaniei > Munca > Codul muncii > Art. 41 > Alin. (4)." in chunk["retrieval_context"]
+    assert "Referinte extrase nerezolvate: alin. (3)" in chunk["retrieval_context"]
+    assert chunk["retrieval_text"] == f"{chunk['retrieval_context']}\n\n{chunk['text']}"
+    assert chunk["context_generation_method"] == "deterministic_v1"
+    assert chunk["context_confidence"] == 0.75
 
 
 def test_evidence_pack_compiler_consumes_codul_muncii_fixture_units():

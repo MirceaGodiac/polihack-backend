@@ -160,8 +160,14 @@ class LegalChunk(IngestionContract):
     paragraph_number: str | None = None
     letter_number: str | None = None
     point_number: str | None = None
+    text: str = Field(min_length=1)
     raw_text: str
     normalized_text: str | None = None
+    retrieval_context: str | None = None
+    retrieval_text: str = Field(min_length=1)
+    context_sources: list[str] = Field(default_factory=list)
+    context_generation_method: str = "deterministic_v1"
+    context_confidence: float = Field(default=0.9, ge=0.0, le=1.0)
     embedding_text: str = Field(min_length=1)
     source_url: str | None = None
     source_id: str | None = None
@@ -178,10 +184,12 @@ class LegalChunk(IngestionContract):
     ) -> "LegalChunk":
         unit = _legal_unit_mapping(legal_unit)
         legal_unit_id = unit["id"]
-        embedding_text = _build_embedding_text(unit)
+        text = unit["raw_text"]
+        retrieval_context = _build_embedding_context(unit)
+        retrieval_text = f"{retrieval_context}\n\n{text}".strip()
 
         return cls(
-            chunk_id=f"chunk.{legal_unit_id}.{chunk_version}",
+            chunk_id=f"chunk.{legal_unit_id}.0",
             legal_unit_id=legal_unit_id,
             legal_unit_ids=[legal_unit_id],
             chunk_version=chunk_version,
@@ -193,12 +201,18 @@ class LegalChunk(IngestionContract):
             paragraph_number=unit.get("paragraph_number"),
             letter_number=unit.get("letter_number"),
             point_number=unit.get("point_number"),
-            raw_text=unit["raw_text"],
-            normalized_text=unit.get("normalized_text"),
-            embedding_text=embedding_text,
+            text=text,
+            raw_text=text,
+            normalized_text=_normalize_contract_text(retrieval_text),
+            retrieval_context=retrieval_context,
+            retrieval_text=retrieval_text,
+            context_sources=["law_title", "legal_domain", "hierarchy_path"],
+            context_generation_method="deterministic_v1",
+            context_confidence=0.9,
+            embedding_text=retrieval_text,
             source_url=unit.get("source_url"),
             source_id=unit.get("source_id"),
-            text_hash=_stable_text_hash(embedding_text),
+            text_hash=_stable_text_hash(retrieval_text),
             metadata=metadata or {},
         )
 
@@ -237,6 +251,7 @@ class ValidationReport(IngestionContract):
     units_count: int = Field(ge=0)
     edges_count: int = Field(ge=0)
     chunks_count: int = Field(default=0, ge=0)
+    embeddings_input_count: int = Field(default=0, ge=0)
     reference_candidates_count: int = Field(default=0, ge=0)
     quality_metrics: dict[str, float]
     blocking_errors: list[str] = Field(default_factory=list)
@@ -255,10 +270,14 @@ class ValidationReport(IngestionContract):
 
 
 class EmbeddingInputRecord(IngestionContract):
+    record_id: str
     chunk_id: str
     legal_unit_id: str
+    law_id: str
+    text: str = Field(min_length=1)
     embedding_text: str = Field(min_length=1)
     text_hash: str
+    model_hint: str | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @classmethod
@@ -269,11 +288,16 @@ class EmbeddingInputRecord(IngestionContract):
         metadata: dict[str, Any] | None = None,
     ) -> "EmbeddingInputRecord":
         chunk_data = _model_mapping(chunk)
+        text = chunk_data.get("retrieval_text") or chunk_data.get("embedding_text")
         return cls(
+            record_id=f"embedding.{chunk_data['chunk_id']}",
             chunk_id=chunk_data["chunk_id"],
             legal_unit_id=chunk_data["legal_unit_id"],
-            embedding_text=chunk_data["embedding_text"],
-            text_hash=chunk_data["text_hash"],
+            law_id=chunk_data["law_id"],
+            text=text,
+            embedding_text=text,
+            text_hash=_stable_text_hash(text),
+            model_hint=chunk_data.get("metadata", {}).get("model_hint"),
             metadata=metadata if metadata is not None else chunk_data.get("metadata", {}),
         )
 
@@ -290,18 +314,36 @@ def _model_mapping(value: BaseModel | Mapping[str, Any]) -> dict[str, Any]:
     return dict(value)
 
 
-def _build_embedding_text(unit: Mapping[str, Any]) -> str:
+def _build_embedding_context(unit: Mapping[str, Any]) -> str:
     hierarchy = " > ".join(unit.get("hierarchy_path") or [])
-    body = unit.get("normalized_text") or unit.get("raw_text") or ""
     parts = [
-        f"Domain: {unit.get('legal_domain', '')}",
-        f"Law: {unit.get('law_title', '')}",
+        f"Unitate din {unit.get('law_title', '')}, domeniul {unit.get('legal_domain', '')}.",
     ]
+    location = _unit_location(unit)
+    if location:
+        parts.append(f"Localizare: {location}.")
     if hierarchy:
-        parts.append(f"Path: {hierarchy}")
-    parts.append("")
-    parts.append(body)
+        parts.append(f"Context ierarhic: {hierarchy}.")
     return "\n".join(parts).strip()
+
+
+def _unit_location(unit: Mapping[str, Any]) -> str:
+    pieces = []
+    if unit.get("article_number"):
+        pieces.append(f"Art. {unit['article_number']}")
+    if unit.get("paragraph_number"):
+        pieces.append(f"Alin. ({unit['paragraph_number']})")
+    if unit.get("letter_number"):
+        pieces.append(f"Lit. {unit['letter_number']})")
+    if unit.get("point_number"):
+        pieces.append(f"Pct. {unit['point_number']}")
+    return ", ".join(pieces)
+
+
+def _normalize_contract_text(text: str | None) -> str | None:
+    if text is None:
+        return None
+    return " ".join(str(text).split()) or None
 
 
 def _stable_text_hash(text: str) -> str:
