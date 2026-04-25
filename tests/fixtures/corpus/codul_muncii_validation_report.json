@@ -6,7 +6,7 @@
   "units_count": 9,
   "edges_count": 8,
   "chunks_count": 0,
-  "reference_candidates_count": 0,
+  "reference_candidates_count": 4,
   "quality_metrics": {
     "unit_completeness": 1.0,
     "hierarchy_integrity": 1.0,
@@ -22,7 +22,8 @@
     "legal_concepts_empty_for_most_units_by_v1_policy",
     "local_fixture_demo_sample_not_official_complete_text",
     "publication_date_unknown",
-    "reference_candidates_not_implemented_or_not_all_resolved",
+    "reference_candidates_extracted_unresolved",
+    "reference_resolution_deferred_to_p7",
     "source_url_unknown",
     "status_unknown",
     "unknown_fields_left_null_by_policy",

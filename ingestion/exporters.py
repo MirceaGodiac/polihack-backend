@@ -19,6 +19,7 @@ from ingestion.legal_ids import (
     make_unit_id,
 )
 from ingestion.normalizer import normalize_legal_text
+from ingestion.reference_extractor import extract_references_from_units
 
 
 CITABLE_LEVELS = {"articol", "alineat", "litera", "punct"}
@@ -194,7 +195,12 @@ def build_canonical_bundle(
     metadata = _metadata_dict(act_metadata)
     legal_units = _canonical_units_from_legacy(legacy_units, metadata)
     legal_edges = _build_contains_edges(legal_units, parser_version=parser_version)
-    exported_reference_candidates = _export_reference_candidates(reference_candidates or [])
+    extracted_reference_candidates = (
+        list(reference_candidates)
+        if reference_candidates is not None
+        else extract_references_from_units(legal_units)
+    )
+    exported_reference_candidates = _export_reference_candidates(extracted_reference_candidates)
     validation_report = build_canonical_validation_report(
         legal_units,
         legal_edges,
@@ -544,13 +550,26 @@ def _export_reference_candidates(
                 "target_paragraph": candidate.get("target_paragraph"),
                 "target_letter": candidate.get("target_letter"),
                 "target_point": candidate.get("target_point"),
+                "target_thesis": candidate.get("target_thesis"),
                 "resolved_target_id": candidate.get("resolved_target_id") or candidate.get("target_id"),
-                "resolution_status": candidate.get("resolution_status") or candidate.get("status") or "unresolved",
+                "resolution_status": candidate.get("resolution_status") or candidate.get("status") or "candidate_only",
                 "resolution_confidence": candidate.get("resolution_confidence") or candidate.get("confidence") or 0.0,
                 "resolver_notes": candidate.get("resolver_notes") or [],
             }
         )
-    return sorted(exported, key=lambda item: (item["source_unit_id"], item["raw_reference"]))
+    return sorted(
+        exported,
+        key=lambda item: (
+            item["source_unit_id"],
+            item["raw_reference"],
+            item["reference_type"],
+            item.get("target_article") or "",
+            item.get("target_paragraph") or "",
+            item.get("target_letter") or "",
+            item.get("target_point") or "",
+            item.get("target_thesis") or "",
+        ),
+    )
 
 
 def _canonical_bundle_warnings(
@@ -568,11 +587,15 @@ def _canonical_bundle_warnings(
     empty_concepts = sum(1 for unit in legal_units if not unit.get("legal_concepts"))
     if empty_concepts >= max(1, len(legal_units) // 2):
         warnings.add("legal_concepts_empty_for_most_units_by_v1_policy")
-    if not reference_candidates or any(
+    unresolved_references = any(
         candidate.get("resolution_status")
         not in {"resolved_high_confidence", "resolved_medium_confidence"}
         for candidate in reference_candidates
-    ):
+    )
+    if reference_candidates and unresolved_references:
+        warnings.add("reference_candidates_extracted_unresolved")
+        warnings.add("reference_resolution_deferred_to_p7")
+    if not reference_candidates:
         warnings.add("reference_candidates_not_implemented_or_not_all_resolved")
     if any(unit.get("legal_domain") == "unknown" for unit in legal_units):
         warnings.add("legal_domain_unknown")

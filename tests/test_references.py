@@ -41,8 +41,7 @@ class TestExtractor:
     def test_combined_article_and_paragraph(self):
         """The flagship acceptance criterion: art. 17 alin. (1) is extracted."""
         candidates = extract_references(SOURCE_UNIT)
-        assert len(candidates) == 1
-        cand = candidates[0]
+        cand = next(c for c in candidates if c["raw_reference"] == "art. 17 alin. (1)")
         assert cand["target_article"]   == "17"
         assert cand["target_paragraph"] == "1"
         assert cand["source_unit_id"]   == "ro.codul_muncii.art_41"
@@ -50,7 +49,11 @@ class TestExtractor:
     def test_local_law_hint_detected(self):
         """'prezenta lege' marks the candidate as same_act."""
         candidates = extract_references(SOURCE_UNIT)
-        assert candidates[0]["target_law_hint"] == "same_act"
+        assert any(
+            candidate["raw_reference"] == "prezenta lege"
+            and candidate["target_law_hint"] == "same_act"
+            for candidate in candidates
+        )
 
     def test_standalone_article_no_paragraph(self):
         unit = {
@@ -78,8 +81,16 @@ class TestExtractor:
             "raw_text": "conform art. 1249 din Codul Civil.",
         }
         candidates = extract_references(unit)
-        assert len(candidates) == 1
-        assert candidates[0]["target_law_hint"] == "external"
+        assert any(
+            candidate["raw_reference"] == "art. 1249"
+            and candidate["target_law_hint"] == "ro.codul_civil"
+            for candidate in candidates
+        )
+        assert any(
+            candidate["raw_reference"] == "Codul Civil"
+            and candidate["target_law_hint"] == "ro.codul_civil"
+            for candidate in candidates
+        )
 
     def test_ref_art_re_standalone(self):
         matches = REF_ART_RE.findall("Vezi art. 100 şi art. 200^1.")

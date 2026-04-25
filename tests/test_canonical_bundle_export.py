@@ -49,6 +49,7 @@ ACT_METADATA = {
     "status": "unknown",
 }
 FIXTURE_DIR = Path("tests/fixtures/corpus/mini_codul_muncii")
+REFERENCE_FIXTURE_PATH = Path("tests/fixtures/corpus/reference_extraction_legacy_units.json")
 
 
 def test_canonical_bundle_generation_writes_required_files(tmp_path):
@@ -147,6 +148,36 @@ def test_reference_candidates_file_exists_even_when_empty(tmp_path):
     candidates = json.loads((tmp_path / "reference_candidates.json").read_text(encoding="utf-8"))
 
     assert candidates == []
+
+
+def test_reference_candidates_are_exported_without_reference_edges():
+    legacy_units = json.loads(REFERENCE_FIXTURE_PATH.read_text(encoding="utf-8"))
+    bundle = build_canonical_bundle(legacy_units, ACT_METADATA)
+    candidates = bundle["reference_candidates"]
+
+    raw_refs = {candidate["raw_reference"] for candidate in candidates}
+    assert "art. 41 alin. (3)" in raw_refs
+    assert "art. 17 alin. (3) lit. k)" in raw_refs
+    assert "Legea nr. 53/2003" in raw_refs
+    assert "O.U.G. nr. 195/2002" in raw_refs
+    assert "Codul civil" in raw_refs
+    assert "prezentul cod" in raw_refs
+    assert candidates == sorted(
+        candidates,
+        key=lambda item: (
+            item["source_unit_id"],
+            item["raw_reference"],
+            item["reference_type"],
+            item.get("target_article") or "",
+            item.get("target_paragraph") or "",
+            item.get("target_letter") or "",
+        ),
+    )
+    assert {edge["type"] for edge in bundle["legal_edges"]} == {"contains"}
+    assert bundle["validation_report"]["reference_candidates_count"] == len(candidates)
+    assert bundle["validation_report"]["quality_metrics"]["reference_resolution_rate"] == 0.0
+    assert "reference_candidates_extracted_unresolved" in bundle["validation_report"]["warnings"]
+    assert "reference_resolution_deferred_to_p7" in bundle["validation_report"]["warnings"]
 
 
 def test_validation_report_includes_v1_unknown_policy_warnings():

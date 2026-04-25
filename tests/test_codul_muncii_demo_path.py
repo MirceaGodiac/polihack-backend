@@ -206,7 +206,7 @@ def test_validation_report_marks_demo_fixture_unknowns_and_no_reference_edges():
 
     assert report["units_count"] == 9
     assert report["edges_count"] == 8
-    assert report["reference_candidates_count"] == 0
+    assert report["reference_candidates_count"] == len(_load_json(REFERENCE_CANDIDATES_PATH))
     assert report["quality_metrics"]["source_url_coverage"] == 0.0
     assert report["quality_metrics"]["reference_resolution_rate"] == 0.0
     assert report["import_blocking_passed"] is True
@@ -218,7 +218,12 @@ def test_validation_report_marks_demo_fixture_unknowns_and_no_reference_edges():
     assert "version_start_unknown" in warnings
     assert "version_end_unknown" in warnings
     assert "legal_concepts_empty_for_most_units_by_v1_policy" in warnings
-    assert _load_json(REFERENCE_CANDIDATES_PATH) == []
+    assert "reference_candidates_extracted_unresolved" in warnings
+    assert "reference_resolution_deferred_to_p7" in warnings
+    reference_candidates = _load_json(REFERENCE_CANDIDATES_PATH)
+    assert any(candidate["raw_reference"] == "alin. (3)" for candidate in reference_candidates)
+    assert any(candidate["raw_reference"] == "prezentul cod" for candidate in reference_candidates)
+    assert all(candidate["resolved_target_id"] is None for candidate in reference_candidates)
     assert {edge["type"] for edge in _edges()} == {"contains"}
 
 

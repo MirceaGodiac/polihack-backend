@@ -1,0 +1,16 @@
+[
+  {
+    "id": "ro.codul_muncii.art_100",
+    "type": "articol",
+    "raw_text": "Se aplică art. 41 alin. (3), art. 17 alin. (3) lit. k), Legea nr. 53/2003, O.U.G. nr. 195/2002, Codul civil și prezentul cod.",
+    "hierarchy_path": ["100"],
+    "corpus_id": "ro.codul_muncii"
+  },
+  {
+    "id": "ro.codul_muncii.art_101",
+    "type": "articol",
+    "raw_text": "Sunt menționate OUG nr. 195/2002, O.G. nr. 2/2001, HG nr. 1/2016, Codul fiscal și prezenta lege.",
+    "hierarchy_path": ["101"],
+    "corpus_id": "ro.codul_muncii"
+  }
+]

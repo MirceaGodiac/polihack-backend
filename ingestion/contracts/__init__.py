@@ -41,6 +41,9 @@ ReferenceResolutionStatus = Literal[
     "resolved_medium_confidence",
     "candidate_ambiguous",
     "external_unresolved",
+    "unresolved_ambiguous",
+    "unresolved_needs_context",
+    "candidate_only",
     "unresolved",
 ]
 
@@ -209,8 +212,9 @@ class ReferenceCandidate(IngestionContract):
     target_paragraph: str | None = None
     target_letter: str | None = None
     target_point: str | None = None
+    target_thesis: str | None = None
     resolved_target_id: str | None = None
-    resolution_status: ReferenceResolutionStatus = "unresolved"
+    resolution_status: ReferenceResolutionStatus = "candidate_only"
     resolution_confidence: float = Field(default=0.0, ge=0.0, le=1.0)
     resolver_notes: list[str] = Field(default_factory=list)
 

@@ -1,1 +1,70 @@
-[]
+[
+  {
+    "source_unit_id": "ro.codul_muncii.art_41",
+    "raw_reference": "alin. (3)",
+    "reference_type": "paragraph",
+    "target_law_hint": "same_act",
+    "target_article": null,
+    "target_paragraph": "3",
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "unresolved_needs_context",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "paragraph_reference_without_article"
+    ]
+  },
+  {
+    "source_unit_id": "ro.codul_muncii.art_41",
+    "raw_reference": "prezentul cod",
+    "reference_type": "same_act",
+    "target_law_hint": "same_act",
+    "target_article": null,
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "unresolved_needs_context",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "same_act_reference_requires_context"
+    ]
+  },
+  {
+    "source_unit_id": "ro.codul_muncii.art_41.alin_2",
+    "raw_reference": "prezentul cod",
+    "reference_type": "same_act",
+    "target_law_hint": "same_act",
+    "target_article": null,
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "unresolved_needs_context",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "same_act_reference_requires_context"
+    ]
+  },
+  {
+    "source_unit_id": "ro.codul_muncii.art_41.alin_4",
+    "raw_reference": "alin. (3)",
+    "reference_type": "paragraph",
+    "target_law_hint": "same_act",
+    "target_article": null,
+    "target_paragraph": "3",
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "unresolved_needs_context",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "paragraph_reference_without_article"
+    ]
+  }
+]
