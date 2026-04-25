@@ -6,6 +6,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from .db import dispose_engine
 from .routes.health import health, router as health_router
 from .routes.query import router as query_router
+from .routes.ingest import router as ingest_router
+from .routes.corpus import router as corpus_router
+from .routes.legal_units import router as legal_units_router
 from .config import settings
 
 
@@ -31,6 +34,9 @@ def create_app() -> FastAPI:
     )
     app.include_router(health_router, prefix="/api")
     app.include_router(query_router, prefix="/api")
+    app.include_router(ingest_router, prefix="/api")
+    app.include_router(corpus_router, prefix="/api")
+    app.include_router(legal_units_router, prefix="/api")
     app.add_api_route(
         "/health",
         health,
