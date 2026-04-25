@@ -3,11 +3,13 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+import time
 from collections.abc import Iterator
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Protocol, TypeVar
+from typing import Any, Callable, Protocol, TypeVar
 
+import httpx
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator, model_validator
 
 from ingestion.chunks import stable_text_hash
@@ -16,6 +18,25 @@ from ingestion.contracts import EmbeddingInputRecord
 
 ResumeKey = tuple[str, str, str]
 T = TypeVar("T")
+EMBEDDING_OUTPUT_REQUIRED_FIELDS = (
+    "record_id",
+    "chunk_id",
+    "legal_unit_id",
+    "law_id",
+    "model_name",
+    "embedding_dim",
+    "text_hash",
+    "embedding",
+    "metadata",
+)
+EMBEDDING_OUTPUT_REQUIRED_STRING_FIELDS = (
+    "record_id",
+    "chunk_id",
+    "legal_unit_id",
+    "law_id",
+    "model_name",
+    "text_hash",
+)
 
 
 class EmbeddingOutputRecord(BaseModel):
@@ -54,6 +75,22 @@ class EmbeddingJobSummary(BaseModel):
     warnings: list[str] = Field(default_factory=list)
 
 
+class EmbeddingOutputValidationSummary(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    read_count: int = 0
+    valid_count: int = 0
+    invalid_count: int = 0
+    duplicate_resume_key_count: int = 0
+    duplicate_record_id_count: int = 0
+    model_names: list[str] = Field(default_factory=list)
+    embedding_dims: list[int] = Field(default_factory=list)
+    law_ids: list[str] = Field(default_factory=list)
+    empty_metadata_count: int = 0
+    warnings: list[str] = Field(default_factory=list)
+    errors: list[str] = Field(default_factory=list)
+
+
 class EmbeddingProvider(Protocol):
     def embed_texts(self, texts: list[str], model_name: str) -> list[list[float]]:
         ...
@@ -72,6 +109,113 @@ class DeterministicFakeEmbeddingProvider:
             _deterministic_vector(text, model_name=model_name, dimension=self.dimension)
             for text in texts
         ]
+
+
+class OpenAICompatibleEmbeddingProvider:
+    RETRYABLE_STATUS_CODES = {429, 500, 502, 503, 504}
+    RETRYABLE_EXCEPTIONS = (httpx.TimeoutException, httpx.NetworkError)
+
+    def __init__(
+        self,
+        base_url: str,
+        api_key: str | None = None,
+        timeout_seconds: float = 60.0,
+        max_retries: int = 2,
+        *,
+        transport: httpx.BaseTransport | None = None,
+        sleep_func: Callable[[float], None] = time.sleep,
+    ):
+        normalized_base_url = str(base_url or "").strip().rstrip("/")
+        if not normalized_base_url:
+            raise ValueError("base URL missing: base_url must be non-empty")
+        if timeout_seconds <= 0:
+            raise ValueError("timeout_seconds must be greater than 0")
+        if max_retries < 0:
+            raise ValueError("max_retries must be greater than or equal to 0")
+
+        self.base_url = normalized_base_url
+        self.api_key = api_key
+        self.timeout_seconds = timeout_seconds
+        self.max_retries = max_retries
+        self.embedding_url = f"{self.base_url}/embeddings"
+        self._transport = transport
+        self._sleep = sleep_func
+
+    def embed_texts(self, texts: list[str], model_name: str) -> list[list[float]]:
+        headers = {"Content-Type": "application/json"}
+        if self.api_key:
+            headers["Authorization"] = f"Bearer {self.api_key}"
+        payload = {"model": model_name, "input": texts}
+
+        with httpx.Client(
+            timeout=self.timeout_seconds,
+            transport=self._transport,
+        ) as client:
+            response = self._post_with_retries(client, headers=headers, payload=payload)
+        return self._parse_embedding_response(response, expected_count=len(texts))
+
+    def _post_with_retries(
+        self,
+        client: httpx.Client,
+        *,
+        headers: dict[str, str],
+        payload: dict[str, Any],
+    ) -> httpx.Response:
+        last_retryable_error: Exception | None = None
+        for attempt in range(self.max_retries + 1):
+            try:
+                response = client.post(self.embedding_url, headers=headers, json=payload)
+            except self.RETRYABLE_EXCEPTIONS as exc:
+                last_retryable_error = exc
+                if attempt < self.max_retries:
+                    self._sleep(_retry_delay_seconds(attempt))
+                    continue
+                raise RuntimeError(
+                    "embedding provider request failed after retries: "
+                    f"{exc.__class__.__name__}"
+                ) from exc
+
+            if response.status_code in self.RETRYABLE_STATUS_CODES and attempt < self.max_retries:
+                self._sleep(_retry_delay_seconds(attempt))
+                continue
+            if response.status_code < 200 or response.status_code >= 300:
+                raise RuntimeError(
+                    "embedding provider HTTP status "
+                    f"{response.status_code}: {_response_reason(response)}"
+                )
+            return response
+
+        if last_retryable_error is not None:
+            raise RuntimeError(
+                "embedding provider request failed after retries: "
+                f"{last_retryable_error.__class__.__name__}"
+            ) from last_retryable_error
+        raise RuntimeError("embedding provider request failed after retries")
+
+    def _parse_embedding_response(
+        self,
+        response: httpx.Response,
+        *,
+        expected_count: int,
+    ) -> list[list[float]]:
+        try:
+            payload = response.json()
+        except ValueError as exc:
+            raise ValueError("malformed response: invalid JSON") from exc
+        if not isinstance(payload, dict):
+            raise ValueError("malformed response: root must be a JSON object")
+
+        data = payload.get("data")
+        if not isinstance(data, list):
+            raise ValueError("malformed response: data must be a list")
+
+        embeddings = _parse_openai_embedding_data(data)
+        if len(embeddings) != expected_count:
+            raise ValueError(
+                "embedding count mismatch: "
+                f"expected {expected_count}, got {len(embeddings)}"
+            )
+        return embeddings
 
 
 @dataclass(frozen=True)
@@ -129,6 +273,155 @@ def load_embedding_output_jsonl(path: str | Path) -> list[EmbeddingOutputRecord]
                 f"{resolved_path}:{line_number} invalid EmbeddingOutputRecord"
             ) from exc
     return records
+
+
+def validate_embeddings_output(
+    output_path: str | Path,
+    *,
+    expected_model: str | None = None,
+    expected_dim: int | None = None,
+    require_unique_resume_keys: bool = True,
+    require_unique_record_ids: bool = False,
+    strict: bool = True,
+) -> EmbeddingOutputValidationSummary:
+    if expected_model is not None and not expected_model.strip():
+        raise ValueError("expected_model must be non-empty when provided")
+    if expected_dim is not None and expected_dim <= 0:
+        raise ValueError("expected_dim must be greater than 0")
+
+    resolved_path = Path(output_path)
+    errors: list[str] = []
+    warnings: list[str] = []
+    model_names: set[str] = set()
+    embedding_dims: set[int] = set()
+    law_ids: set[str] = set()
+    seen_resume_keys: set[ResumeKey] = set()
+    seen_record_ids: set[str] = set()
+    read_count = 0
+    valid_count = 0
+    invalid_count = 0
+    duplicate_resume_key_count = 0
+    duplicate_record_id_count = 0
+    empty_metadata_count = 0
+
+    for line_number, line in enumerate(
+        resolved_path.read_text(encoding="utf-8").splitlines(),
+        start=1,
+    ):
+        if not line.strip():
+            continue
+        read_count += 1
+        record_errors: list[str] = []
+        try:
+            value = json.loads(line)
+        except json.JSONDecodeError:
+            invalid_count += 1
+            errors.append(f"line {line_number}: invalid JSON")
+            continue
+        if not isinstance(value, dict):
+            invalid_count += 1
+            errors.append(f"line {line_number}: record must be a JSON object")
+            continue
+
+        record_label = _output_record_label(value, line_number)
+        for field in EMBEDDING_OUTPUT_REQUIRED_FIELDS:
+            if field not in value:
+                record_errors.append(f"{record_label}: missing required field {field}")
+
+        valid_strings: dict[str, str] = {}
+        for field in EMBEDDING_OUTPUT_REQUIRED_STRING_FIELDS:
+            if field not in value:
+                continue
+            field_value = value[field]
+            if not isinstance(field_value, str) or not field_value.strip():
+                record_errors.append(
+                    f"{record_label}: field {field} must be a non-empty string"
+                )
+            else:
+                valid_strings[field] = field_value
+
+        embedding_dim = _valid_output_embedding_dim(value, record_label, record_errors)
+        if embedding_dim is not None:
+            embedding_dims.add(embedding_dim)
+            if expected_dim is not None and embedding_dim != expected_dim:
+                record_errors.append(
+                    f"{record_label}: expected_dim mismatch: expected {expected_dim}, "
+                    f"got {embedding_dim}"
+                )
+
+        model_name = valid_strings.get("model_name")
+        if model_name is not None:
+            model_names.add(model_name)
+            if expected_model is not None and model_name != expected_model:
+                record_errors.append(
+                    f"{record_label}: expected_model mismatch: expected {expected_model}, "
+                    f"got {model_name}"
+                )
+        law_id = valid_strings.get("law_id")
+        if law_id is not None:
+            law_ids.add(law_id)
+
+        if "embedding" in value:
+            try:
+                validate_embedding_vector(value["embedding"], expected_dim=embedding_dim)
+            except ValueError as exc:
+                record_errors.append(f"{record_label}: invalid embedding vector: {exc}")
+
+        if "metadata" in value:
+            if not isinstance(value["metadata"], dict):
+                record_errors.append(f"{record_label}: metadata must be a JSON object")
+            elif not value["metadata"]:
+                empty_metadata_count += 1
+
+        record_id = valid_strings.get("record_id")
+        text_hash = valid_strings.get("text_hash")
+        if record_id is not None:
+            if record_id in seen_record_ids:
+                duplicate_record_id_count += 1
+                duplicate_message = f"{record_label}: duplicate record_id {record_id}"
+                if require_unique_record_ids:
+                    record_errors.append(duplicate_message)
+                else:
+                    warnings.append(duplicate_message)
+            seen_record_ids.add(record_id)
+
+        if record_id is not None and text_hash is not None and model_name is not None:
+            resume_key = (record_id, text_hash, model_name)
+            if resume_key in seen_resume_keys:
+                duplicate_resume_key_count += 1
+                if require_unique_resume_keys:
+                    record_errors.append(f"{record_label}: duplicate resume key")
+            seen_resume_keys.add(resume_key)
+
+        if record_errors:
+            invalid_count += 1
+            errors.extend(record_errors)
+        else:
+            valid_count += 1
+
+    summary = EmbeddingOutputValidationSummary(
+        read_count=read_count,
+        valid_count=valid_count,
+        invalid_count=invalid_count,
+        duplicate_resume_key_count=duplicate_resume_key_count,
+        duplicate_record_id_count=duplicate_record_id_count,
+        model_names=sorted(model_names),
+        embedding_dims=sorted(embedding_dims),
+        law_ids=sorted(law_ids),
+        empty_metadata_count=empty_metadata_count,
+        warnings=warnings,
+        errors=errors,
+    )
+    if strict and errors:
+        preview = "; ".join(errors[:5])
+        remaining = len(errors) - min(len(errors), 5)
+        suffix = f"; ... {remaining} more" if remaining else ""
+        raise ValueError(
+            "embedding output validation failed: "
+            f"invalid_count={invalid_count}, error_count={len(errors)}; "
+            f"{preview}{suffix}"
+        )
+    return summary
 
 
 def write_embedding_output_jsonl(
@@ -323,6 +616,30 @@ def _validate_embedding_input_record(value: dict[str, Any]) -> EmbeddingInputRec
     return EmbeddingInputRecord.model_validate(value)
 
 
+def _output_record_label(value: dict[str, Any], line_number: int) -> str:
+    record_id = value.get("record_id")
+    if isinstance(record_id, str) and record_id.strip():
+        return f"line {line_number} record_id={record_id}"
+    return f"line {line_number}"
+
+
+def _valid_output_embedding_dim(
+    value: dict[str, Any],
+    record_label: str,
+    errors: list[str],
+) -> int | None:
+    if "embedding_dim" not in value:
+        return None
+    embedding_dim = value["embedding_dim"]
+    if isinstance(embedding_dim, bool) or not isinstance(embedding_dim, int):
+        errors.append(f"{record_label}: embedding_dim must be a positive integer")
+        return None
+    if embedding_dim <= 0:
+        errors.append(f"{record_label}: embedding_dim must be a positive integer")
+        return None
+    return embedding_dim
+
+
 def _record_log_context(record: EmbeddingInputRecord, embedding_text_length: int) -> str:
     return (
         f"record_id={record.record_id} "
@@ -346,3 +663,48 @@ def _deterministic_vector(
         integer_value = int.from_bytes(digest[:8], "big")
         values.append(integer_value / float(2**64 - 1))
     return values
+
+
+def _parse_openai_embedding_data(data: list[Any]) -> list[list[float]]:
+    has_any_index = any(isinstance(item, dict) and "index" in item for item in data)
+    has_all_index = all(isinstance(item, dict) and "index" in item for item in data)
+    if has_any_index and not has_all_index:
+        raise ValueError(
+            "malformed response: index must be present for every embedding item or absent for all"
+        )
+
+    items = list(data)
+    if has_all_index:
+        indexes: list[int] = []
+        for item in items:
+            if isinstance(item.get("index"), bool) or not isinstance(item.get("index"), int):
+                raise ValueError("malformed response: index must be an integer")
+            indexes.append(item["index"])
+        expected_indexes = set(range(len(items)))
+        if len(set(indexes)) != len(indexes) or set(indexes) != expected_indexes:
+            raise ValueError(
+                "malformed response: indexes must be unique and contiguous from 0"
+            )
+        items = sorted(items, key=lambda item: item["index"])
+
+    embeddings: list[list[float]] = []
+    for item_index, item in enumerate(items):
+        if not isinstance(item, dict):
+            raise ValueError("malformed response: data items must be JSON objects")
+        if "embedding" not in item:
+            raise ValueError("malformed response: data item missing embedding")
+        try:
+            embeddings.append(validate_embedding_vector(item["embedding"]))
+        except ValueError as exc:
+            raise ValueError(
+                f"invalid vector in embedding response at data item {item_index}: {exc}"
+            ) from exc
+    return embeddings
+
+
+def _retry_delay_seconds(attempt: int) -> float:
+    return 0.5 * (2**attempt)
+
+
+def _response_reason(response: httpx.Response) -> str:
+    return response.reason_phrase or "HTTP error"
