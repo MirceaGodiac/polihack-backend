@@ -9,12 +9,19 @@ sources:
     law_title: "Codul Muncii"
     legal_domain: "dreptul_muncii"
     status: "active"
-    url: null
+    url: https://legislatie.just.ro/Public/DetaliiDocumentAfis/113394
     fixture_file: "ingestion/fixtures/codul_muncii.txt"
 
-  - law_id: ro.constitutia
-    law_title: "Constitutia Romaniei"
-    legal_domain: "drept_constitutional"
+  - law_id: ro.codul_civil
+    law_title: "Codul Civil"
+    legal_domain: "dreptul_civil"
     status: "active"
-    url: null
-    fixture_file: "ingestion/fixtures/constitutia.txt"
+    url: https://legislatie.just.ro/Public/DetaliiDocument/109884
+    fixture_file: "ingestion/fixtures/codul_civil.txt"
+
+  - law_id: ro.codul_penal
+    law_title: "Codul Penal"
+    legal_domain: "dreptul_penal"
+    status: "active"
+    url: https://legislatie.just.ro/Public/DetaliiDocumentAfis/268760
+    fixture_file: "ingestion/fixtures/codul_penal.txt"
