@@ -14,6 +14,11 @@ from .query import (
     QueryResponse,
     VerifierStatus,
 )
+from .retrieval import (
+    RawRetrievalRequest,
+    RawRetrievalResponse,
+    RetrievalCandidate,
+)
 
 __all__ = [
     "AnswerPayload",
@@ -30,4 +35,7 @@ __all__ = [
     "QueryRequest",
     "QueryResponse",
     "VerifierStatus",
+    "RawRetrievalRequest",
+    "RawRetrievalResponse",
+    "RetrievalCandidate",
 ]

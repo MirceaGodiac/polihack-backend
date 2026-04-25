@@ -59,6 +59,11 @@ def test_post_api_query_debug_true_includes_debug_payload():
     assert "obligation" in debug["query_understanding"]["query_types"]
     assert debug["query_understanding"]["exact_citations"] == []
     assert debug["query_understanding"]["retrieval_filters"]["status"] == "active"
+    retrieval = debug["retrieval"]
+    assert retrieval["fallback_used"] is True
+    assert retrieval["request_payload"]["retrieval_filters"]["legal_domain"] == "muncă"
+    assert retrieval["response_summary"]["candidate_count"] == 0
+    assert "raw_retrieval_not_configured" in retrieval["response_summary"]["warnings"]
 
 
 def test_post_api_query_debug_false_returns_null_debug():
@@ -80,11 +85,18 @@ def test_post_api_query_debug_true_includes_exact_citations():
     assert response.status_code == 200
     payload = response.json()
     citation = payload["debug"]["query_understanding"]["exact_citations"][0]
+    retrieval = payload["debug"]["retrieval"]
     assert payload["debug"]["query_understanding"]["legal_domain"] == "muncă"
     assert citation["article"] == "41"
     assert citation["law_id_hint"] == "ro.codul_muncii"
+    request_payload = retrieval["request_payload"]
+    assert request_payload["exact_citations"][0]["article"] == "41"
+    filters = request_payload["retrieval_filters"]["exact_citation_filters"][0]
+    assert filters["article_number"] == "41"
+    assert filters["law_id"] == "ro.codul_muncii"
     assert payload["answer"]["confidence"] == 0.0
     assert payload["verifier"]["verifier_passed"] is False
+    assert "raw_retrieval_not_configured" in payload["warnings"]
 
 
 def test_post_api_query_rejects_short_question():

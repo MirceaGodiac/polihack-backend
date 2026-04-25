@@ -1,13 +1,15 @@
 # Query API
 
-Phase 3 exposes the `/api/query` contract, deterministic QueryUnderstanding,
-DomainRouter debug data, ExactCitationDetector output, and a deterministic mock
-EvidencePack only. It is intended for frontend and API integration work before
-real retrieval and answer generation are available.
+Phase 4 exposes the `/api/query` contract, deterministic QueryUnderstanding,
+DomainRouter debug data, ExactCitationDetector output, RawRetrieverClient
+request construction, and a deterministic mock EvidencePack only. It is intended
+for frontend and API integration work before real retrieval and answer generation
+are available.
 
 Not implemented yet:
 
 - database-backed retrieval
+- `/api/retrieve/raw`, which is owned by Handoff 04
 - graph expansion
 - LegalRanker
 - answer generation
@@ -16,6 +18,9 @@ Not implemented yet:
 The query understanding layer is rule-based and inspectable. It does not call an
 LLM and it does not retrieve legal text. Exact citations are parsed only into
 future lookup hints; they are not resolved against `legal_units` yet.
+RawRetrieverClient prepares the future raw retrieval payload. If the raw
+retrieval endpoint is not configured or unavailable, `/api/query` returns a safe
+fallback with `confidence: 0.0`, `verifier_passed: false`, and retrieval warnings.
 
 ## Request
 
@@ -129,6 +134,46 @@ Exact citation example:
           }
         }
       ]
+    }
+  }
+}
+```
+
+Raw retrieval debug excerpt when `/api/retrieve/raw` is not configured:
+
+```json
+{
+  "debug": {
+    "retrieval": {
+      "request_payload": {
+        "question": "Ce spune art. 41 alin. (1) din Codul muncii?",
+        "retrieval_filters": {
+          "legal_domain": "muncă",
+          "exact_citation_filters": [
+            {
+              "law_id": "ro.codul_muncii",
+              "article_number": "41",
+              "paragraph_number": "1",
+              "status": "active"
+            }
+          ]
+        },
+        "exact_citations": [
+          {
+            "article": "41",
+            "paragraph": "1",
+            "act_hint": "Codul muncii"
+          }
+        ],
+        "top_k": 50,
+        "debug": true
+      },
+      "response_summary": {
+        "candidate_count": 0,
+        "retrieval_methods": [],
+        "warnings": ["raw_retrieval_not_configured"]
+      },
+      "fallback_used": true
     }
   }
 }
