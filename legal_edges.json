@@ -1,0 +1,27 @@
+[
+  {
+    "source_id": "ro.codul_muncii.titlu_i",
+    "target_id": "ro.codul_muncii.titlu_i.capitol_i",
+    "type": "contains"
+  },
+  {
+    "source_id": "ro.codul_muncii.titlu_i.capitol_i",
+    "target_id": "ro.codul_muncii.titlu_i.capitol_i.art_1",
+    "type": "contains"
+  },
+  {
+    "source_id": "ro.codul_muncii.titlu_i.capitol_i",
+    "target_id": "ro.codul_muncii.titlu_i.capitol_i.art_2",
+    "type": "contains"
+  },
+  {
+    "source_id": "ro.codul_muncii.titlu_i.capitol_i.art_2",
+    "target_id": "ro.codul_muncii.titlu_i.capitol_i.art_2.lit_a",
+    "type": "contains"
+  },
+  {
+    "source_id": "ro.codul_muncii.titlu_i.capitol_i.art_2",
+    "target_id": "ro.codul_muncii.titlu_i.capitol_i.art_2.lit_b",
+    "type": "contains"
+  }
+]

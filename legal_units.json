@@ -1,0 +1,67 @@
+[
+  {
+    "id": "ro.codul_muncii.titlu_i",
+    "type": "titlu",
+    "raw_text": "TITLUL I\nDispoziţii generale",
+    "hierarchy_path": [
+      "I"
+    ],
+    "corpus_id": "ro.codul_muncii"
+  },
+  {
+    "id": "ro.codul_muncii.titlu_i.capitol_i",
+    "type": "capitol",
+    "raw_text": "CAPITOLUL I\nDomeniul de aplicare",
+    "hierarchy_path": [
+      "I",
+      "I"
+    ],
+    "corpus_id": "ro.codul_muncii"
+  },
+  {
+    "id": "ro.codul_muncii.titlu_i.capitol_i.art_1",
+    "type": "articol",
+    "raw_text": "Art. 1\nPrezentul cod reglementează domeniul raporturilor de muncă.",
+    "hierarchy_path": [
+      "I",
+      "I",
+      "1"
+    ],
+    "corpus_id": "ro.codul_muncii"
+  },
+  {
+    "id": "ro.codul_muncii.titlu_i.capitol_i.art_2",
+    "type": "articol",
+    "raw_text": "Art. 2\nDispoziţiile prezentului cod se aplică:",
+    "hierarchy_path": [
+      "I",
+      "I",
+      "2"
+    ],
+    "corpus_id": "ro.codul_muncii"
+  },
+  {
+    "id": "ro.codul_muncii.titlu_i.capitol_i.art_2.lit_a",
+    "type": "litera",
+    "raw_text": "a) cetăţenilor români cu domiciliul în România;",
+    "hierarchy_path": [
+      "I",
+      "I",
+      "2",
+      "a"
+    ],
+    "corpus_id": "ro.codul_muncii"
+  },
+  {
+    "id": "ro.codul_muncii.titlu_i.capitol_i.art_2.lit_b",
+    "type": "litera",
+    "raw_text": "b) cetăţenilor străini sau apatrizilor.",
+    "hierarchy_path": [
+      "I",
+      "I",
+      "2",
+      "b"
+    ],
+    "corpus_id": "ro.codul_muncii"
+  }
+]
