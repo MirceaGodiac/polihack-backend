@@ -1,0 +1,72 @@
+# Query API
+
+Phase 1 exposes the `/api/query` contract and returns a deterministic mock
+EvidencePack only. It is intended for frontend and API integration work before
+real retrieval and answer generation are available.
+
+Not implemented yet:
+
+- database-backed retrieval
+- graph expansion
+- LegalRanker
+- answer generation
+- citation verification
+
+## Request
+
+```bash
+curl -X POST http://localhost:8000/api/query \
+  -H "Content-Type: application/json" \
+  -d '{
+    "question": "Poate angajatorul sa-mi scada salariul fara act aditional?",
+    "jurisdiction": "RO",
+    "date": "current",
+    "mode": "strict_citations",
+    "debug": true
+  }'
+```
+
+## Response Excerpt
+
+```json
+{
+  "query_id": "9f8d85df-8d8b-59d5-b905-f76c351c7f10",
+  "question": "Poate angajatorul sa-mi scada salariul fara act aditional?",
+  "answer": {
+    "short_answer": "Phase 1 mock response only. No verified legal conclusion is provided; the evidence below is deterministic placeholder data for API contract testing.",
+    "detailed_answer": null,
+    "confidence": 0.0,
+    "not_legal_advice": true,
+    "refusal_reason": "mock_evidence_pack_not_verified"
+  },
+  "citations": [
+    {
+      "citation_id": "mock-citation-1",
+      "evidence_id": "mock-evidence-1",
+      "legal_unit_id": "mock:ro:codul-muncii:art-17",
+      "label": "Codul muncii art. 17 (mock, unverified)",
+      "quote": "Mock excerpt for art. 17. This placeholder was not retrieved from an official source.",
+      "source_url": null,
+      "verified": false
+    }
+  ],
+  "verifier": {
+    "groundedness_score": 0.0,
+    "claims_total": 0,
+    "claims_supported": 0,
+    "claims_weakly_supported": 0,
+    "claims_unsupported": 0,
+    "citations_checked": 0,
+    "verifier_passed": false,
+    "claim_results": [],
+    "warnings": [
+      "mock_unverified_evidence_pack: Phase 1 returns deterministic mock evidence only; retrieval, LegalRanker, generation, and citation verification have not run."
+    ],
+    "repair_applied": false,
+    "refusal_reason": "mock_evidence_pack_not_verified"
+  }
+}
+```
+
+When `debug` is `true`, the response includes a `debug` object with mock service
+counts and notes. When `debug` is `false`, `debug` is `null`.
