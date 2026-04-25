@@ -6,6 +6,7 @@ import math
 import time
 from collections.abc import Iterator
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable, Protocol, TypeVar
 
@@ -18,6 +19,7 @@ from ingestion.contracts import EmbeddingInputRecord
 
 ResumeKey = tuple[str, str, str]
 T = TypeVar("T")
+EMBEDDINGS_IMPORT_READINESS_VALIDATOR_VERSION = "h07.phase5.import_readiness.v1"
 EMBEDDING_OUTPUT_REQUIRED_FIELDS = (
     "record_id",
     "chunk_id",
@@ -109,6 +111,28 @@ class EmbeddingInputOutputValidationSummary(BaseModel):
     law_ids: list[str] = Field(default_factory=list)
     warnings: list[str] = Field(default_factory=list)
     errors: list[str] = Field(default_factory=list)
+
+
+class EmbeddingsImportReadinessManifest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    input_path: str
+    output_path: str
+    model_name: str
+    embedding_dim: int
+    input_read_count: int
+    output_read_count: int
+    embeddable_input_count: int
+    matched_output_count: int
+    missing_output_count: int
+    orphan_output_count: int
+    law_ids: list[str] = Field(default_factory=list)
+    model_names: list[str] = Field(default_factory=list)
+    embedding_dims: list[int] = Field(default_factory=list)
+    ready_for_pgvector_import: bool
+    validated_at: str
+    validator_version: str
+    warnings: list[str] = Field(default_factory=list)
 
 
 class EmbeddingProvider(Protocol):
@@ -565,6 +589,56 @@ def validate_embeddings_pair(
     return summary
 
 
+def build_embeddings_import_manifest(
+    *,
+    input_path: str | Path,
+    output_path: str | Path,
+    expected_model: str,
+    expected_dim: int,
+    manifest_path: str | Path | None = None,
+) -> EmbeddingsImportReadinessManifest:
+    if not expected_model.strip():
+        raise ValueError("expected_model must be non-empty")
+    if expected_dim <= 0:
+        raise ValueError("expected_dim must be greater than 0")
+
+    summary = validate_embeddings_pair(
+        input_path,
+        output_path,
+        expected_model=expected_model,
+        expected_dim=expected_dim,
+        require_all_inputs=True,
+        strict=True,
+    )
+    manifest = EmbeddingsImportReadinessManifest(
+        input_path=str(Path(input_path)),
+        output_path=str(Path(output_path)),
+        model_name=expected_model,
+        embedding_dim=expected_dim,
+        input_read_count=summary.input_read_count,
+        output_read_count=summary.output_read_count,
+        embeddable_input_count=summary.embeddable_input_count,
+        matched_output_count=summary.matched_output_count,
+        missing_output_count=summary.missing_output_count,
+        orphan_output_count=summary.orphan_output_count,
+        law_ids=summary.law_ids,
+        model_names=summary.model_names,
+        embedding_dims=summary.embedding_dims,
+        ready_for_pgvector_import=True,
+        validated_at=_utc_now_iso_z(),
+        validator_version=EMBEDDINGS_IMPORT_READINESS_VALIDATOR_VERSION,
+        warnings=summary.warnings,
+    )
+    if manifest_path is not None:
+        resolved_manifest_path = Path(manifest_path)
+        resolved_manifest_path.parent.mkdir(parents=True, exist_ok=True)
+        resolved_manifest_path.write_text(
+            json.dumps(manifest.model_dump(), ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
+        )
+    return manifest
+
+
 def write_embedding_output_jsonl(
     records: list[EmbeddingOutputRecord],
     path: str | Path,
@@ -779,6 +853,10 @@ def _valid_output_embedding_dim(
         errors.append(f"{record_label}: embedding_dim must be a positive integer")
         return None
     return embedding_dim
+
+
+def _utc_now_iso_z() -> str:
+    return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
 
 def _record_log_context(record: EmbeddingInputRecord, embedding_text_length: int) -> str:
