@@ -149,14 +149,20 @@ def text_cleanliness_score(texts: list[str]) -> float:
     return round((len(texts) - dirty_count) / len(texts), 4)
 
 
+def _is_live_tag(tag: Tag) -> bool:
+    return isinstance(tag, Tag) and tag.name is not None and tag.attrs is not None
+
+
 def _remove_noise_blocks(soup: BeautifulSoup) -> int:
     removed = 0
     for tag in list(soup.find_all(NON_TEXT_TAGS | ALWAYS_DROP_TAGS)):
+        if not _is_live_tag(tag):
+            continue
         tag.decompose()
         removed += 1
 
     for tag in list(soup.find_all(True)):
-        if not isinstance(tag, Tag):
+        if not _is_live_tag(tag):
             continue
         if tag.name in {"header", "footer"} and _is_navigation_like(tag):
             tag.decompose()
@@ -171,7 +177,7 @@ def _remove_noise_blocks(soup: BeautifulSoup) -> int:
 def _select_legal_container(soup: BeautifulSoup) -> tuple[Tag | None, str | None]:
     candidates: list[tuple[int, Tag, str]] = []
     for tag in soup.find_all(True):
-        if not isinstance(tag, Tag):
+        if not _is_live_tag(tag):
             continue
         if tag.name not in CONTAINER_TAGS:
             continue
@@ -187,6 +193,8 @@ def _select_legal_container(soup: BeautifulSoup) -> tuple[Tag | None, str | None
 
 
 def _container_score(tag: Tag) -> int:
+    if not _is_live_tag(tag):
+        return 0
     attrs = _attribute_text(tag)
     text = tag.get_text("\n", strip=True)
     normalized_attrs = attrs.casefold()
@@ -212,6 +220,8 @@ def _container_score(tag: Tag) -> int:
 
 
 def _container_label(tag: Tag) -> str:
+    if not _is_live_tag(tag):
+        return "unknown"
     if tag.get("id"):
         return f"#{tag.get('id')}"
     classes = tag.get("class") or []
@@ -221,12 +231,16 @@ def _container_label(tag: Tag) -> str:
 
 
 def _has_navigation_attributes(tag: Tag) -> bool:
+    if not _is_live_tag(tag):
+        return False
     if tag.name in {"body", "main", "article"}:
         return False
     return bool(NAVIGATION_ATTRIBUTE_RE.search(_attribute_text(tag)))
 
 
 def _is_navigation_like(tag: Tag) -> bool:
+    if not _is_live_tag(tag):
+        return False
     attr_text = _attribute_text(tag)
     if NAVIGATION_ATTRIBUTE_RE.search(attr_text):
         return True
@@ -238,6 +252,8 @@ def _is_navigation_like(tag: Tag) -> bool:
 
 
 def _attribute_text(tag: Tag) -> str:
+    if not _is_live_tag(tag):
+        return ""
     values: list[str] = [tag.name or ""]
     for key in ("id", "class", "role", "aria-label", "title"):
         value = tag.get(key)
@@ -249,7 +265,11 @@ def _attribute_text(tag: Tag) -> str:
 
 
 def _unwrap_inline_tags(container: Tag) -> None:
+    if not _is_live_tag(container):
+        return
     for tag in list(container.find_all(INLINE_TAGS)):
+        if not _is_live_tag(tag):
+            continue
         tag.unwrap()
 
 
