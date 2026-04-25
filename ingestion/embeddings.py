@@ -18,6 +18,25 @@ from ingestion.contracts import EmbeddingInputRecord
 
 ResumeKey = tuple[str, str, str]
 T = TypeVar("T")
+EMBEDDING_OUTPUT_REQUIRED_FIELDS = (
+    "record_id",
+    "chunk_id",
+    "legal_unit_id",
+    "law_id",
+    "model_name",
+    "embedding_dim",
+    "text_hash",
+    "embedding",
+    "metadata",
+)
+EMBEDDING_OUTPUT_REQUIRED_STRING_FIELDS = (
+    "record_id",
+    "chunk_id",
+    "legal_unit_id",
+    "law_id",
+    "model_name",
+    "text_hash",
+)
 
 
 class EmbeddingOutputRecord(BaseModel):
@@ -54,6 +73,22 @@ class EmbeddingJobSummary(BaseModel):
     failed_count: int = 0
     embedding_dim: int | None = None
     warnings: list[str] = Field(default_factory=list)
+
+
+class EmbeddingOutputValidationSummary(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    read_count: int = 0
+    valid_count: int = 0
+    invalid_count: int = 0
+    duplicate_resume_key_count: int = 0
+    duplicate_record_id_count: int = 0
+    model_names: list[str] = Field(default_factory=list)
+    embedding_dims: list[int] = Field(default_factory=list)
+    law_ids: list[str] = Field(default_factory=list)
+    empty_metadata_count: int = 0
+    warnings: list[str] = Field(default_factory=list)
+    errors: list[str] = Field(default_factory=list)
 
 
 class EmbeddingProvider(Protocol):
@@ -238,6 +273,155 @@ def load_embedding_output_jsonl(path: str | Path) -> list[EmbeddingOutputRecord]
                 f"{resolved_path}:{line_number} invalid EmbeddingOutputRecord"
             ) from exc
     return records
+
+
+def validate_embeddings_output(
+    output_path: str | Path,
+    *,
+    expected_model: str | None = None,
+    expected_dim: int | None = None,
+    require_unique_resume_keys: bool = True,
+    require_unique_record_ids: bool = False,
+    strict: bool = True,
+) -> EmbeddingOutputValidationSummary:
+    if expected_model is not None and not expected_model.strip():
+        raise ValueError("expected_model must be non-empty when provided")
+    if expected_dim is not None and expected_dim <= 0:
+        raise ValueError("expected_dim must be greater than 0")
+
+    resolved_path = Path(output_path)
+    errors: list[str] = []
+    warnings: list[str] = []
+    model_names: set[str] = set()
+    embedding_dims: set[int] = set()
+    law_ids: set[str] = set()
+    seen_resume_keys: set[ResumeKey] = set()
+    seen_record_ids: set[str] = set()
+    read_count = 0
+    valid_count = 0
+    invalid_count = 0
+    duplicate_resume_key_count = 0
+    duplicate_record_id_count = 0
+    empty_metadata_count = 0
+
+    for line_number, line in enumerate(
+        resolved_path.read_text(encoding="utf-8").splitlines(),
+        start=1,
+    ):
+        if not line.strip():
+            continue
+        read_count += 1
+        record_errors: list[str] = []
+        try:
+            value = json.loads(line)
+        except json.JSONDecodeError:
+            invalid_count += 1
+            errors.append(f"line {line_number}: invalid JSON")
+            continue
+        if not isinstance(value, dict):
+            invalid_count += 1
+            errors.append(f"line {line_number}: record must be a JSON object")
+            continue
+
+        record_label = _output_record_label(value, line_number)
+        for field in EMBEDDING_OUTPUT_REQUIRED_FIELDS:
+            if field not in value:
+                record_errors.append(f"{record_label}: missing required field {field}")
+
+        valid_strings: dict[str, str] = {}
+        for field in EMBEDDING_OUTPUT_REQUIRED_STRING_FIELDS:
+            if field not in value:
+                continue
+            field_value = value[field]
+            if not isinstance(field_value, str) or not field_value.strip():
+                record_errors.append(
+                    f"{record_label}: field {field} must be a non-empty string"
+                )
+            else:
+                valid_strings[field] = field_value
+
+        embedding_dim = _valid_output_embedding_dim(value, record_label, record_errors)
+        if embedding_dim is not None:
+            embedding_dims.add(embedding_dim)
+            if expected_dim is not None and embedding_dim != expected_dim:
+                record_errors.append(
+                    f"{record_label}: expected_dim mismatch: expected {expected_dim}, "
+                    f"got {embedding_dim}"
+                )
+
+        model_name = valid_strings.get("model_name")
+        if model_name is not None:
+            model_names.add(model_name)
+            if expected_model is not None and model_name != expected_model:
+                record_errors.append(
+                    f"{record_label}: expected_model mismatch: expected {expected_model}, "
+                    f"got {model_name}"
+                )
+        law_id = valid_strings.get("law_id")
+        if law_id is not None:
+            law_ids.add(law_id)
+
+        if "embedding" in value:
+            try:
+                validate_embedding_vector(value["embedding"], expected_dim=embedding_dim)
+            except ValueError as exc:
+                record_errors.append(f"{record_label}: invalid embedding vector: {exc}")
+
+        if "metadata" in value:
+            if not isinstance(value["metadata"], dict):
+                record_errors.append(f"{record_label}: metadata must be a JSON object")
+            elif not value["metadata"]:
+                empty_metadata_count += 1
+
+        record_id = valid_strings.get("record_id")
+        text_hash = valid_strings.get("text_hash")
+        if record_id is not None:
+            if record_id in seen_record_ids:
+                duplicate_record_id_count += 1
+                duplicate_message = f"{record_label}: duplicate record_id {record_id}"
+                if require_unique_record_ids:
+                    record_errors.append(duplicate_message)
+                else:
+                    warnings.append(duplicate_message)
+            seen_record_ids.add(record_id)
+
+        if record_id is not None and text_hash is not None and model_name is not None:
+            resume_key = (record_id, text_hash, model_name)
+            if resume_key in seen_resume_keys:
+                duplicate_resume_key_count += 1
+                if require_unique_resume_keys:
+                    record_errors.append(f"{record_label}: duplicate resume key")
+            seen_resume_keys.add(resume_key)
+
+        if record_errors:
+            invalid_count += 1
+            errors.extend(record_errors)
+        else:
+            valid_count += 1
+
+    summary = EmbeddingOutputValidationSummary(
+        read_count=read_count,
+        valid_count=valid_count,
+        invalid_count=invalid_count,
+        duplicate_resume_key_count=duplicate_resume_key_count,
+        duplicate_record_id_count=duplicate_record_id_count,
+        model_names=sorted(model_names),
+        embedding_dims=sorted(embedding_dims),
+        law_ids=sorted(law_ids),
+        empty_metadata_count=empty_metadata_count,
+        warnings=warnings,
+        errors=errors,
+    )
+    if strict and errors:
+        preview = "; ".join(errors[:5])
+        remaining = len(errors) - min(len(errors), 5)
+        suffix = f"; ... {remaining} more" if remaining else ""
+        raise ValueError(
+            "embedding output validation failed: "
+            f"invalid_count={invalid_count}, error_count={len(errors)}; "
+            f"{preview}{suffix}"
+        )
+    return summary
 
 
 def write_embedding_output_jsonl(
@@ -430,6 +614,30 @@ def _validate_embedding_input_record(value: dict[str, Any]) -> EmbeddingInputRec
         record = EmbeddingInputRecord.model_validate(validation_value)
         return record.model_copy(update={"embedding_text": ""})
     return EmbeddingInputRecord.model_validate(value)
+
+
+def _output_record_label(value: dict[str, Any], line_number: int) -> str:
+    record_id = value.get("record_id")
+    if isinstance(record_id, str) and record_id.strip():
+        return f"line {line_number} record_id={record_id}"
+    return f"line {line_number}"
+
+
+def _valid_output_embedding_dim(
+    value: dict[str, Any],
+    record_label: str,
+    errors: list[str],
+) -> int | None:
+    if "embedding_dim" not in value:
+        return None
+    embedding_dim = value["embedding_dim"]
+    if isinstance(embedding_dim, bool) or not isinstance(embedding_dim, int):
+        errors.append(f"{record_label}: embedding_dim must be a positive integer")
+        return None
+    if embedding_dim <= 0:
+        errors.append(f"{record_label}: embedding_dim must be a positive integer")
+        return None
+    return embedding_dim
 
 
 def _record_log_context(record: EmbeddingInputRecord, embedding_text_length: int) -> str:

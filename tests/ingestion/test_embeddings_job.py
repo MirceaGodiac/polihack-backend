@@ -284,7 +284,7 @@ def test_openai_compatible_provider_posts_to_embeddings_with_body():
         sleep_func=lambda delay: None,
     )
 
-    embeddings = provider.embed_texts(["retrieval text"], "Qwen/Qwen3-Embedding-0.6B")
+    embeddings = provider.embed_texts(["retrieval text"], "Qwen/Qwen3-Embedding-4B")
 
     assert embeddings == [[0.1, 0.2]]
     assert len(requests) == 1
@@ -294,7 +294,7 @@ def test_openai_compatible_provider_posts_to_embeddings_with_body():
     assert request.headers["content-type"] == "application/json"
     body = json.loads(request.content.decode("utf-8"))
     assert body == {
-        "model": "Qwen/Qwen3-Embedding-0.6B",
+        "model": "Qwen/Qwen3-Embedding-4B",
         "input": ["retrieval text"],
     }
 
@@ -607,7 +607,7 @@ def test_http_provider_end_to_end_writes_chunk_output_and_uses_embedding_text(tm
         input_path=input_path,
         output_path=output_path,
         provider=provider,
-        model_name="Qwen/Qwen3-Embedding-0.6B",
+        model_name="Qwen/Qwen3-Embedding-4B",
         expected_dim=2,
     )
 
@@ -619,7 +619,7 @@ def test_http_provider_end_to_end_writes_chunk_output_and_uses_embedding_text(tm
     assert output_record["legal_unit_id"] == input_record["legal_unit_id"]
     assert output_record["law_id"] == input_record["law_id"]
     assert output_record["text_hash"] == input_record["text_hash"]
-    assert output_record["model_name"] == "Qwen/Qwen3-Embedding-0.6B"
+    assert output_record["model_name"] == "Qwen/Qwen3-Embedding-4B"
     assert output_record["embedding_dim"] == 2
     assert output_record["embedding"] == [0.7, 0.8]
     assert "unit_id" not in output_record
