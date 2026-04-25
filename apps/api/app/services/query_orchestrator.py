@@ -2,6 +2,7 @@ from uuid import NAMESPACE_URL, uuid5
 
 from ..schemas import QueryDebugData, QueryRequest, QueryResponse
 from .graph_expansion_policy import GraphExpansionPolicy
+from .legal_ranker import LegalRanker
 from .mock_evidence import MockEvidenceService
 from .query_understanding import QueryUnderstanding
 from .raw_retriever_client import RawRetrieverClient
@@ -14,6 +15,7 @@ class QueryOrchestrator:
         query_understanding: QueryUnderstanding | None = None,
         raw_retriever_client: RawRetrieverClient | None = None,
         graph_expansion_policy: GraphExpansionPolicy | None = None,
+        legal_ranker: LegalRanker | None = None,
     ) -> None:
         self.evidence_service = evidence_service or MockEvidenceService()
         self.query_understanding = query_understanding or QueryUnderstanding()
@@ -21,6 +23,7 @@ class QueryOrchestrator:
         self.graph_expansion_policy = (
             graph_expansion_policy or GraphExpansionPolicy()
         )
+        self.legal_ranker = legal_ranker or LegalRanker()
 
     async def run(self, request: QueryRequest) -> QueryResponse:
         query_id = self._query_id(request)
@@ -35,6 +38,13 @@ class QueryOrchestrator:
             retrieval_response=raw_retrieval,
             debug=request.debug,
         )
+        legal_ranker = self.legal_ranker.rank(
+            question=request.question,
+            plan=query_plan,
+            retrieval_response=raw_retrieval,
+            graph_expansion=graph_expansion,
+            debug=request.debug,
+        )
         evidence_pack = await self.evidence_service.build_pack(request, query_id)
         debug = None
         if request.debug:
@@ -45,6 +55,7 @@ class QueryOrchestrator:
                 query_understanding=query_plan,
                 retrieval=raw_retrieval.debug,
                 graph_expansion=graph_expansion.debug,
+                legal_ranker=legal_ranker.debug,
                 evidence_units_count=len(evidence_pack.evidence_units),
                 citations_count=len(evidence_pack.citations),
                 graph_nodes_count=len(evidence_pack.graph.nodes),
@@ -65,6 +76,7 @@ class QueryOrchestrator:
                 evidence_pack.warnings
                 + raw_retrieval.warnings
                 + graph_expansion.warnings
+                + legal_ranker.warnings
             ),
         )
 

@@ -75,6 +75,12 @@ def test_post_api_query_debug_true_includes_debug_payload():
     assert "sanctions" in priorities
     assert "creates_obligation" in priorities
     assert "creates_prohibition" in priorities
+    legal_ranker = debug["legal_ranker"]
+    assert legal_ranker["fallback_used"] is True
+    assert legal_ranker["input_candidate_count"] == 0
+    assert legal_ranker["ranked_candidate_count"] == 0
+    assert legal_ranker["ranked_candidates"] == []
+    assert "legal_ranker_no_candidates" in legal_ranker["warnings"]
 
 
 def test_post_api_query_debug_false_returns_null_debug():
@@ -85,6 +91,7 @@ def test_post_api_query_debug_false_returns_null_debug():
     assert payload["debug"] is None
     assert "raw_retrieval_not_configured" in payload["warnings"]
     assert "graph_expansion_no_seed_candidates" in payload["warnings"]
+    assert "legal_ranker_no_candidates" in payload["warnings"]
 
 
 def test_post_api_query_debug_true_includes_exact_citations():
@@ -117,7 +124,9 @@ def test_post_api_query_debug_true_includes_exact_citations():
     assert payload["verifier"]["verifier_passed"] is False
     assert "raw_retrieval_not_configured" in payload["warnings"]
     assert "graph_expansion_no_seed_candidates" in payload["warnings"]
+    assert "legal_ranker_no_candidates" in payload["warnings"]
     assert payload["debug"]["graph_expansion"]["fallback_used"] is True
+    assert payload["debug"]["legal_ranker"]["fallback_used"] is True
 
 
 def test_handoff04_graph_endpoints_are_not_registered():
