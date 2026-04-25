@@ -1,8 +1,6 @@
-import importlib
 import json
 
-
-pipeline = importlib.import_module("scripts.run_parser_pipeline")
+import ingestion.pipeline as pipeline
 
 
 SAMPLE_LEGISLATIE_HTML = """
@@ -29,8 +27,8 @@ SAMPLE_LEGISLATIE_HTML = """
 """
 
 
-def test_run_pipeline_from_legislatie_url_exports_canonical_bundle(tmp_path, monkeypatch):
-    url = "https://legislatie.just.ro/Public/DetaliiDocument/123456"
+def test_run_pipeline_from_url_exports_canonical_bundle(tmp_path, monkeypatch):
+    url = "https://example.gov/Public/DetaliiDocument/123456"
     monkeypatch.setattr(pipeline, "scrape_html_source", lambda requested_url: SAMPLE_LEGISLATIE_HTML)
 
     result = pipeline.run_pipeline(
@@ -44,7 +42,7 @@ def test_run_pipeline_from_legislatie_url_exports_canonical_bundle(tmp_path, mon
 
     assert result.import_blocking_passed is True
     assert result.law_id == "ro.codul_muncii"
-    assert result.legacy_units_count >= 7
+    assert result.intermediate_units_count >= 7
     assert set(result.artifact_paths) == {
         "legal_units",
         "legal_edges",
@@ -94,7 +92,7 @@ def test_run_pipeline_from_legislatie_url_exports_canonical_bundle(tmp_path, mon
 
     manifest = json.loads(result.artifact_paths["corpus_manifest"].read_text(encoding="utf-8"))
     assert manifest["input_files"] == [url]
-    assert manifest["sources"][0]["source_type"] == "legislatie.just.ro_url"
+    assert manifest["sources"][0]["source_type"] == "url:example.gov"
     assert manifest["contextual_retrieval_enabled"] is True
 
     validation_report = json.loads(result.artifact_paths["validation_report"].read_text(encoding="utf-8"))
@@ -103,23 +101,36 @@ def test_run_pipeline_from_legislatie_url_exports_canonical_bundle(tmp_path, mon
 
     assert (tmp_path / "cleaned_lines.txt").exists()
     assert (tmp_path / "cleaner_report.json").exists()
-    assert (tmp_path / "legacy_units.json").exists()
+    assert (tmp_path / "intermediate_units.json").exists()
 
 
-def test_run_pipeline_rejects_non_legislatie_url(tmp_path, monkeypatch):
+def test_run_pipeline_accepts_non_legislatie_http_url(tmp_path, monkeypatch):
+    monkeypatch.setattr(pipeline, "scrape_html_source", lambda requested_url: SAMPLE_LEGISLATIE_HTML)
+
+    result = pipeline.run_pipeline(
+        url="https://example.com/Public/DetaliiDocument/123456",
+        out_dir=tmp_path,
+        law_id="ro.codul_muncii",
+        law_title="Codul muncii",
+    )
+
+    assert result.import_blocking_passed is True
+
+
+def test_run_pipeline_rejects_non_http_url(tmp_path, monkeypatch):
     monkeypatch.setattr(pipeline, "scrape_html_source", lambda requested_url: SAMPLE_LEGISLATIE_HTML)
 
     try:
         pipeline.run_pipeline(
-            url="https://example.com/Public/DetaliiDocument/123456",
+            url="file:///tmp/source.html",
             out_dir=tmp_path,
             law_id="ro.codul_muncii",
             law_title="Codul muncii",
         )
     except ValueError as exc:
-        assert "legislatie.just.ro" in str(exc)
+        assert "http or https" in str(exc)
     else:
-        raise AssertionError("Expected non-legislatie URL to be rejected")
+        raise AssertionError("Expected non-http URL to be rejected")
 
 
 def test_run_pipeline_can_infer_title_and_law_id_from_html(tmp_path, monkeypatch):

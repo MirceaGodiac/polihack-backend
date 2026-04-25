@@ -1,4 +1,4 @@
-from ingestion.parser.html_scraper import scrape_html_source
+from ingestion.html_scraper import scrape_html_source
 
 def test_scraper():
     test_url = "https://example.com"

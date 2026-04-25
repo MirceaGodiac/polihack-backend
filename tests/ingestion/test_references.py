@@ -1,6 +1,6 @@
 """
-tests/test_references.py
-------------------------
+tests/ingestion/test_references.py
+----------------------------------
 Tests for Phase 2: reference extraction and resolution.
 """
 

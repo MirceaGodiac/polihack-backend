@@ -238,6 +238,7 @@ class QueryDebugData(BaseModel):
     graph_expansion: dict[str, Any] | None = None
     legal_ranker: dict[str, Any] | None = None
     evidence_pack: dict[str, Any] | None = None
+    generation: dict[str, Any] | None = None
     evidence_units_count: int = Field(..., ge=0)
     citations_count: int = Field(..., ge=0)
     graph_nodes_count: int = Field(..., ge=0)

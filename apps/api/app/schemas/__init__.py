@@ -14,6 +14,11 @@ from .query import (
     QueryResponse,
     VerifierStatus,
 )
+from .generation import (
+    DraftAnswer,
+    DraftCitation,
+    GenerationConstraints,
+)
 from .graph import (
     ExpandedCandidate,
     GraphExpansionResult,
@@ -34,10 +39,13 @@ __all__ = [
     "AnswerPayload",
     "Citation",
     "ClaimResult",
+    "DraftAnswer",
+    "DraftCitation",
     "EvidenceUnit",
     "EvidencePackResult",
     "ExpandedCandidate",
     "ExactCitation",
+    "GenerationConstraints",
     "GraphExpansionResult",
     "GraphEdge",
     "GraphNode",

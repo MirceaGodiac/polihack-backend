@@ -1,6 +1,6 @@
 """
-tests/test_validation.py
-------------------------
+tests/ingestion/test_validation.py
+----------------------------------
 Tests for Phase 3: corpus validator and manifest generator.
 """
 
