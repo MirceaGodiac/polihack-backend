@@ -6,7 +6,8 @@
   "demo_path_passed": true,
   "units_count": 9,
   "edges_count": 8,
-  "chunks_count": 0,
+  "chunks_count": 9,
+  "embeddings_input_count": 9,
   "reference_candidates_count": 4,
   "blocking_errors": [],
   "quality_metrics": {
@@ -22,7 +23,12 @@
     "reference_resolution_rate": 0.0,
     "legal_domain_coverage": 1.0,
     "legal_concepts_coverage": 0.0,
-    "parser_warnings_rate": 1.0
+    "parser_warnings_rate": 1.0,
+    "chunk_coverage_rate": 1.0,
+    "retrieval_text_non_empty_rate": 1.0,
+    "context_coverage_rate": 1.0,
+    "chunk_text_fidelity_rate": 1.0,
+    "embedding_input_hash_integrity": 1.0
   },
   "validation_config": {
     "raw_text_non_empty_min_for_citable_units": 1.0,
@@ -33,6 +39,10 @@
     "reference_edge_min_confidence": 0.7,
     "text_cleanliness_blocking_min": 0.8,
     "source_url_demo_threshold": 0.8,
+    "chunk_coverage_min": 1.0,
+    "retrieval_text_non_empty_min": 1.0,
+    "chunk_text_fidelity_min": 1.0,
+    "embedding_input_hash_integrity_min": 1.0,
     "demo_law_id": "ro.codul_muncii",
     "demo_required_unit_ids": [
       "ro.codul_muncii",
@@ -57,11 +67,14 @@
     "codul_muncii_demo_path_validated"
   ],
   "warnings": [
+    "contextual_retrieval_context_derived_not_citable",
     "effective_date_unknown",
+    "embeddings_vectors_not_generated_in_p8",
     "legal_concepts_empty_for_most_units_by_v1_policy",
     "local_fixture_demo_sample_not_official_complete_text",
     "publication_date_unknown",
     "reference_candidates_extracted_unresolved",
+    "reference_candidates_used_as_unresolved_context_hints",
     "reference_resolution_deferred_to_later_phase",
     "reference_resolution_rate_informational_in_v1",
     "source_id_unknown",

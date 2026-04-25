@@ -1,0 +1,269 @@
+[
+  {
+    "chunk_id": "chunk.ro.codul_muncii.0",
+    "legal_unit_id": "ro.codul_muncii",
+    "legal_unit_ids": [
+      "ro.codul_muncii"
+    ],
+    "chunk_type": "legal_unit",
+    "chunk_version": "v1",
+    "law_id": "ro.codul_muncii",
+    "law_title": "Codul muncii",
+    "legal_domain": "munca",
+    "hierarchy_path": [
+      "Legislatia Romaniei",
+      "Munca",
+      "Codul muncii"
+    ],
+    "article_number": null,
+    "paragraph_number": null,
+    "letter_number": null,
+    "point_number": null,
+    "text": "Codul muncii",
+    "raw_text": "Codul muncii",
+    "normalized_text": "Unitate din Codul muncii, domeniul munca. Context ierarhic: Legislatia Romaniei > Munca > Codul muncii. Codul muncii",
+    "retrieval_context": "Unitate din Codul muncii, domeniul munca.\nContext ierarhic: Legislatia Romaniei > Munca > Codul muncii.",
+    "retrieval_text": "Unitate din Codul muncii, domeniul munca.\nContext ierarhic: Legislatia Romaniei > Munca > Codul muncii.\n\nCodul muncii",
+    "context_sources": [
+      "hierarchy_path",
+      "law_title",
+      "legal_domain"
+    ],
+    "context_generation_method": "deterministic_v1",
+    "context_confidence": 0.9,
+    "embedding_text": "Unitate din Codul muncii, domeniul munca.\nContext ierarhic: Legislatia Romaniei > Munca > Codul muncii.\n\nCodul muncii",
+    "source_url": null,
+    "source_id": null,
+    "text_hash": "981862b20a7264c0b6bb49f8337cebe15f11af4b2c319ecb4b19f0d7816eecfd",
+    "metadata": {
+      "retrieval_context_is_citable": false,
+      "text_source": "LegalUnit.raw_text"
+    }
+  },
+  {
+    "chunk_id": "chunk.ro.codul_muncii.art_17.0",
+    "legal_unit_id": "ro.codul_muncii.art_17",
+    "legal_unit_ids": [
+      "ro.codul_muncii.art_17"
+    ],
+    "chunk_type": "legal_unit",
+    "chunk_version": "v1",
+    "law_id": "ro.codul_muncii",
+    "law_title": "Codul muncii",
+    "legal_domain": "munca",
+    "hierarchy_path": [
+      "Legislatia Romaniei",
+      "Munca",
+      "Codul muncii",
+      "Art. 17"
+    ],
+    "article_number": "17",
+    "paragraph_number": null,
+    "letter_number": null,
+    "point_number": null,
+    "text": "Art. 17\nAnterior incheierii contractului individual de munca.",
+    "raw_text": "Art. 17\nAnterior incheierii contractului individual de munca.",
+    "normalized_text": "Unitate din Codul muncii, domeniul munca. Localizare: Art. 17. Context ierarhic: Legislatia Romaniei > Munca > Codul muncii > Art. 17. Art. 17 Anterior incheierii contractului individual de munca.",
+    "retrieval_context": "Unitate din Codul muncii, domeniul munca.\nLocalizare: Art. 17.\nContext ierarhic: Legislatia Romaniei > Munca > Codul muncii > Art. 17.",
+    "retrieval_text": "Unitate din Codul muncii, domeniul munca.\nLocalizare: Art. 17.\nContext ierarhic: Legislatia Romaniei > Munca > Codul muncii > Art. 17.\n\nArt. 17\nAnterior incheierii contractului individual de munca.",
+    "context_sources": [
+      "article_number",
+      "hierarchy_path",
+      "law_title",
+      "legal_domain"
+    ],
+    "context_generation_method": "deterministic_v1",
+    "context_confidence": 0.9,
+    "embedding_text": "Unitate din Codul muncii, domeniul munca.\nLocalizare: Art. 17.\nContext ierarhic: Legislatia Romaniei > Munca > Codul muncii > Art. 17.\n\nArt. 17\nAnterior incheierii contractului individual de munca.",
+    "source_url": null,
+    "source_id": null,
+    "text_hash": "ddd02f23cb5405f35f0e31f6c3daf8bfddde0e068e1063fc1853a0fd8f8ec8f2",
+    "metadata": {
+      "retrieval_context_is_citable": false,
+      "text_source": "LegalUnit.raw_text"
+    }
+  },
+  {
+    "chunk_id": "chunk.ro.codul_muncii.art_17.alin_3.0",
+    "legal_unit_id": "ro.codul_muncii.art_17.alin_3",
+    "legal_unit_ids": [
+      "ro.codul_muncii.art_17.alin_3"
+    ],
+    "chunk_type": "legal_unit",
+    "chunk_version": "v1",
+    "law_id": "ro.codul_muncii",
+    "law_title": "Codul muncii",
+    "legal_domain": "munca",
+    "hierarchy_path": [
+      "Legislatia Romaniei",
+      "Munca",
+      "Codul muncii",
+      "Art. 17",
+      "Alin. (3)"
+    ],
+    "article_number": "17",
+    "paragraph_number": "3",
+    "letter_number": null,
+    "point_number": null,
+    "text": "(3) Persoana selectata va fi informata cu privire la:",
+    "raw_text": "(3) Persoana selectata va fi informata cu privire la:",
+    "normalized_text": "Unitate din Codul muncii, domeniul munca. Localizare: Art. 17, Alin. (3). Context ierarhic: Legislatia Romaniei > Munca > Codul muncii > Art. 17 > Alin. (3). Unitate parinte: Art. 17. (3) Persoana selectata va fi informata cu privire la:",
+    "retrieval_context": "Unitate din Codul muncii, domeniul munca.\nLocalizare: Art. 17, Alin. (3).\nContext ierarhic: Legislatia Romaniei > Munca > Codul muncii > Art. 17 > Alin. (3).\nUnitate parinte: Art. 17.",
+    "retrieval_text": "Unitate din Codul muncii, domeniul munca.\nLocalizare: Art. 17, Alin. (3).\nContext ierarhic: Legislatia Romaniei > Munca > Codul muncii > Art. 17 > Alin. (3).\nUnitate parinte: Art. 17.\n\n(3) Persoana selectata va fi informata cu privire la:",
+    "context_sources": [
+      "article_number",
+      "hierarchy_path",
+      "law_title",
+      "legal_domain",
+      "paragraph_number",
+      "parent_unit_metadata"
+    ],
+    "context_generation_method": "deterministic_v1",
+    "context_confidence": 0.9,
+    "embedding_text": "Unitate din Codul muncii, domeniul munca.\nLocalizare: Art. 17, Alin. (3).\nContext ierarhic: Legislatia Romaniei > Munca > Codul muncii > Art. 17 > Alin. (3).\nUnitate parinte: Art. 17.\n\n(3) Persoana selectata va fi informata cu privire la:",
+    "source_url": null,
+    "source_id": null,
+    "text_hash": "1736ed29ea075b5125a23ecaebe93c1121d166050d7cbc237b0ab9bdc936b777",
+    "metadata": {
+      "retrieval_context_is_citable": false,
+      "text_source": "LegalUnit.raw_text"
+    }
+  },
+  {
+    "chunk_id": "chunk.ro.codul_muncii.art_17.alin_3.lit_k.0",
+    "legal_unit_id": "ro.codul_muncii.art_17.alin_3.lit_k",
+    "legal_unit_ids": [
+      "ro.codul_muncii.art_17.alin_3.lit_k"
+    ],
+    "chunk_type": "legal_unit",
+    "chunk_version": "v1",
+    "law_id": "ro.codul_muncii",
+    "law_title": "Codul muncii",
+    "legal_domain": "munca",
+    "hierarchy_path": [
+      "Legislatia Romaniei",
+      "Munca",
+      "Codul muncii",
+      "Art. 17",
+      "Alin. (3)",
+      "Lit. k)"
+    ],
+    "article_number": "17",
+    "paragraph_number": "3",
+    "letter_number": "k",
+    "point_number": null,
+    "text": "k) durata perioadei de proba.",
+    "raw_text": "k) durata perioadei de proba.",
+    "normalized_text": "Unitate din Codul muncii, domeniul munca. Localizare: Art. 17, Alin. (3), Lit. k). Context ierarhic: Legislatia Romaniei > Munca > Codul muncii > Art. 17 > Alin. (3) > Lit. k). Unitate parinte: Art. 17, Alin. (3). k) durata perioadei de proba.",
+    "retrieval_context": "Unitate din Codul muncii, domeniul munca.\nLocalizare: Art. 17, Alin. (3), Lit. k).\nContext ierarhic: Legislatia Romaniei > Munca > Codul muncii > Art. 17 > Alin. (3) > Lit. k).\nUnitate parinte: Art. 17, Alin. (3).",
+    "retrieval_text": "Unitate din Codul muncii, domeniul munca.\nLocalizare: Art. 17, Alin. (3), Lit. k).\nContext ierarhic: Legislatia Romaniei > Munca > Codul muncii > Art. 17 > Alin. (3) > Lit. k).\nUnitate parinte: Art. 17, Alin. (3).\n\nk) durata perioadei de proba.",
+    "context_sources": [
+      "article_number",
+      "hierarchy_path",
+      "law_title",
+      "legal_domain",
+      "letter_number",
+      "paragraph_number",
+      "parent_unit_metadata"
+    ],
+    "context_generation_method": "deterministic_v1",
+    "context_confidence": 0.9,
+    "embedding_text": "Unitate din Codul muncii, domeniul munca.\nLocalizare: Art. 17, Alin. (3), Lit. k).\nContext ierarhic: Legislatia Romaniei > Munca > Codul muncii > Art. 17 > Alin. (3) > Lit. k).\nUnitate parinte: Art. 17, Alin. (3).\n\nk) durata perioadei de proba.",
+    "source_url": null,
+    "source_id": null,
+    "text_hash": "6970d83fa3b95905a18a26fae2fa8c8c83e15db9573206f74ead70b56b9f3dce",
+    "metadata": {
+      "retrieval_context_is_citable": false,
+      "text_source": "LegalUnit.raw_text"
+    }
+  },
+  {
+    "chunk_id": "chunk.ro.codul_muncii.art_41.0",
+    "legal_unit_id": "ro.codul_muncii.art_41",
+    "legal_unit_ids": [
+      "ro.codul_muncii.art_41"
+    ],
+    "chunk_type": "legal_unit",
+    "chunk_version": "v1",
+    "law_id": "ro.codul_muncii",
+    "law_title": "Codul muncii",
+    "legal_domain": "munca",
+    "hierarchy_path": [
+      "Legislatia Romaniei",
+      "Munca",
+      "Codul muncii",
+      "Art. 41"
+    ],
+    "article_number": "41",
+    "paragraph_number": null,
+    "letter_number": null,
+    "point_number": null,
+    "text": "Art. 41\nDreptul la munca nu poate fi ingradit.",
+    "raw_text": "Art. 41\nDreptul la munca nu poate fi ingradit.",
+    "normalized_text": "Unitate din Codul muncii, domeniul munca. Localizare: Art. 41. Context ierarhic: Legislatia Romaniei > Munca > Codul muncii > Art. 41. Art. 41 Dreptul la munca nu poate fi ingradit.",
+    "retrieval_context": "Unitate din Codul muncii, domeniul munca.\nLocalizare: Art. 41.\nContext ierarhic: Legislatia Romaniei > Munca > Codul muncii > Art. 41.",
+    "retrieval_text": "Unitate din Codul muncii, domeniul munca.\nLocalizare: Art. 41.\nContext ierarhic: Legislatia Romaniei > Munca > Codul muncii > Art. 41.\n\nArt. 41\nDreptul la munca nu poate fi ingradit.",
+    "context_sources": [
+      "article_number",
+      "hierarchy_path",
+      "law_title",
+      "legal_domain"
+    ],
+    "context_generation_method": "deterministic_v1",
+    "context_confidence": 0.9,
+    "embedding_text": "Unitate din Codul muncii, domeniul munca.\nLocalizare: Art. 41.\nContext ierarhic: Legislatia Romaniei > Munca > Codul muncii > Art. 41.\n\nArt. 41\nDreptul la munca nu poate fi ingradit.",
+    "source_url": null,
+    "source_id": null,
+    "text_hash": "e726956cd043de95d66488955272bf5bf45b773f90fdaea67f394c237107fcc3",
+    "metadata": {
+      "retrieval_context_is_citable": false,
+      "text_source": "LegalUnit.raw_text"
+    }
+  },
+  {
+    "chunk_id": "chunk.ro.codul_muncii.art_41.alin_1.0",
+    "legal_unit_id": "ro.codul_muncii.art_41.alin_1",
+    "legal_unit_ids": [
+      "ro.codul_muncii.art_41.alin_1"
+    ],
+    "chunk_type": "legal_unit",
+    "chunk_version": "v1",
+    "law_id": "ro.codul_muncii",
+    "law_title": "Codul muncii",
+    "legal_domain": "munca",
+    "hierarchy_path": [
+      "Legislatia Romaniei",
+      "Munca",
+      "Codul muncii",
+      "Art. 41",
+      "Alin. (1)"
+    ],
+    "article_number": "41",
+    "paragraph_number": "1",
+    "letter_number": null,
+    "point_number": null,
+    "text": "(1) Dreptul la munca este garantat.",
+    "raw_text": "(1) Dreptul la munca este garantat.",
+    "normalized_text": "Unitate din Codul muncii, domeniul munca. Localizare: Art. 41, Alin. (1). Context ierarhic: Legislatia Romaniei > Munca > Codul muncii > Art. 41 > Alin. (1). Unitate parinte: Art. 41. (1) Dreptul la munca este garantat.",
+    "retrieval_context": "Unitate din Codul muncii, domeniul munca.\nLocalizare: Art. 41, Alin. (1).\nContext ierarhic: Legislatia Romaniei > Munca > Codul muncii > Art. 41 > Alin. (1).\nUnitate parinte: Art. 41.",
+    "retrieval_text": "Unitate din Codul muncii, domeniul munca.\nLocalizare: Art. 41, Alin. (1).\nContext ierarhic: Legislatia Romaniei > Munca > Codul muncii > Art. 41 > Alin. (1).\nUnitate parinte: Art. 41.\n\n(1) Dreptul la munca este garantat.",
+    "context_sources": [
+      "article_number",
+      "hierarchy_path",
+      "law_title",
+      "legal_domain",
+      "paragraph_number",
+      "parent_unit_metadata"
+    ],
+    "context_generation_method": "deterministic_v1",
+    "context_confidence": 0.9,
+    "embedding_text": "Unitate din Codul muncii, domeniul munca.\nLocalizare: Art. 41, Alin. (1).\nContext ierarhic: Legislatia Romaniei > Munca > Codul muncii > Art. 41 > Alin. (1).\nUnitate parinte: Art. 41.\n\n(1) Dreptul la munca este garantat.",
+    "source_url": null,
+    "source_id": null,
+    "text_hash": "cd4f0f7aa3c20f555c9f72fca60a6fd82ad0143182106441084abef8da68ee99",
+    "metadata": {
+      "retrieval_context_is_citable": false,
+      "text_source": "LegalUnit.raw_text"
+    }
+  }
+]

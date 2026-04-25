@@ -9,6 +9,13 @@ from typing import Any, Mapping
 
 from pydantic import BaseModel
 
+from ingestion.chunks import (
+    CONTEXT_GENERATION_METHOD,
+    build_embedding_input_records,
+    build_legal_chunks,
+    contains_hardcoded_interpretation,
+    stable_text_hash,
+)
 from ingestion.contracts import ParserActMetadata, ParsedLegalUnit
 from ingestion.html_cleaner import navigation_residue_count, text_cleanliness_score
 from ingestion.legal_domains import get_registered_legal_domain
@@ -28,6 +35,8 @@ DEFAULT_GENERATED_AT = "1970-01-01T00:00:00+00:00"
 CANONICAL_BUNDLE_FILENAMES = {
     "legal_units": "legal_units.json",
     "legal_edges": "legal_edges.json",
+    "legal_chunks": "legal_chunks.json",
+    "embeddings_input": "embeddings_input.jsonl",
     "corpus_manifest": "corpus_manifest.json",
     "validation_report": "validation_report.json",
     "reference_candidates": "reference_candidates.json",
@@ -55,6 +64,10 @@ DEFAULT_VALIDATION_CONFIG: dict[str, Any] = {
     "reference_edge_min_confidence": 0.70,
     "text_cleanliness_blocking_min": 0.80,
     "source_url_demo_threshold": 0.80,
+    "chunk_coverage_min": 1.0,
+    "retrieval_text_non_empty_min": 1.0,
+    "chunk_text_fidelity_min": 1.0,
+    "embedding_input_hash_integrity_min": 1.0,
     "demo_law_id": "ro.codul_muncii",
     "demo_required_unit_ids": [
         "ro.codul_muncii",
@@ -237,10 +250,14 @@ def build_canonical_bundle(
         else extract_references_from_units(legal_units)
     )
     exported_reference_candidates = _export_reference_candidates(extracted_reference_candidates)
+    legal_chunks = build_legal_chunks(legal_units, exported_reference_candidates)
+    embeddings_input = build_embedding_input_records(legal_chunks)
     validation_report = build_canonical_validation_report(
         legal_units,
         legal_edges,
         exported_reference_candidates,
+        legal_chunks,
+        embeddings_input,
         parser_version=parser_version,
         additional_warnings=additional_warnings,
     )
@@ -249,6 +266,8 @@ def build_canonical_bundle(
             "legal_units": legal_units,
             "legal_edges": legal_edges,
             "reference_candidates": exported_reference_candidates,
+            "legal_chunks": legal_chunks,
+            "embeddings_input": embeddings_input,
             "validation_report": validation_report,
         }
     )
@@ -257,6 +276,8 @@ def build_canonical_bundle(
         legal_units,
         legal_edges,
         exported_reference_candidates,
+        legal_chunks,
+        embeddings_input,
         validation_report,
         parser_version=parser_version,
         generated_at=generated_at,
@@ -268,6 +289,8 @@ def build_canonical_bundle(
     return {
         "legal_units": legal_units,
         "legal_edges": legal_edges,
+        "legal_chunks": legal_chunks,
+        "embeddings_input": embeddings_input,
         "corpus_manifest": corpus_manifest,
         "validation_report": validation_report,
         "reference_candidates": exported_reference_candidates,
@@ -304,7 +327,10 @@ def export_canonical_bundle(
         for artifact, filename in CANONICAL_BUNDLE_FILENAMES.items()
     }
     for artifact, path in paths.items():
-        _write_json(bundle[artifact], path)
+        if artifact == "embeddings_input":
+            _write_jsonl(bundle[artifact], path)
+        else:
+            _write_json(bundle[artifact], path)
     return paths
 
 
@@ -313,6 +339,8 @@ def build_canonical_corpus_manifest(
     legal_units: list[dict[str, Any]],
     legal_edges: list[dict[str, Any]],
     reference_candidates: list[dict[str, Any]],
+    legal_chunks: list[dict[str, Any]],
+    embeddings_input: list[dict[str, Any]],
     validation_report: dict[str, Any],
     *,
     parser_version: str,
@@ -337,7 +365,11 @@ def build_canonical_corpus_manifest(
         "source_count": len(sources),
         "units_count": len(legal_units),
         "edges_count": len(legal_edges),
+        "chunks_count": len(legal_chunks),
+        "embeddings_input_count": len(embeddings_input),
         "reference_candidates_count": len(reference_candidates),
+        "contextual_retrieval_enabled": True,
+        "context_generation_method": CONTEXT_GENERATION_METHOD,
         "input_files": sorted(input_files),
         "sources": sources,
         "files": dict(CANONICAL_BUNDLE_FILENAMES),
@@ -348,7 +380,11 @@ def build_canonical_corpus_manifest(
                 "parser_version": parser_version,
                 "units_count": len(legal_units),
                 "edges_count": len(legal_edges),
+                "chunks_count": len(legal_chunks),
+                "embeddings_input_count": len(embeddings_input),
                 "reference_candidates_count": len(reference_candidates),
+                "contextual_retrieval_enabled": True,
+                "context_generation_method": CONTEXT_GENERATION_METHOD,
                 "content_hash": content_hash,
             }
         ),
@@ -360,14 +396,21 @@ def build_canonical_validation_report(
     legal_units: list[dict[str, Any]],
     legal_edges: list[dict[str, Any]],
     reference_candidates: list[dict[str, Any]],
+    legal_chunks: list[dict[str, Any]] | None = None,
+    embeddings_input: list[dict[str, Any]] | None = None,
     *,
     parser_version: str,
     additional_warnings: list[str] | None = None,
     validation_config: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     config = _validation_config(validation_config)
+    legal_chunks = legal_chunks or []
+    embeddings_input = embeddings_input or []
+    chunk_validation_enabled = bool(legal_chunks or embeddings_input)
     units_count = len(legal_units)
     edges_count = len(legal_edges)
+    chunks_count = len(legal_chunks)
+    embeddings_input_count = len(embeddings_input)
     unit_ids = [unit["id"] for unit in legal_units]
     unique_unit_ids = set(unit_ids)
     duplicate_ids = sorted(
@@ -432,6 +475,24 @@ def build_canonical_validation_report(
         else 0.0
     )
     reference_candidates_present_rate = 1.0 if reference_candidates else 0.0
+    chunk_coverage_rate = _chunk_coverage_rate(
+        legal_units,
+        legal_chunks,
+        enabled=chunk_validation_enabled,
+    )
+    retrieval_text_non_empty_rate = _safe_rate(
+        sum(1 for chunk in legal_chunks if str(chunk.get("retrieval_text") or "").strip()),
+        chunks_count,
+    )
+    context_coverage_rate = _safe_rate(
+        sum(1 for chunk in legal_chunks if str(chunk.get("retrieval_context") or "").strip()),
+        chunks_count,
+    )
+    chunk_text_fidelity_rate = _chunk_text_fidelity_rate(legal_units, legal_chunks)
+    embedding_input_hash_integrity = _embedding_hash_integrity(
+        legal_chunks,
+        embeddings_input,
+    )
     quality_metrics = {
         "unit_completeness": unit_completeness,
         "raw_text_non_empty_rate": raw_text_non_empty_rate,
@@ -446,6 +507,11 @@ def build_canonical_validation_report(
         "legal_domain_coverage": legal_domain_coverage,
         "legal_concepts_coverage": legal_concepts_coverage,
         "parser_warnings_rate": parser_warnings_rate,
+        "chunk_coverage_rate": chunk_coverage_rate,
+        "retrieval_text_non_empty_rate": retrieval_text_non_empty_rate,
+        "context_coverage_rate": context_coverage_rate,
+        "chunk_text_fidelity_rate": chunk_text_fidelity_rate,
+        "embedding_input_hash_integrity": embedding_input_hash_integrity,
     }
     demo_path_passed = _demo_path_passed(
         legal_units,
@@ -456,14 +522,19 @@ def build_canonical_validation_report(
         legal_units=legal_units,
         legal_edges=legal_edges,
         reference_candidates=reference_candidates,
+        legal_chunks=legal_chunks,
+        embeddings_input=embeddings_input,
         unit_ids=unit_ids,
         duplicate_ids=duplicate_ids,
         quality_metrics=quality_metrics,
         validation_config=config,
+        chunk_validation_enabled=chunk_validation_enabled,
     )
     warnings = _canonical_bundle_warnings(
         legal_units,
         reference_candidates,
+        legal_chunks=legal_chunks,
+        embeddings_input=embeddings_input,
         quality_metrics=quality_metrics,
         demo_path_passed=demo_path_passed,
         additional_warnings=additional_warnings,
@@ -484,7 +555,8 @@ def build_canonical_validation_report(
         "demo_path_passed": demo_path_passed,
         "units_count": units_count,
         "edges_count": edges_count,
-        "chunks_count": 0,
+        "chunks_count": chunks_count,
+        "embeddings_input_count": embeddings_input_count,
         "reference_candidates_count": len(reference_candidates),
         "blocking_errors": blocking_errors,
         "quality_metrics": quality_metrics,
@@ -692,17 +764,70 @@ def _edge_has_valid_endpoints(edge: Mapping[str, Any], unit_ids: set[str]) -> bo
     return edge.get("source_id") in unit_ids and edge.get("target_id") in unit_ids
 
 
+def _chunk_coverage_rate(
+    legal_units: list[dict[str, Any]],
+    legal_chunks: list[dict[str, Any]],
+    *,
+    enabled: bool,
+) -> float:
+    if not enabled:
+        return 1.0
+    unit_ids = {unit["id"] for unit in legal_units}
+    chunk_unit_ids = {chunk.get("legal_unit_id") for chunk in legal_chunks}
+    return _safe_rate(len(unit_ids & chunk_unit_ids), len(unit_ids))
+
+
+def _chunk_text_fidelity_rate(
+    legal_units: list[dict[str, Any]],
+    legal_chunks: list[dict[str, Any]],
+) -> float:
+    units_by_id = {unit["id"]: unit for unit in legal_units}
+    if not legal_chunks:
+        return 1.0
+    faithful = 0
+    for chunk in legal_chunks:
+        unit = units_by_id.get(chunk.get("legal_unit_id"))
+        if unit and chunk.get("text") == unit.get("raw_text"):
+            faithful += 1
+    return _safe_rate(faithful, len(legal_chunks))
+
+
+def _embedding_hash_integrity(
+    legal_chunks: list[dict[str, Any]],
+    embeddings_input: list[dict[str, Any]],
+) -> float:
+    if not embeddings_input:
+        return 1.0 if not legal_chunks else 0.0
+    chunks_by_id = {chunk["chunk_id"]: chunk for chunk in legal_chunks}
+    valid = 0
+    for record in embeddings_input:
+        chunk = chunks_by_id.get(record.get("chunk_id"))
+        text = str(record.get("text") or "")
+        if (
+            chunk
+            and record.get("legal_unit_id") == chunk.get("legal_unit_id")
+            and text == chunk.get("retrieval_text")
+            and record.get("text_hash") == stable_text_hash(text)
+        ):
+            valid += 1
+    return _safe_rate(valid, len(embeddings_input))
+
+
 def _canonical_blocking_errors(
     *,
     legal_units: list[dict[str, Any]],
     legal_edges: list[dict[str, Any]],
     reference_candidates: list[dict[str, Any]],
+    legal_chunks: list[dict[str, Any]],
+    embeddings_input: list[dict[str, Any]],
     unit_ids: list[str],
     duplicate_ids: list[str],
     quality_metrics: Mapping[str, float],
     validation_config: Mapping[str, Any],
+    chunk_validation_enabled: bool,
 ) -> list[str]:
     unit_id_set = set(unit_ids)
+    chunk_ids = {chunk.get("chunk_id") for chunk in legal_chunks}
     errors: set[str] = set()
 
     if duplicate_ids:
@@ -741,6 +866,32 @@ def _canonical_blocking_errors(
         resolved_target_id = candidate.get("resolved_target_id")
         if resolved_target_id and resolved_target_id not in unit_id_set:
             errors.add("invalid_reference_candidate_resolved_target_id")
+
+    if chunk_validation_enabled:
+        if quality_metrics["chunk_coverage_rate"] < validation_config["chunk_coverage_min"]:
+            errors.add("chunk_coverage_below_threshold")
+        if quality_metrics["retrieval_text_non_empty_rate"] < validation_config["retrieval_text_non_empty_min"]:
+            errors.add("empty_retrieval_text")
+        if quality_metrics["chunk_text_fidelity_rate"] < validation_config["chunk_text_fidelity_min"]:
+            errors.add("chunk_text_not_faithful_to_legal_unit_raw_text")
+        if quality_metrics["embedding_input_hash_integrity"] < validation_config["embedding_input_hash_integrity_min"]:
+            errors.add("embedding_input_hash_mismatch")
+
+        for chunk in legal_chunks:
+            if chunk.get("legal_unit_id") not in unit_id_set:
+                errors.add("invalid_chunk_legal_unit_id")
+            if not str(chunk.get("text") or "").strip():
+                errors.add("empty_chunk_text")
+            if not str(chunk.get("retrieval_text") or "").strip():
+                errors.add("empty_retrieval_text")
+            if contains_hardcoded_interpretation(str(chunk.get("retrieval_context") or "")):
+                errors.add("retrieval_context_contains_hardcoded_legal_interpretation")
+
+        for record in embeddings_input:
+            if record.get("chunk_id") not in chunk_ids:
+                errors.add("invalid_embedding_input_chunk_id")
+            if record.get("text_hash") != stable_text_hash(str(record.get("text") or "")):
+                errors.add("embedding_input_hash_mismatch")
 
     return sorted(errors)
 
@@ -831,6 +982,8 @@ def _validation_notes(
         notes.append("unresolved_references_are_non_blocking_in_v1")
     if "source_url_coverage_below_demo_threshold_explained_by_local_fixture" in warnings:
         notes.append("source_url_coverage_gap_is_non_blocking_for_local_fixture")
+    if quality_metrics["context_coverage_rate"] < 1.0:
+        notes.append("context_coverage_gap_is_non_blocking_when_chunk_import_is_valid")
     if demo_path_passed is True:
         notes.append("codul_muncii_demo_path_validated")
     elif demo_path_passed is False:
@@ -842,6 +995,8 @@ def _canonical_bundle_warnings(
     legal_units: list[dict[str, Any]],
     reference_candidates: list[dict[str, Any]],
     *,
+    legal_chunks: list[dict[str, Any]],
+    embeddings_input: list[dict[str, Any]],
     quality_metrics: Mapping[str, float],
     demo_path_passed: bool | None,
     additional_warnings: list[str] | None = None,
@@ -883,6 +1038,15 @@ def _canonical_bundle_warnings(
         warnings.add("reference_resolution_rate_informational_in_v1")
     if demo_path_passed is False:
         warnings.add("codul_muncii_demo_path_missing_critical_units")
+    if legal_chunks:
+        warnings.add("contextual_retrieval_context_derived_not_citable")
+        warnings.add("embeddings_vectors_not_generated_in_p8")
+    if legal_chunks and quality_metrics.get("context_coverage_rate", 1.0) < 1.0:
+        warnings.add("context_sources_missing_for_some_chunks")
+    if legal_chunks and any("reference_candidates_unresolved" in (chunk.get("context_sources") or []) for chunk in legal_chunks):
+        warnings.add("reference_candidates_used_as_unresolved_context_hints")
+    if embeddings_input and not legal_chunks:
+        warnings.add("embeddings_input_present_without_legal_chunks")
     return sorted(warnings)
 
 
@@ -922,6 +1086,14 @@ def _write_json(payload: Any, path: Path) -> None:
         json.dumps(payload, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
     )
+
+
+def _write_jsonl(records: list[Mapping[str, Any]], path: Path) -> None:
+    lines = [
+        json.dumps(record, ensure_ascii=False, separators=(",", ":"))
+        for record in records
+    ]
+    path.write_text("\n".join(lines) + ("\n" if lines else ""), encoding="utf-8")
 
 
 def _hash_json(payload: Any) -> str:

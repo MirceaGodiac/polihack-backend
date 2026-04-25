@@ -8,6 +8,7 @@ import json
 import pytest
 from pathlib import Path
 
+from ingestion.chunks import build_embedding_input_records, build_legal_chunks
 from ingestion.exporters import build_canonical_validation_report
 from ingestion.validators import validate_corpus, build_validation_report, save_validation_report
 from ingestion.manifest import build_manifest, save_manifest
@@ -91,12 +92,23 @@ def canonical_report(
     edges: list[dict],
     references: list[dict] | None = None,
     *,
+    chunks: list[dict] | None = None,
+    records: list[dict] | None = None,
     additional_warnings: list[str] | None = None,
 ) -> dict:
+    references = references or []
+    sorted_units = sorted(units, key=lambda unit: unit["id"])
+    sorted_edges = sorted(edges, key=lambda edge: edge["id"])
+    if chunks is None:
+        chunks = build_legal_chunks(sorted_units, references)
+    if records is None:
+        records = build_embedding_input_records(chunks)
     return build_canonical_validation_report(
-        sorted(units, key=lambda unit: unit["id"]),
-        sorted(edges, key=lambda edge: edge["id"]),
-        references or [],
+        sorted_units,
+        sorted_edges,
+        references,
+        chunks,
+        records,
         parser_version="0.1.0",
         additional_warnings=additional_warnings,
     )
@@ -236,9 +248,11 @@ class TestCanonicalValidationReport:
 
     def test_empty_raw_text_for_article_blocks_import(self):
         units, edges = valid_canonical_units_and_edges()
+        chunks = build_legal_chunks(sorted(units, key=lambda unit: unit["id"]), [])
+        records = build_embedding_input_records(chunks)
         units[1] = {**units[1], "raw_text": "", "normalized_text": ""}
 
-        report = canonical_report(units, edges)
+        report = canonical_report(units, edges, chunks=chunks, records=records)
 
         assert report["import_blocking_passed"] is False
         assert "empty_raw_text_for_citable_unit" in report["blocking_errors"]
@@ -327,13 +341,15 @@ class TestCanonicalValidationReport:
         assert report["import_blocking_passed"] is False
         assert "invalid_reference_candidate_resolved_target_id" in report["blocking_errors"]
 
-    def test_corpus_quality_uses_handoff_formula(self):
+    def test_corpus_quality_uses_handoff_formula_not_chunk_metrics(self):
         units, edges = valid_canonical_units_and_edges()
 
         report = canonical_report(units, edges)
 
         assert report["quality_metrics"]["source_url_coverage"] == 0.0
         assert report["quality_metrics"]["reference_resolution_rate"] == 0.0
+        assert report["quality_metrics"]["chunk_coverage_rate"] == 1.0
+        assert report["quality_metrics"]["embedding_input_hash_integrity"] == 1.0
         assert report["corpus_quality"] == 0.65
 
     def test_invalid_reference_edge_blocks_import(self):

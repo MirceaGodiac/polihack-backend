@@ -56,9 +56,13 @@ def test_legal_chunk_from_legal_unit_is_deterministic_and_citable_bridge_is_pres
     chunk = LegalChunk.from_legal_unit(parsed)
     repeated = LegalChunk.from_legal_unit(parsed)
 
-    assert chunk.chunk_id == "chunk.ro.codul_muncii.art_1.alin_1.v1"
+    assert chunk.chunk_id == "chunk.ro.codul_muncii.art_1.alin_1.0"
     assert chunk.legal_unit_id == parsed.id
     assert chunk.legal_unit_ids == [parsed.id]
+    assert chunk.text == parsed.raw_text
+    assert chunk.retrieval_context
+    assert chunk.retrieval_text.endswith(parsed.raw_text)
+    assert chunk.embedding_text == chunk.retrieval_text
     assert chunk.embedding_text.strip()
     assert chunk.text_hash == repeated.text_hash
 
@@ -107,9 +111,12 @@ def test_embedding_input_record_preserves_chunk_and_legal_unit_ids():
 
     record = EmbeddingInputRecord.from_chunk(chunk)
 
+    assert record.record_id == f"embedding.{chunk.chunk_id}"
     assert record.chunk_id == chunk.chunk_id
     assert record.legal_unit_id == chunk.legal_unit_id
-    assert record.embedding_text == chunk.embedding_text
+    assert record.law_id == chunk.law_id
+    assert record.text == chunk.retrieval_text
+    assert record.embedding_text == chunk.retrieval_text
     assert record.text_hash == chunk.text_hash
 
 
