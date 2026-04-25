@@ -22,9 +22,10 @@ Run the following command to scrape and parse a law directly from a link:
 
 ```powershell
 python scripts/ingest_single.py `
-    --url "https://legislatie.just.ro/Public/DetaliiDocument/224200" `
-    --law-id "ro.codul_muncii_2003" `
-    --out-dir ingestion/output/my_law_bundle
+    --url "https://web.archive.org/web/20250405171446mp_/https://legislatie.just.ro/Public/FormaPrintabila/00000G1KT5P4C47BW0232MK2YPXFN5DI" `
+    --law-id "ro.archive_lege_test" `
+    --out-dir ingestion/output/archive_test_bundle
+
 ```
 
 ### Option 2: Using a Local HTML File
