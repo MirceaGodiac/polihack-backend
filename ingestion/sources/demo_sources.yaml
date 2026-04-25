@@ -1,0 +1,10 @@
+sources:
+  - law_id: ro.codul_muncii
+    law_title: "Codul Muncii"
+    legal_domain: "dreptul_muncii"
+    fixture_file: "ingestion/fixtures/codul_muncii.txt"
+
+  - law_id: ro.constitutia
+    law_title: "Constitutia Romaniei"
+    legal_domain: "drept_constitutional"
+    fixture_file: "ingestion/fixtures/constitutia.txt"
