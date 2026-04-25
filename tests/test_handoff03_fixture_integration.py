@@ -202,6 +202,7 @@ async def test_query_orchestrator_returns_real_evidence_units_for_demo_fixture()
     assert response.verifier.groundedness_score > 0.0
     assert "mock" not in " ".join(response.verifier.warnings).lower()
     assert response.debug.retrieval["candidate_count"] >= 4
+    assert response.debug.retrieval_mode == "raw_retriever_client:FixtureRawRetriever"
     assert response.debug.evidence_pack["selected_evidence_count"] == 4
     assert response.debug.evidence_units_count == 4
     assert response.debug.citations_count == len(response.citations)
