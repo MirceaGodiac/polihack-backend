@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0",
+  "parser_version": "0.1.0",
+  "corpus_quality": 0.7143,
+  "import_blocking_passed": true,
+  "units_count": 9,
+  "edges_count": 8,
+  "chunks_count": 0,
+  "reference_candidates_count": 0,
+  "quality_metrics": {
+    "unit_completeness": 1.0,
+    "hierarchy_integrity": 1.0,
+    "duplicate_free_score": 1.0,
+    "source_url_coverage": 0.0,
+    "raw_text_non_empty_rate": 1.0,
+    "stable_id_rate": 1.0,
+    "reference_resolution_rate": 0.0
+  },
+  "warnings": [
+    "effective_date_unknown",
+    "legal_concepts_empty_for_most_units_by_v1_policy",
+    "local_fixture_demo_sample_not_official_complete_text",
+    "publication_date_unknown",
+    "reference_candidates_not_implemented_or_not_all_resolved",
+    "source_url_unknown",
+    "status_unknown",
+    "unknown_fields_left_null_by_policy",
+    "version_end_unknown",
+    "version_start_unknown"
+  ],
+  "errors": []
+}

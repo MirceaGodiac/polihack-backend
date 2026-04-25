@@ -188,6 +188,7 @@ def build_canonical_bundle(
     input_files: list[str] | None = None,
     source_descriptors: list[dict[str, Any]] | None = None,
     reference_candidates: list[Mapping[str, Any]] | None = None,
+    additional_warnings: list[str] | None = None,
 ) -> dict[str, Any]:
     metadata = _metadata_dict(act_metadata)
     legal_units = _canonical_units_from_legacy(legacy_units, metadata)
@@ -198,6 +199,7 @@ def build_canonical_bundle(
         legal_edges,
         exported_reference_candidates,
         parser_version=parser_version,
+        additional_warnings=additional_warnings,
     )
     content_hash = _hash_json(
         {
@@ -239,6 +241,7 @@ def export_canonical_bundle(
     input_files: list[str] | None = None,
     source_descriptors: list[dict[str, Any]] | None = None,
     reference_candidates: list[Mapping[str, Any]] | None = None,
+    additional_warnings: list[str] | None = None,
 ) -> dict[str, Path]:
     bundle = build_canonical_bundle(
         legacy_units,
@@ -248,6 +251,7 @@ def export_canonical_bundle(
         input_files=input_files,
         source_descriptors=source_descriptors,
         reference_candidates=reference_candidates,
+        additional_warnings=additional_warnings,
     )
 
     output_dir = Path(out_dir)
@@ -315,6 +319,7 @@ def build_canonical_validation_report(
     reference_candidates: list[dict[str, Any]],
     *,
     parser_version: str,
+    additional_warnings: list[str] | None = None,
 ) -> dict[str, Any]:
     units_count = len(legal_units)
     edges_count = len(legal_edges)
@@ -365,7 +370,11 @@ def build_canonical_validation_report(
         "stable_id_rate": stable_id_rate,
         "reference_resolution_rate": reference_resolution_rate,
     }
-    warnings = _canonical_bundle_warnings(legal_units, reference_candidates)
+    warnings = _canonical_bundle_warnings(
+        legal_units,
+        reference_candidates,
+        additional_warnings=additional_warnings,
+    )
     corpus_quality = round(
         sum(quality_metrics.values()) / len(quality_metrics),
         4,
@@ -542,8 +551,11 @@ def _export_reference_candidates(
 def _canonical_bundle_warnings(
     legal_units: list[dict[str, Any]],
     reference_candidates: list[dict[str, Any]],
+    *,
+    additional_warnings: list[str] | None = None,
 ) -> list[str]:
     warnings = {"unknown_fields_left_null_by_policy"}
+    warnings.update(additional_warnings or [])
     if any(unit.get("source_url") is None for unit in legal_units):
         warnings.add("source_url_unknown")
     if any(unit.get("status") == "unknown" for unit in legal_units):
