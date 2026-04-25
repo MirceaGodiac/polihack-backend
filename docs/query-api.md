@@ -1,16 +1,17 @@
 # Query API
 
-Phase 4 exposes the `/api/query` contract, deterministic QueryUnderstanding,
+Phase 5 exposes the `/api/query` contract, deterministic QueryUnderstanding,
 DomainRouter debug data, ExactCitationDetector output, RawRetrieverClient
-request construction, and a deterministic mock EvidencePack only. It is intended
-for frontend and API integration work before real retrieval and answer generation
-are available.
+request construction, GraphExpansionPolicy debug data, and a deterministic mock
+EvidencePack only. It is intended for frontend and API integration work before
+real retrieval, graph traversal, and answer generation are available.
 
 Not implemented yet:
 
 - database-backed retrieval
 - `/api/retrieve/raw`, which is owned by Handoff 04
-- graph expansion
+- graph/neighbors endpoints, which are owned by Handoff 04
+- database-backed graph expansion
 - LegalRanker
 - answer generation
 - citation verification
@@ -18,9 +19,10 @@ Not implemented yet:
 The query understanding layer is rule-based and inspectable. It does not call an
 LLM and it does not retrieve legal text. Exact citations are parsed only into
 future lookup hints; they are not resolved against `legal_units` yet.
-RawRetrieverClient prepares the future raw retrieval payload. If the raw
-retrieval endpoint is not configured or unavailable, `/api/query` returns a safe
-fallback with `confidence: 0.0`, `verifier_passed: false`, and retrieval warnings.
+RawRetrieverClient prepares the future raw retrieval payload. GraphExpansionPolicy
+turns raw retrieval candidates into graph expansion seeds and policy metadata. If
+raw retrieval or graph neighbors are not configured, `/api/query` returns a safe
+fallback with `confidence: 0.0`, `verifier_passed: false`, and explicit warnings.
 
 ## Request
 
@@ -79,8 +81,8 @@ curl -X POST http://localhost:8000/api/query \
 ```
 
 When `debug` is `true`, the response includes a `debug` object with mock service
-counts, notes, and `query_understanding`. When `debug` is `false`, `debug` is
-`null`.
+counts, notes, `query_understanding`, `retrieval`, and `graph_expansion`. When
+`debug` is `false`, `debug` is `null`.
 
 Example debug excerpt:
 
@@ -174,6 +176,49 @@ Raw retrieval debug excerpt when `/api/retrieve/raw` is not configured:
         "warnings": ["raw_retrieval_not_configured"]
       },
       "fallback_used": true
+    }
+  }
+}
+```
+
+Graph expansion debug excerpt when raw retrieval has no seed candidates:
+
+```json
+{
+  "debug": {
+    "graph_expansion": {
+      "fallback_used": true,
+      "reason": "graph expansion has no seed candidates",
+      "policy": {
+        "max_depth": 2,
+        "max_expanded_nodes": 80,
+        "lambda_decay": 0.7,
+        "allowed_edge_types": [
+          "contains_parent",
+          "contains_child",
+          "references",
+          "defines",
+          "exception_to",
+          "sanctions",
+          "creates_obligation",
+          "creates_right",
+          "creates_prohibition",
+          "procedure_step"
+        ],
+        "priority_edge_types": [
+          "exception_to",
+          "sanctions",
+          "creates_obligation",
+          "creates_prohibition",
+          "creates_right"
+        ]
+      },
+      "seed_candidate_count": 0,
+      "expanded_candidate_count": 0,
+      "expanded_candidates": [],
+      "graph_node_count": 0,
+      "graph_edge_count": 0,
+      "warnings": ["graph_expansion_no_seed_candidates"]
     }
   }
 }

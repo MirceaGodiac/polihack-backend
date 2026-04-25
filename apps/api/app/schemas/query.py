@@ -157,6 +157,7 @@ class QueryDebugData(BaseModel):
     retrieval_mode: str
     query_understanding: QueryPlan | None = None
     retrieval: dict[str, Any] | None = None
+    graph_expansion: dict[str, Any] | None = None
     evidence_units_count: int = Field(..., ge=0)
     citations_count: int = Field(..., ge=0)
     graph_nodes_count: int = Field(..., ge=0)
