@@ -1,10 +1,20 @@
+# Source definitions for the batch ingestion pipeline.
+#
+# Each entry may have either a 'url' (live scraping) or a 'fixture_file' (local testing).
+# The batch pipeline only processes sources that have a 'url' set.
+# Set 'url' on any entry to include it in a batch run.
+
 sources:
   - law_id: ro.codul_muncii
     law_title: "Codul Muncii"
     legal_domain: "dreptul_muncii"
+    status: "active"
+    url: null
     fixture_file: "ingestion/fixtures/codul_muncii.txt"
 
   - law_id: ro.constitutia
     law_title: "Constitutia Romaniei"
     legal_domain: "drept_constitutional"
+    status: "active"
+    url: null
     fixture_file: "ingestion/fixtures/constitutia.txt"

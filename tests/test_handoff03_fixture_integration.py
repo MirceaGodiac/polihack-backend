@@ -197,14 +197,18 @@ async def test_query_orchestrator_returns_real_evidence_units_for_demo_fixture()
     assert response.answer.confidence == 0.0
     assert response.verifier.citations_checked == len(response.citations)
     assert response.verifier.claims_total > 0
+    assert response.verifier.verifier_passed is True
+    assert response.verifier.repair_applied is False
     assert response.verifier.groundedness_score > 0.0
     assert "mock" not in " ".join(response.verifier.warnings).lower()
     assert response.debug.retrieval["candidate_count"] >= 4
+    assert response.debug.retrieval_mode == "raw_retriever_client:FixtureRawRetriever"
     assert response.debug.evidence_pack["selected_evidence_count"] == 4
     assert response.debug.evidence_units_count == 4
     assert response.debug.citations_count == len(response.citations)
     assert response.debug.generation["generation_mode"] == "deterministic_extractive_v1"
     assert response.debug.verifier["claim_extraction"]["claims_total"] > 0
+    assert response.debug.answer_repair["repair_action"] == "none"
     assert response.debug.legal_ranker["ranked_candidate_count"] >= 4
     assert response.debug.graph_expansion["fallback_used"] is False
     assert "CitationVerifier has not run yet" not in " ".join(response.warnings)

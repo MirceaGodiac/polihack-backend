@@ -1,70 +1,71 @@
+from __future__ import annotations
+
 import argparse
 import json
-import hashlib
-from pathlib import Path
 import sys
+from pathlib import Path
 
-# Allow running as `python scripts/generate_embeddings.py` from the repo root
+# Allow running as `python scripts/generate_embeddings.py` from the repo root.
 REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT))
 
-from ingestion.embedding_service import MockEmbeddingProvider, build_embedding_text
+from ingestion.embeddings import (  # noqa: E402
+    DeterministicFakeEmbeddingProvider,
+    generate_embeddings,
+)
 
-def get_text_hash(text: str) -> str:
-    return hashlib.sha256(text.encode('utf-8')).hexdigest()
 
-def main():
-    parser = argparse.ArgumentParser(description="Generate embeddings for legal units")
-    parser.add_argument("--input", required=True, help="Path to legal_units.json")
-    parser.add_argument("--out", required=True, help="Path to output embeddings.import.jsonl")
-    parser.add_argument("--model", required=True, help="Model name")
-    
+def _build_arg_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        description="Generate chunk-based embedding output JSONL from embeddings_input.jsonl"
+    )
+    parser.add_argument("--input", required=True, help="Path to embeddings_input.jsonl")
+    parser.add_argument("--output", required=True, help="Path to embeddings_output.jsonl")
+    parser.add_argument(
+        "--provider",
+        default="fake",
+        choices=["fake", "openai-compatible"],
+        help="Embedding provider to use",
+    )
+    parser.add_argument("--model", required=True, help="Embedding model name")
+    parser.add_argument("--batch-size", type=int, default=100)
+    parser.add_argument("--expected-dim", type=int, default=None)
+    parser.add_argument("--resume", action="store_true")
+    parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument("--limit", type=int, default=None)
+    return parser
+
+
+def main() -> None:
+    parser = _build_arg_parser()
     args = parser.parse_args()
-    
-    input_path = Path(args.input)
-    out_path = Path(args.out)
-    
-    # Try to load manifest for metadata
-    manifest_path = input_path.parent / "corpus_manifest.json"
-    corpus_metadata = {}
-    if manifest_path.exists():
-        with open(manifest_path, "r", encoding="utf-8") as f:
-            manifest = json.load(f)
-            for source in manifest.get("sources", []):
-                corpus_metadata[source["law_id"]] = {
-                    "law_title": source.get("law_title", ""),
-                    "legal_domain": source.get("legal_domain", "")
-                }
-    else:
-        print(f"Warning: Manifest not found at {manifest_path}. Metadata will be missing.")
-    
-    with open(input_path, "r", encoding="utf-8") as f:
-        units = json.load(f)
-        
-    provider = MockEmbeddingProvider(dimension=1024)
-    
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    batch_size = 100
-    
-    with open(out_path, "w", encoding="utf-8") as out_f:
-        for i in range(0, len(units), batch_size):
-            batch_units = units[i:i+batch_size]
-            texts = [build_embedding_text(u, corpus_metadata) for u in batch_units]
-            embeddings = provider.embed_texts(texts)
-            
-            for j, unit in enumerate(batch_units):
-                text_hash = get_text_hash(texts[j])
-                record = {
-                    "unit_id": unit["id"],
-                    "model_name": args.model,
-                    "embedding_dim": 1024,
-                    "text_hash": text_hash,
-                    "embedding": embeddings[j]
-                }
-                out_f.write(json.dumps(record, ensure_ascii=False) + "\n")
-                
-    print(f"Generated {len(units)} embeddings to {out_path}")
+
+    if args.provider == "openai-compatible":
+        parser.error(
+            "openai-compatible provider is not implemented in Phase 1; use next H07 phase"
+        )
+
+    provider = DeterministicFakeEmbeddingProvider(
+        dimension=args.expected_dim if args.expected_dim is not None else 1024
+    )
+    try:
+        summary = generate_embeddings(
+            input_path=Path(args.input),
+            output_path=Path(args.output),
+            provider=provider,
+            model_name=args.model,
+            batch_size=args.batch_size,
+            expected_dim=args.expected_dim,
+            resume=args.resume,
+            dry_run=args.dry_run,
+            limit=args.limit,
+        )
+    except (RuntimeError, ValueError) as exc:
+        print(f"[generate-embeddings] {exc}", file=sys.stderr)
+        sys.exit(1)
+
+    print(json.dumps(summary.model_dump(), ensure_ascii=False, indent=2))
+
 
 if __name__ == "__main__":
     main()

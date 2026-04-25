@@ -250,6 +250,7 @@ class QueryDebugData(BaseModel):
     evidence_pack: dict[str, Any] | None = None
     generation: dict[str, Any] | None = None
     verifier: dict[str, Any] | None = None
+    answer_repair: dict[str, Any] | None = None
     evidence_units_count: int = Field(..., ge=0)
     citations_count: int = Field(..., ge=0)
     graph_nodes_count: int = Field(..., ge=0)

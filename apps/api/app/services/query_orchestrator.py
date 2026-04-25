@@ -11,6 +11,7 @@ from ..schemas import (
     QueryRequest,
     QueryResponse,
 )
+from .answer_repair import AnswerRepair
 from .citation_verifier import CitationVerifier
 from .evidence_pack_compiler import EvidencePackCompiler
 from .generation_adapter import (
@@ -25,7 +26,7 @@ from .graph_expansion_policy import GraphExpansionPolicy
 from .legal_ranker import LegalRanker
 from .mock_evidence import MockEvidenceService
 from .query_understanding import QueryUnderstanding
-from .raw_retriever_client import RawRetrieverClient
+from .raw_retriever_client import RAW_RETRIEVAL_NOT_CONFIGURED, RawRetrieverClient
 
 
 class QueryOrchestrator:
@@ -39,6 +40,7 @@ class QueryOrchestrator:
         evidence_pack_compiler: EvidencePackCompiler | None = None,
         generation_adapter: GenerationAdapter | None = None,
         citation_verifier: CitationVerifier | None = None,
+        answer_repair: AnswerRepair | None = None,
     ) -> None:
         self.evidence_service = evidence_service or MockEvidenceService()
         self.query_understanding = query_understanding or QueryUnderstanding()
@@ -52,6 +54,7 @@ class QueryOrchestrator:
         )
         self.generation_adapter = generation_adapter or GenerationAdapter()
         self.citation_verifier = citation_verifier or CitationVerifier()
+        self.answer_repair = answer_repair or AnswerRepair()
 
     async def run(self, request: QueryRequest) -> QueryResponse:
         query_id = self._query_id(request)
@@ -103,6 +106,25 @@ class QueryOrchestrator:
             citations,
             verification.verified_citation_ids,
         )
+        pre_repair_warnings = self._dedupe(
+            raw_retrieval.warnings
+            + graph_expansion.warnings
+            + legal_ranker.warnings
+            + compiled_evidence.warnings
+            + self._generation_warnings(draft_answer, verifier_ran=True)
+            + verification.warnings
+        )
+        repair = self.answer_repair.repair(
+            answer=answer,
+            citations=citations,
+            evidence_units=compiled_evidence.evidence_units,
+            verifier=verification.verifier,
+            warnings=pre_repair_warnings,
+            debug=request.debug,
+        )
+        answer = repair.answer
+        citations = repair.citations
+        verifier = repair.verifier
         graph = GraphPayload(
             nodes=compiled_evidence.graph_nodes,
             edges=compiled_evidence.graph_edges,
@@ -112,7 +134,7 @@ class QueryOrchestrator:
             debug = QueryDebugData(
                 orchestrator=self.__class__.__name__,
                 evidence_service=self.evidence_service.__class__.__name__,
-                retrieval_mode="mock_static_fixture",
+                retrieval_mode=self._retrieval_mode(raw_retrieval),
                 query_understanding=query_plan,
                 retrieval=raw_retrieval.debug,
                 graph_expansion=graph_expansion.debug,
@@ -120,12 +142,13 @@ class QueryOrchestrator:
                 evidence_pack=compiled_evidence.debug,
                 generation=self._generation_debug(draft_answer, verifier_ran=True),
                 verifier=verification.debug,
+                answer_repair=repair.debug,
                 evidence_units_count=len(compiled_evidence.evidence_units),
                 citations_count=len(citations),
                 graph_nodes_count=len(graph.nodes),
                 graph_edges_count=len(graph.edges),
                 notes=[
-                    "GenerationAdapter and CitationVerifier V1 ran over compiled EvidencePack.",
+                    "GenerationAdapter, CitationVerifier V1, and AnswerRepair V1 ran over compiled EvidencePack.",
                 ],
             )
 
@@ -135,17 +158,10 @@ class QueryOrchestrator:
             answer=answer,
             citations=citations,
             evidence_units=compiled_evidence.evidence_units,
-            verifier=verification.verifier,
+            verifier=verifier,
             graph=graph,
             debug=debug,
-            warnings=self._dedupe(
-                raw_retrieval.warnings
-                + graph_expansion.warnings
-                + legal_ranker.warnings
-                + compiled_evidence.warnings
-                + self._generation_warnings(draft_answer, verifier_ran=True)
-                + verification.warnings
-            ),
+            warnings=repair.warnings,
         )
 
     def _generate_answer(
@@ -306,6 +322,11 @@ class QueryOrchestrator:
             if value not in deduped:
                 deduped.append(value)
         return deduped
+
+    def _retrieval_mode(self, raw_retrieval) -> str:
+        if RAW_RETRIEVAL_NOT_CONFIGURED in raw_retrieval.warnings:
+            return "fallback_unconfigured"
+        return f"raw_retriever_client:{self.raw_retriever_client.__class__.__name__}"
 
     def _query_id(self, request: QueryRequest) -> str:
         stable_input = "|".join(

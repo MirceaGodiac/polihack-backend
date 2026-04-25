@@ -4,6 +4,7 @@ from apps.api.app.schemas import (
     RankerFeatureBreakdown,
 )
 from apps.api.app.services.evidence_pack_compiler import (
+    EVIDENCE_PACK_MISSING_UNIT_RAW_TEXT,
     EVIDENCE_PACK_NO_RANKED_CANDIDATES,
     EvidencePackCompiler,
 )
@@ -53,6 +54,37 @@ def ranked(
     )
 
 
+def ranked_with_unit(unit_id: str, unit_payload: dict) -> RankedCandidate:
+    return RankedCandidate(
+        unit_id=unit_id,
+        rank=1,
+        rerank_score=0.8,
+        retrieval_score=0.7,
+        unit=unit_payload,
+        score_breakdown=RankerFeatureBreakdown(
+            bm25_score=0.8,
+            dense_score=0.8,
+            domain_match=1.0,
+            graph_proximity=0.0,
+        ),
+        why_ranked=["raw_text_safety_test"],
+        source="raw_retrieval",
+    )
+
+
+def citable_metadata(unit_id: str) -> dict:
+    return {
+        "id": unit_id,
+        "law_id": "ro.codul_muncii",
+        "law_title": "Codul muncii",
+        "legal_domain": "munca",
+        "status": "active",
+        "hierarchy_path": ["Codul muncii", unit_id],
+        "article_number": "41",
+        "type": "articol",
+    }
+
+
 def test_no_ranked_candidates_returns_safe_fallback():
     result = EvidencePackCompiler().compile(
         ranked_candidates=[],
@@ -66,6 +98,59 @@ def test_no_ranked_candidates_returns_safe_fallback():
     assert result.debug["fallback_used"] is True
     assert result.debug["input_ranked_candidate_count"] == 0
     assert result.debug["selected_evidence_count"] == 0
+
+
+def test_evidence_pack_requires_raw_text_for_citable_evidence():
+    unit_payload = {
+        **citable_metadata("ro.codul_muncii.art_no_raw"),
+        "normalized_text": "NU TREBUIE CITAT",
+        "text": "NU TREBUIE CITAT",
+    }
+
+    result = EvidencePackCompiler().compile(
+        ranked_candidates=[ranked_with_unit(unit_payload["id"], unit_payload)],
+        debug=True,
+    )
+
+    assert result.evidence_units == []
+    assert EVIDENCE_PACK_MISSING_UNIT_RAW_TEXT in result.warnings
+    assert "NU TREBUIE CITAT" not in str(result.model_dump(mode="json"))
+
+
+def test_evidence_pack_does_not_promote_normalized_text_to_raw_text():
+    unit_payload = {
+        **citable_metadata("ro.codul_muncii.art_empty_raw"),
+        "raw_text": "",
+        "normalized_text": "NU TREBUIE CITAT",
+    }
+
+    result = EvidencePackCompiler().compile(
+        ranked_candidates=[ranked_with_unit(unit_payload["id"], unit_payload)],
+        debug=True,
+    )
+
+    assert result.evidence_units == []
+    assert EVIDENCE_PACK_MISSING_UNIT_RAW_TEXT in result.warnings
+    assert result.debug["selected_evidence_count"] == 0
+
+
+def test_evidence_pack_uses_explicit_raw_text_when_present():
+    unit_payload = {
+        **citable_metadata("ro.codul_muncii.art_raw"),
+        "raw_text": "Text legal exact",
+        "normalized_text": "text normalizat",
+    }
+
+    result = EvidencePackCompiler(target_evidence_units=1).compile(
+        ranked_candidates=[ranked_with_unit(unit_payload["id"], unit_payload)],
+        debug=True,
+    )
+
+    assert len(result.evidence_units) == 1
+    evidence = result.evidence_units[0]
+    assert evidence.raw_text == "Text legal exact"
+    assert evidence.excerpt == "Text legal exact"
+    assert evidence.normalized_text == "text normalizat"
 
 
 def test_mmr_penalizes_redundant_text_and_diversifies_selection():
