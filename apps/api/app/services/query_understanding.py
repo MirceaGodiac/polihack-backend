@@ -1,7 +1,8 @@
 import unicodedata
 
-from ..schemas import QueryPlan, QueryRequest
+from ..schemas import ExactCitation, QueryPlan, QueryRequest
 from .domain_router import DomainRouter
+from .exact_citation_detector import ExactCitationDetector
 
 
 def normalize_ro_text(text: str) -> str:
@@ -78,14 +79,19 @@ def detect_safety_flags(normalized_question: str) -> list[str]:
 def build_retrieval_filters(
     legal_domain: str | None,
     temporal_context: str | None,
-) -> dict[str, str]:
-    filters: dict[str, str] = {}
+    exact_citations: list[ExactCitation],
+) -> dict[str, object]:
+    filters: dict[str, object] = {}
     if legal_domain:
         filters["legal_domain"] = legal_domain
     if temporal_context == "current":
         filters["status"] = "active"
     if temporal_context:
         filters["date_context"] = temporal_context
+    if exact_citations:
+        filters["exact_citation_filters"] = [
+            citation.lookup_filters for citation in exact_citations
+        ]
     return filters
 
 
@@ -112,23 +118,36 @@ def choose_expansion_policy(
 
 
 class QueryUnderstanding:
-    def __init__(self, domain_router: DomainRouter | None = None) -> None:
+    def __init__(
+        self,
+        domain_router: DomainRouter | None = None,
+        exact_citation_detector: ExactCitationDetector | None = None,
+    ) -> None:
         self.domain_router = domain_router or DomainRouter()
+        self.exact_citation_detector = (
+            exact_citation_detector or ExactCitationDetector()
+        )
 
     def build_plan(self, request: QueryRequest) -> QueryPlan:
         normalized_question = normalize_ro_text(request.question)
         route = self.domain_router.route(normalized_question)
         query_types = detect_query_types(normalized_question)
         temporal_context = detect_temporal_context(request.question, request.date)
+        exact_citations = self._enrich_exact_citations(
+            exact_citations=self.exact_citation_detector.detect(request.question),
+            temporal_context=temporal_context,
+        )
         ambiguity_flags = self._detect_ambiguity_flags(
             normalized_question=normalized_question,
             question=request.question,
             route_flags=route.ambiguity_flags,
+            exact_citations=exact_citations,
         )
         safety_flags = detect_safety_flags(normalized_question)
         retrieval_filters = build_retrieval_filters(
             legal_domain=route.legal_domain,
             temporal_context=temporal_context,
+            exact_citations=exact_citations,
         )
         expansion_policy = choose_expansion_policy(
             normalized_question=normalized_question,
@@ -143,7 +162,7 @@ class QueryUnderstanding:
             domain_confidence=route.domain_confidence,
             domain_scores=route.domain_scores,
             query_types=query_types,
-            exact_citations=[],
+            exact_citations=exact_citations,
             temporal_context=temporal_context,
             ambiguity_flags=ambiguity_flags,
             safety_flags=safety_flags,
@@ -157,13 +176,16 @@ class QueryUnderstanding:
         normalized_question: str,
         question: str,
         route_flags: list[str],
+        exact_citations: list[ExactCitation],
     ) -> list[str]:
         flags = list(route_flags)
         if len(normalized_question) < 10 and "too_short_question" not in flags:
             flags.append("too_short_question")
         if _find_year(normalized_question):
             flags.append("ambiguous_temporal_context")
-        if self._looks_like_exact_citation(question):
+        if any(citation.is_relative for citation in exact_citations):
+            flags.append("relative_citation_needs_context")
+        if not exact_citations and self._looks_like_exact_citation(question):
             flags.append("exact_citation_detection_pending")
         return flags
 
@@ -171,6 +193,21 @@ class QueryUnderstanding:
         match_text = _match_text(normalize_ro_text(question))
         citation_markers = ("art.", "art ", "alin.", "alin ", "lit.")
         return any(marker in match_text for marker in citation_markers)
+
+    def _enrich_exact_citations(
+        self,
+        exact_citations: list[ExactCitation],
+        temporal_context: str | None,
+    ) -> list[ExactCitation]:
+        enriched: list[ExactCitation] = []
+        for citation in exact_citations:
+            lookup_filters = dict(citation.lookup_filters)
+            if temporal_context == "current":
+                lookup_filters["status"] = "active"
+            if temporal_context:
+                lookup_filters["date_context"] = temporal_context
+            enriched.append(citation.model_copy(update={"lookup_filters": lookup_filters}))
+        return enriched
 
 
 def _find_year(normalized_question: str) -> str | None:

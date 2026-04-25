@@ -1,9 +1,9 @@
 # Query API
 
-Phase 2 exposes the `/api/query` contract, deterministic QueryUnderstanding,
-DomainRouter debug data, and a deterministic mock EvidencePack only. It is
-intended for frontend and API integration work before real retrieval and answer
-generation are available.
+Phase 3 exposes the `/api/query` contract, deterministic QueryUnderstanding,
+DomainRouter debug data, ExactCitationDetector output, and a deterministic mock
+EvidencePack only. It is intended for frontend and API integration work before
+real retrieval and answer generation are available.
 
 Not implemented yet:
 
@@ -14,7 +14,8 @@ Not implemented yet:
 - citation verification
 
 The query understanding layer is rule-based and inspectable. It does not call an
-LLM and it does not retrieve legal text.
+LLM and it does not retrieve legal text. Exact citations are parsed only into
+future lookup hints; they are not resolved against `legal_units` yet.
 
 ## Request
 
@@ -96,6 +97,38 @@ Example debug excerpt:
         "max_depth": 2,
         "max_expanded_nodes": 80
       }
+    }
+  }
+}
+```
+
+Exact citation example:
+
+```json
+{
+  "debug": {
+    "query_understanding": {
+      "legal_domain": "muncă",
+      "exact_citations": [
+        {
+          "raw_text": "art. 41 alin. (1) din Codul muncii",
+          "citation_type": "compound",
+          "article": "41",
+          "paragraph": "1",
+          "letter": null,
+          "act_hint": "Codul muncii",
+          "law_id_hint": "ro.codul_muncii",
+          "confidence": 0.98,
+          "is_relative": false,
+          "needs_resolution": false,
+          "lookup_filters": {
+            "law_id": "ro.codul_muncii",
+            "article_number": "41",
+            "paragraph_number": "1",
+            "status": "active"
+          }
+        }
+      ]
     }
   }
 }

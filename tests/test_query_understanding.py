@@ -41,11 +41,37 @@ def test_query_plan_builds_retrieval_filters_for_current_labor_question():
     assert plan.retrieval_filters["date_context"] == "current"
 
 
-def test_query_plan_keeps_exact_citations_empty_in_phase_2():
-    plan = build_plan("Ce spune art. 41 alin. 1 despre contractul de muncă?")
+def test_query_plan_detects_exact_citations():
+    plan = build_plan("Ce spune art. 41 din Codul muncii?")
+
+    assert plan.exact_citations
+    citation = plan.exact_citations[0]
+    assert citation.article == "41"
+    assert citation.law_id_hint == "ro.codul_muncii"
+    assert "exact_citation_detection_pending" not in plan.ambiguity_flags
+
+
+def test_query_plan_demo_question_without_citation_keeps_exact_citations_empty():
+    plan = build_plan("Poate angajatorul să-mi scadă salariul fără act adițional?")
 
     assert plan.exact_citations == []
-    assert "exact_citation_detection_pending" in plan.ambiguity_flags
+
+
+def test_query_plan_retrieval_filters_include_exact_citation_filters():
+    plan = build_plan("Ce spune art. 41 alin. (1) din Codul muncii?")
+
+    filters = plan.retrieval_filters["exact_citation_filters"]
+    assert filters[0]["law_id"] == "ro.codul_muncii"
+    assert filters[0]["article_number"] == "41"
+    assert filters[0]["paragraph_number"] == "1"
+    assert filters[0]["status"] == "active"
+
+
+def test_query_plan_marks_relative_citation_as_needing_context():
+    plan = build_plan("Ce spune alin. (2)?")
+
+    assert plan.exact_citations[0].is_relative is True
+    assert "relative_citation_needs_context" in plan.ambiguity_flags
 
 
 def test_query_plan_marks_explicit_year_as_temporal_ambiguity():

@@ -3,7 +3,7 @@ import unicodedata
 
 DOMAIN_THRESHOLD = 0.35
 AMBIGUITY_MARGIN = 0.15
-SCORE_NORMALIZER = 3.0
+SCORE_NORMALIZER = 2.0
 
 
 @dataclass(frozen=True)
@@ -27,6 +27,7 @@ class DomainRouter:
             "salariu",
             "contract individual de muncă",
             "contract de muncă",
+            "codul muncii",
             "act adițional",
             "concediu",
             "demisie",
@@ -37,6 +38,8 @@ class DomainRouter:
         ),
         "civil": (
             "contract civil",
+            "codul civil",
+            "codul de procedură civilă",
             "proprietate",
             "moștenire",
             "succesiune",
@@ -54,6 +57,7 @@ class DomainRouter:
             "declarație fiscală",
             "contribuții",
             "cod fiscal",
+            "codul fiscal",
         ),
         "contravențional": (
             "amendă",
@@ -102,6 +106,8 @@ class DomainRouter:
             "plângere penală",
             "urmărire penală",
             "cod penal",
+            "codul penal",
+            "codul de procedură penală",
         ),
     }
 

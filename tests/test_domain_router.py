@@ -43,6 +43,12 @@ def test_labor_question_without_diacritics_routes_to_labor():
     assert result.legal_domain == "muncă"
 
 
+def test_named_labor_code_routes_to_labor():
+    result = route("Ce spune art. 41 din Codul muncii?")
+
+    assert result.legal_domain == "muncă"
+
+
 def test_civil_question_routes_to_civil():
     result = route("Cum se împarte o moștenire pentru o proprietate?")
 
