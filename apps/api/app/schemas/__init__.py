@@ -14,6 +14,10 @@ from .query import (
     QueryResponse,
     VerifierStatus,
 )
+from .graph import (
+    ExpandedCandidate,
+    GraphExpansionResult,
+)
 from .retrieval import (
     RawRetrievalRequest,
     RawRetrievalResponse,
@@ -25,7 +29,9 @@ __all__ = [
     "Citation",
     "ClaimResult",
     "EvidenceUnit",
+    "ExpandedCandidate",
     "ExactCitation",
+    "GraphExpansionResult",
     "GraphEdge",
     "GraphNode",
     "GraphPayload",

@@ -65,13 +65,26 @@ def test_post_api_query_debug_true_includes_debug_payload():
     assert retrieval["request_payload"]["exact_citations"] == []
     assert retrieval["response_summary"]["candidate_count"] == 0
     assert "raw_retrieval_not_configured" in retrieval["response_summary"]["warnings"]
+    graph_expansion = debug["graph_expansion"]
+    assert graph_expansion["fallback_used"] is True
+    assert graph_expansion["seed_candidate_count"] == 0
+    assert graph_expansion["expanded_candidate_count"] == 0
+    assert "graph_expansion_no_seed_candidates" in graph_expansion["warnings"]
+    priorities = graph_expansion["policy"]["priority_edge_types"]
+    assert "exception_to" in priorities
+    assert "sanctions" in priorities
+    assert "creates_obligation" in priorities
+    assert "creates_prohibition" in priorities
 
 
 def test_post_api_query_debug_false_returns_null_debug():
     response = post_query({**VALID_QUERY, "debug": False})
 
     assert response.status_code == 200
-    assert response.json()["debug"] is None
+    payload = response.json()
+    assert payload["debug"] is None
+    assert "raw_retrieval_not_configured" in payload["warnings"]
+    assert "graph_expansion_no_seed_candidates" in payload["warnings"]
 
 
 def test_post_api_query_debug_true_includes_exact_citations():
@@ -103,6 +116,17 @@ def test_post_api_query_debug_true_includes_exact_citations():
     assert payload["answer"]["refusal_reason"] == "mock_evidence_pack_not_verified"
     assert payload["verifier"]["verifier_passed"] is False
     assert "raw_retrieval_not_configured" in payload["warnings"]
+    assert "graph_expansion_no_seed_candidates" in payload["warnings"]
+    assert payload["debug"]["graph_expansion"]["fallback_used"] is True
+
+
+def test_handoff04_graph_endpoints_are_not_registered():
+    paths = {route.path for route in app.routes}
+
+    assert "/api/legal-units/{id}/neighbors" not in paths
+    assert "/api/explore/root" not in paths
+    assert "/api/explore/node/{id}/children" not in paths
+    assert "/api/query/{id}/graph" not in paths
 
 
 def test_post_api_query_rejects_short_question():
