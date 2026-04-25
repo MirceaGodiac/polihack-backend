@@ -27,20 +27,50 @@ MEDIUM_CONF_THRESHOLD = 0.70
 
 
 def _corpus_id_from_unit_id(unit_id: str) -> str:
-    """Extract corpus prefix, e.g. 'ro.codul_muncii' from 'ro.codul_muncii.art_41'."""
+    """Extract corpus prefix, e.g. 'ro.codul_muncii' from any hierarchical unit ID."""
     parts = unit_id.split(".")
     # corpus_id is always the first two dot-segments (ro.<name>)
     return ".".join(parts[:2]) if len(parts) >= 2 else parts[0]
 
 
-def _build_target_id(corpus_id: str, article: str, paragraph: str | None) -> str:
-    """Construct the target LegalUnit ID from components."""
-    norm_art = normalize_number(article)
-    base = f"{corpus_id}.art_{norm_art}"
+def _find_target_id(
+    known_ids: set,
+    corpus_id: str,
+    article: str,
+    paragraph: str | None,
+) -> tuple[str | None, str | None]:
+    """
+    Search known_ids for a unit whose ID belongs to corpus_id and whose
+    last path segment(s) match the referenced article (and optional paragraph).
+
+    Returns (target_id, status) where status is:
+        'resolved_high_confidence'   – article+paragraph matched
+        'resolved_medium_confidence' – article only matched
+        None                         – no match
+    """
+    norm_art  = normalize_number(article)
+    art_suffix  = f".art_{norm_art}"
+
     if paragraph:
         norm_para = normalize_number(paragraph)
-        return f"{base}.alin_{norm_para}"
-    return base
+        para_suffix = f".alin_{norm_para}"
+
+        # Try to find a unit: <corpus>.<...>.art_N.alin_M
+        for uid in known_ids:
+            if uid.startswith(corpus_id) and uid.endswith(art_suffix + para_suffix):
+                return uid, "resolved_high_confidence"
+
+    # Fallback: article only – find <corpus>.<...>.art_N  (must end exactly there)
+    for uid in known_ids:
+        if uid.startswith(corpus_id) and uid.endswith(art_suffix):
+            # Make sure nothing follows (i.e., uid ends at art_N, not art_N.alin_1)
+            tail = uid[len(corpus_id):]
+            if tail.endswith(art_suffix) and not any(
+                uid.endswith(art_suffix + f".{x}") for x in ["alin", "lit"]
+            ):
+                return uid, "resolved_medium_confidence"
+
+    return None, None
 
 
 def resolve_references(
@@ -82,24 +112,17 @@ def resolve_references(
             resolved_candidates.append(cand)
             continue
 
-        # Try most-specific ID first (with paragraph), then fall back to article only
-        full_id    = _build_target_id(corpus_id, article, paragraph)
-        article_id = _build_target_id(corpus_id, article, None)
+        # Hierarchical ID search – works regardless of chapter/title nesting
+        target_id, status = _find_target_id(known_ids, corpus_id, article, paragraph)
 
-        if full_id in known_ids:
-            confidence = HIGH_CONF_THRESHOLD
-            target_id  = full_id
-            status     = "resolved_high_confidence"
-        elif article_id in known_ids:
-            confidence = MEDIUM_CONF_THRESHOLD
-            target_id  = article_id
-            status     = "resolved_medium_confidence"
-        else:
+        if target_id is None:
             cand["status"]     = "unresolved"
             cand["confidence"] = 0.0
             cand["target_id"]  = None
             resolved_candidates.append(cand)
             continue
+
+        confidence = HIGH_CONF_THRESHOLD if status == "resolved_high_confidence" else MEDIUM_CONF_THRESHOLD
 
         cand["target_id"]  = target_id
         cand["confidence"] = confidence
