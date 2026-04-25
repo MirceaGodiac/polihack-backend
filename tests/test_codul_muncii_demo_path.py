@@ -210,8 +210,11 @@ def test_validation_report_marks_demo_fixture_unknowns_and_no_reference_edges():
     assert report["quality_metrics"]["source_url_coverage"] == 0.0
     assert report["quality_metrics"]["reference_resolution_rate"] == 0.0
     assert report["import_blocking_passed"] is True
+    assert report["demo_path_passed"] is True
+    assert report["blocking_errors"] == []
     assert "local_fixture_demo_sample_not_official_complete_text" in warnings
     assert "source_url_unknown" in warnings
+    assert "source_id_unknown" in warnings
     assert "status_unknown" in warnings
     assert "publication_date_unknown" in warnings
     assert "effective_date_unknown" in warnings
@@ -219,7 +222,9 @@ def test_validation_report_marks_demo_fixture_unknowns_and_no_reference_edges():
     assert "version_end_unknown" in warnings
     assert "legal_concepts_empty_for_most_units_by_v1_policy" in warnings
     assert "reference_candidates_extracted_unresolved" in warnings
-    assert "reference_resolution_deferred_to_p7" in warnings
+    assert "reference_resolution_deferred_to_later_phase" in warnings
+    assert "reference_resolution_rate_informational_in_v1" in warnings
+    assert "source_url_coverage_below_demo_threshold_explained_by_local_fixture" in warnings
     reference_candidates = _load_json(REFERENCE_CANDIDATES_PATH)
     assert any(candidate["raw_reference"] == "alin. (3)" for candidate in reference_candidates)
     assert any(candidate["raw_reference"] == "prezentul cod" for candidate in reference_candidates)

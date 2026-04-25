@@ -7,7 +7,7 @@
   "edges_count": 8,
   "reference_candidates_count": 4,
   "input_files": [
-    "tests/fixtures/corpus/codul_muncii_legacy_units.json"
+    "D:/dev/polihack-backend/tests/fixtures/corpus/codul_muncii_legacy_units.json"
   ],
   "sources": [
     {
@@ -24,15 +24,18 @@
     "validation_report": "validation_report.json",
     "reference_candidates": "reference_candidates.json"
   },
-  "content_hash": "f9e3fe70c0278e4aaf759df506769823fb98258ef673d0b28b2e544f255838c1",
-  "bundle_hash": "913c958a7abcee70c6a559dffda44aa04ce6735b5cc065771ec063202f3c4b93",
+  "content_hash": "c3a68a2f3b3ff4de25ef797a81e4f0b4d62f3d06ec8bcf10726861c0e0804e7b",
+  "bundle_hash": "0b49102dbcecebf3281d0d13a309b5232c59c781017ca94f7b8496eee4c0d74f",
   "warnings": [
     "effective_date_unknown",
     "legal_concepts_empty_for_most_units_by_v1_policy",
     "local_fixture_demo_sample_not_official_complete_text",
     "publication_date_unknown",
     "reference_candidates_extracted_unresolved",
-    "reference_resolution_deferred_to_p7",
+    "reference_resolution_deferred_to_later_phase",
+    "reference_resolution_rate_informational_in_v1",
+    "source_id_unknown",
+    "source_url_coverage_below_demo_threshold_explained_by_local_fixture",
     "source_url_unknown",
     "status_unknown",
     "unknown_fields_left_null_by_policy",

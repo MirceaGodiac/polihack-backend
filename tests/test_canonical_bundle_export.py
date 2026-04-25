@@ -177,7 +177,7 @@ def test_reference_candidates_are_exported_without_reference_edges():
     assert bundle["validation_report"]["reference_candidates_count"] == len(candidates)
     assert bundle["validation_report"]["quality_metrics"]["reference_resolution_rate"] == 0.0
     assert "reference_candidates_extracted_unresolved" in bundle["validation_report"]["warnings"]
-    assert "reference_resolution_deferred_to_p7" in bundle["validation_report"]["warnings"]
+    assert "reference_resolution_deferred_to_later_phase" in bundle["validation_report"]["warnings"]
 
 
 def test_validation_report_includes_v1_unknown_policy_warnings():
@@ -192,13 +192,17 @@ def test_validation_report_includes_v1_unknown_policy_warnings():
     assert report["quality_metrics"]["source_url_coverage"] == 0.0
     assert report["quality_metrics"]["text_cleanliness"] == 1.0
     assert report["quality_metrics"]["reference_resolution_rate"] == 0.0
-    assert report["corpus_quality"] == 0.75
+    assert report["corpus_quality"] == 0.65
     assert report["import_blocking_passed"] is True
+    assert report["demo_path_passed"] is False
+    assert report["blocking_errors"] == []
     assert "unknown_fields_left_null_by_policy" in warnings
     assert "source_url_unknown" in warnings
+    assert "source_id_unknown" in warnings
     assert "status_unknown" in warnings
     assert "legal_concepts_empty_for_most_units_by_v1_policy" in warnings
     assert "reference_candidates_not_implemented_or_not_all_resolved" in warnings
+    assert "codul_muncii_demo_path_missing_critical_units" in warnings
 
 
 def test_repeated_bundle_generation_is_byte_stable_with_fixed_generated_at(tmp_path):

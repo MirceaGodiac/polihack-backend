@@ -24,11 +24,14 @@
     "validation_report": "validation_report.json",
     "reference_candidates": "reference_candidates.json"
   },
-  "content_hash": "9204cdf8e1021ffd27924f2a66e06dab9e7f06831d93e53ad76c77e7904db423",
-  "bundle_hash": "e0ecec7019ecfd85e147bc46b3db446ef98468a70021cbbd8d446bf05d8a4885",
+  "content_hash": "433f238f36a06e31aece296b52288c0d9ab1f0f6aadb97262b6cf030a281789e",
+  "bundle_hash": "996c77feef680405e559bc7fc13486c95d0b588e7118acf4ee5219f9fff9beb3",
   "warnings": [
+    "codul_muncii_demo_path_missing_critical_units",
     "legal_concepts_empty_for_most_units_by_v1_policy",
+    "publication_date_unknown",
     "reference_candidates_not_implemented_or_not_all_resolved",
+    "source_id_unknown",
     "source_url_unknown",
     "status_unknown",
     "unknown_fields_left_null_by_policy"

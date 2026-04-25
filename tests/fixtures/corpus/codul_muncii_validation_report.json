@@ -1,29 +1,71 @@
 {
   "schema_version": "1.0",
   "parser_version": "0.1.0",
-  "corpus_quality": 0.75,
+  "corpus_quality": 0.65,
   "import_blocking_passed": true,
+  "demo_path_passed": true,
   "units_count": 9,
   "edges_count": 8,
   "chunks_count": 0,
   "reference_candidates_count": 4,
+  "blocking_errors": [],
   "quality_metrics": {
     "unit_completeness": 1.0,
-    "hierarchy_integrity": 1.0,
-    "duplicate_free_score": 1.0,
-    "source_url_coverage": 0.0,
     "raw_text_non_empty_rate": 1.0,
     "stable_id_rate": 1.0,
+    "hierarchy_integrity": 1.0,
+    "edge_endpoint_integrity": 1.0,
+    "duplicate_free_score": 1.0,
+    "source_url_coverage": 0.0,
     "text_cleanliness": 1.0,
-    "reference_resolution_rate": 0.0
+    "reference_candidates_present_rate": 1.0,
+    "reference_resolution_rate": 0.0,
+    "legal_domain_coverage": 1.0,
+    "legal_concepts_coverage": 0.0,
+    "parser_warnings_rate": 1.0
   },
+  "validation_config": {
+    "raw_text_non_empty_min_for_citable_units": 1.0,
+    "hierarchy_integrity_min": 1.0,
+    "edge_endpoint_integrity_min": 1.0,
+    "stable_id_rate_min": 1.0,
+    "duplicate_free_score_min": 1.0,
+    "reference_edge_min_confidence": 0.7,
+    "text_cleanliness_blocking_min": 0.8,
+    "source_url_demo_threshold": 0.8,
+    "demo_law_id": "ro.codul_muncii",
+    "demo_required_unit_ids": [
+      "ro.codul_muncii",
+      "ro.codul_muncii.art_17",
+      "ro.codul_muncii.art_17.alin_3",
+      "ro.codul_muncii.art_17.alin_3.lit_k",
+      "ro.codul_muncii.art_41",
+      "ro.codul_muncii.art_41.alin_1"
+    ],
+    "demo_any_of_unit_groups": [
+      [
+        "ro.codul_muncii.art_41.alin_3",
+        "ro.codul_muncii.art_41.alin_4"
+      ]
+    ]
+  },
+  "validation_notes": [
+    "unknown_stays_unknown_policy_applied",
+    "legal_concepts_coverage_is_informational_only",
+    "unresolved_references_are_non_blocking_in_v1",
+    "source_url_coverage_gap_is_non_blocking_for_local_fixture",
+    "codul_muncii_demo_path_validated"
+  ],
   "warnings": [
     "effective_date_unknown",
     "legal_concepts_empty_for_most_units_by_v1_policy",
     "local_fixture_demo_sample_not_official_complete_text",
     "publication_date_unknown",
     "reference_candidates_extracted_unresolved",
-    "reference_resolution_deferred_to_p7",
+    "reference_resolution_deferred_to_later_phase",
+    "reference_resolution_rate_informational_in_v1",
+    "source_id_unknown",
+    "source_url_coverage_below_demo_threshold_explained_by_local_fixture",
     "source_url_unknown",
     "status_unknown",
     "unknown_fields_left_null_by_policy",

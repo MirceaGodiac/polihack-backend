@@ -290,7 +290,7 @@ def _candidate(
         resolved_target_id=None,
         resolution_status=resolution_status,
         resolution_confidence=0.0,
-        resolver_notes=resolver_notes or ["reference_resolution_deferred_to_p7"],
+        resolver_notes=resolver_notes or ["reference_resolution_deferred_to_later_phase"],
     ).model_dump()
 
 

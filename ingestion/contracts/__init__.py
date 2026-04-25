@@ -232,13 +232,18 @@ class ValidationReport(IngestionContract):
     schema_version: str = "1.0"
     parser_version: str
     corpus_quality: float = Field(ge=0.0, le=1.0)
+    import_blocking_passed: bool = True
+    demo_path_passed: bool | None = None
     units_count: int = Field(ge=0)
     edges_count: int = Field(ge=0)
     chunks_count: int = Field(default=0, ge=0)
     reference_candidates_count: int = Field(default=0, ge=0)
     quality_metrics: dict[str, float]
+    blocking_errors: list[str] = Field(default_factory=list)
     warnings: list[str] = Field(default_factory=list)
     errors: list[str] = Field(default_factory=list)
+    validation_config: dict[str, Any] = Field(default_factory=dict)
+    validation_notes: list[str] = Field(default_factory=list)
 
     @field_validator("quality_metrics")
     @classmethod
