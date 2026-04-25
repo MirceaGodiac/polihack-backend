@@ -38,10 +38,13 @@ class StructuralParser:
                     matched = True
                     break
             
-            if not matched and self.units:
-                # If no structure match, append text to the last unit (or handle as general text)
-                # For this MVP, we assume structure lines or content belonging to the current unit
-                self.units[-1]['raw_text'] += "\n" + line
+            if not matched:
+                if self.units:
+                    # If no structure match, append text to the last unit
+                    self.units[-1]['raw_text'] += "\n" + line
+                else:
+                    # Safety fallback: ignore leading unstructured text
+                    pass
 
         return self.units, self.edges
 

@@ -118,31 +118,31 @@
     "source_id": "ro.codul_muncii.titlu_i.capitol_i.art_1",
     "target_id": "ro.codul_muncii.titlu_i.capitol_i.art_1",
     "type": "references",
-    "confidence": 0.7
+    "confidence": 0.9
   },
   {
     "source_id": "ro.codul_muncii.titlu_i.capitol_i.art_2",
     "target_id": "ro.codul_muncii.titlu_i.capitol_i.art_2",
     "type": "references",
-    "confidence": 0.7
+    "confidence": 0.9
   },
   {
     "source_id": "ro.codul_muncii.titlu_i.capitol_ii.art_3",
     "target_id": "ro.codul_muncii.titlu_i.capitol_ii.art_3",
     "type": "references",
-    "confidence": 0.7
+    "confidence": 0.9
   },
   {
     "source_id": "ro.codul_muncii.titlu_i.capitol_ii.art_4",
     "target_id": "ro.codul_muncii.titlu_i.capitol_ii.art_4",
     "type": "references",
-    "confidence": 0.7
+    "confidence": 0.9
   },
   {
     "source_id": "ro.codul_muncii.titlu_i.capitol_ii.art_5",
     "target_id": "ro.codul_muncii.titlu_i.capitol_ii.art_5",
     "type": "references",
-    "confidence": 0.7
+    "confidence": 0.9
   },
   {
     "source_id": "ro.codul_muncii.titlu_i.capitol_ii.art_5",
@@ -154,43 +154,43 @@
     "source_id": "ro.codul_muncii.titlu_i.capitol_ii.art_6",
     "target_id": "ro.codul_muncii.titlu_i.capitol_ii.art_6",
     "type": "references",
-    "confidence": 0.7
+    "confidence": 0.9
   },
   {
     "source_id": "ro.codul_muncii.titlu_i.capitol_ii.art_6",
     "target_id": "ro.codul_muncii.titlu_i.capitol_ii.art_3",
     "type": "references",
-    "confidence": 0.7
+    "confidence": 0.9
   },
   {
     "source_id": "ro.constitutia.titlu_i.art_1",
     "target_id": "ro.constitutia.titlu_i.art_1",
     "type": "references",
-    "confidence": 0.7
+    "confidence": 0.9
   },
   {
     "source_id": "ro.constitutia.titlu_i.art_2",
     "target_id": "ro.constitutia.titlu_i.art_2",
     "type": "references",
-    "confidence": 0.7
+    "confidence": 0.9
   },
   {
     "source_id": "ro.constitutia.titlu_i.art_3",
     "target_id": "ro.constitutia.titlu_i.art_3",
     "type": "references",
-    "confidence": 0.7
+    "confidence": 0.9
   },
   {
     "source_id": "ro.constitutia.titlu_ii.capitol_i.art_15",
     "target_id": "ro.constitutia.titlu_ii.capitol_i.art_15",
     "type": "references",
-    "confidence": 0.7
+    "confidence": 0.9
   },
   {
     "source_id": "ro.constitutia.titlu_ii.capitol_i.art_16",
     "target_id": "ro.constitutia.titlu_ii.capitol_i.art_16",
     "type": "references",
-    "confidence": 0.7
+    "confidence": 0.9
   },
   {
     "source_id": "ro.constitutia.titlu_ii.capitol_i.art_16.alin_1",

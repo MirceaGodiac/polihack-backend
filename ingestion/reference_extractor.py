@@ -37,9 +37,9 @@ REF_LOCAL_RE = re.compile(
     re.IGNORECASE
 )
 
-# Combined: "art. 17 alin. (1)"  – the most common citation pattern
+# Combined: "art. 17 alin. (1) lit. a)"  – the most common citation pattern
 REF_COMBINED_RE = re.compile(
-    r'art\.\s*(\d+(?:\^\d+)?)(?:\s+alin\.\s*\((\d+)\))?',
+    r'art\.\s*(\d+(?:\^\d+)?)(?:\s+alin\.\s*\((\d+)\))?(?:\s+lit\.\s*([a-z])\))?',
     re.IGNORECASE
 )
 
@@ -74,6 +74,7 @@ def extract_references(unit: Dict[str, Any]) -> List[Dict[str, Any]]:
     for match in REF_COMBINED_RE.finditer(raw_text):
         art_val  = match.group(1)          # always present when REF_COMBINED_RE fires
         alin_val = match.group(2) or None  # may be absent
+        lit_val  = match.group(3) or None  # may be absent
 
         raw_ref = match.group(0)
 
@@ -97,6 +98,7 @@ def extract_references(unit: Dict[str, Any]) -> List[Dict[str, Any]]:
             "raw_reference":    raw_ref,
             "target_article":   art_val,
             "target_paragraph": alin_val,
+            "target_letter":    lit_val,
             "target_law_hint":  law_hint,
         })
 

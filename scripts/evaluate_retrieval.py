@@ -41,6 +41,9 @@ def main():
     parser.add_argument("--out", required=True, help="Path where the final report JSON will be saved")
     args = parser.parse_args()
 
+    # Seed random generator for deterministic output during demos
+    random.seed(42)
+
     print(f"Loading evaluation cases from {args.eval_cases}...")
     try:
         cases = list(load_eval_cases(args.eval_cases))
