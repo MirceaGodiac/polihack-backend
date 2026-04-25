@@ -22,7 +22,7 @@ def scrape_html_source(url: str) -> Optional[str]:
         Optional[str]: The raw HTML string if successful, None otherwise.
     """
     try:
-        response = requests.get(url, headers=DEFAULT_HEADERS, timeout=10)
+        response = requests.get(url, headers=DEFAULT_HEADERS, timeout=30)
         response.raise_for_status()
         return response.text
     except requests.exceptions.RequestException as e:
