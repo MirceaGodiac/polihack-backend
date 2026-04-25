@@ -189,12 +189,18 @@ async def test_query_orchestrator_returns_real_evidence_units_for_demo_fixture()
     assert "ro.codul_muncii.art_41" in evidence_ids
     assert "ro.codul_muncii.art_41.alin_4" in evidence_ids
     assert "ro.codul_muncii.art_17.alin_3.lit_k" in evidence_ids
-    assert response.citations == []
+    citation_ids = {citation.legal_unit_id for citation in response.citations}
+    assert "ro.codul_muncii.art_41" in citation_ids
+    assert "ro.codul_muncii.art_41.alin_4" in citation_ids
+    assert "ro.codul_muncii.art_17.alin_3.lit_k" in citation_ids
+    assert citation_ids <= set(evidence_ids)
     assert response.answer.confidence == 0.0
     assert response.verifier.verifier_passed is False
     assert response.debug.retrieval["candidate_count"] >= 4
     assert response.debug.evidence_pack["selected_evidence_count"] == 4
     assert response.debug.evidence_units_count == 4
+    assert response.debug.citations_count == len(response.citations)
+    assert response.debug.generation["generation_mode"] == "deterministic_extractive_v1"
     assert response.debug.legal_ranker["ranked_candidate_count"] >= 4
     assert response.debug.graph_expansion["fallback_used"] is False
     assert "mock_no_legal_conclusion" in " ".join(response.warnings)
