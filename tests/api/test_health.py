@@ -7,7 +7,7 @@ from pathlib import Path
 from fastapi.testclient import TestClient
 
 from apps.api.app.main import app
-from apps.api.app.routers import health as health_module
+from apps.api.app.routes import health as health_module
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
@@ -79,7 +79,7 @@ def test_legacy_health_does_not_require_database():
 
 
 def test_api_health_db_returns_503_without_database_url(monkeypatch):
-    import apps.api.app.db as db_module
+    import apps.api.app.db.session as db_module
 
     monkeypatch.setattr(db_module.settings, "database_url", None)
     monkeypatch.setattr(db_module, "_engine", None)

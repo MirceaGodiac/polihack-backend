@@ -3,7 +3,7 @@ from typing import Any
 import httpx
 
 from ..schemas import QueryPlan, RawRetrievalRequest, RawRetrievalResponse
-from ..settings import settings
+from ..config import settings
 
 RAW_RETRIEVAL_NOT_CONFIGURED = "raw_retrieval_not_configured"
 RAW_RETRIEVAL_UNAVAILABLE = "raw_retrieval_unavailable"

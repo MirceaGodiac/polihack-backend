@@ -18,6 +18,11 @@ from .graph import (
     ExpandedCandidate,
     GraphExpansionResult,
 )
+from .ranking import (
+    LegalRankerResult,
+    RankedCandidate,
+    RankerFeatureBreakdown,
+)
 from .retrieval import (
     RawRetrievalRequest,
     RawRetrievalResponse,
@@ -36,10 +41,13 @@ __all__ = [
     "GraphNode",
     "GraphPayload",
     "LegalUnit",
+    "LegalRankerResult",
     "QueryDebugData",
     "QueryPlan",
     "QueryRequest",
     "QueryResponse",
+    "RankedCandidate",
+    "RankerFeatureBreakdown",
     "VerifierStatus",
     "RawRetrievalRequest",
     "RawRetrievalResponse",

@@ -1,10 +1,11 @@
 # Query API
 
-Phase 5 exposes the `/api/query` contract, deterministic QueryUnderstanding,
+Phase 6 exposes the `/api/query` contract, deterministic QueryUnderstanding,
 DomainRouter debug data, ExactCitationDetector output, RawRetrieverClient
-request construction, GraphExpansionPolicy debug data, and a deterministic mock
-EvidencePack only. It is intended for frontend and API integration work before
-real retrieval, graph traversal, and answer generation are available.
+request construction, GraphExpansionPolicy debug data, LegalRanker debug data,
+and a deterministic mock EvidencePack only. It is intended for frontend and API
+integration work before real retrieval, graph traversal, EvidencePack
+compilation, and answer generation are available.
 
 Not implemented yet:
 
@@ -12,7 +13,7 @@ Not implemented yet:
 - `/api/retrieve/raw`, which is owned by Handoff 04
 - graph/neighbors endpoints, which are owned by Handoff 04
 - database-backed graph expansion
-- LegalRanker
+- EvidencePackCompiler, which is planned for Handoff 03 Phase 7
 - answer generation
 - citation verification
 
@@ -20,9 +21,11 @@ The query understanding layer is rule-based and inspectable. It does not call an
 LLM and it does not retrieve legal text. Exact citations are parsed only into
 future lookup hints; they are not resolved against `legal_units` yet.
 RawRetrieverClient prepares the future raw retrieval payload. GraphExpansionPolicy
-turns raw retrieval candidates into graph expansion seeds and policy metadata. If
-raw retrieval or graph neighbors are not configured, `/api/query` returns a safe
-fallback with `confidence: 0.0`, `verifier_passed: false`, and explicit warnings.
+turns raw retrieval candidates into graph expansion seeds and policy metadata.
+LegalRanker reranks raw and expanded candidates deterministically when they
+exist. If raw retrieval or graph neighbors are not configured, `/api/query`
+returns a safe fallback with `confidence: 0.0`, `verifier_passed: false`, and
+explicit warnings.
 
 ## Request
 
@@ -81,8 +84,8 @@ curl -X POST http://localhost:8000/api/query \
 ```
 
 When `debug` is `true`, the response includes a `debug` object with mock service
-counts, notes, `query_understanding`, `retrieval`, and `graph_expansion`. When
-`debug` is `false`, `debug` is `null`.
+counts, notes, `query_understanding`, `retrieval`, `graph_expansion`, and
+`legal_ranker`. When `debug` is `false`, `debug` is `null`.
 
 Example debug excerpt:
 
@@ -104,6 +107,38 @@ Example debug excerpt:
         "max_depth": 2,
         "max_expanded_nodes": 80
       }
+    }
+  }
+}
+```
+
+LegalRanker debug excerpt when no candidates are available:
+
+```json
+{
+  "debug": {
+    "legal_ranker": {
+      "fallback_used": true,
+      "input_candidate_count": 0,
+      "ranked_candidate_count": 0,
+      "weights": {
+        "bm25_score": 0.16,
+        "dense_score": 0.16,
+        "exact_citation_match": 0.1,
+        "domain_match": 0.1,
+        "graph_proximity": 0.1,
+        "concept_overlap": 0.08,
+        "legal_term_overlap": 0.07,
+        "temporal_validity": 0.07,
+        "source_reliability": 0.05,
+        "parent_relevance": 0.05,
+        "is_exception": 0.03,
+        "is_definition": 0.02,
+        "is_sanction": 0.01
+      },
+      "ranked_candidates": [],
+      "rows": [],
+      "warnings": ["legal_ranker_no_candidates"]
     }
   }
 }
