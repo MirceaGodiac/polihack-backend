@@ -64,6 +64,8 @@ def test_canonical_bundle_generation_writes_required_files(tmp_path):
     assert set(paths) == {
         "legal_units",
         "legal_edges",
+        "legal_chunks",
+        "embeddings_input",
         "corpus_manifest",
         "validation_report",
         "reference_candidates",
@@ -177,7 +179,7 @@ def test_reference_candidates_are_exported_without_reference_edges():
     assert bundle["validation_report"]["reference_candidates_count"] == len(candidates)
     assert bundle["validation_report"]["quality_metrics"]["reference_resolution_rate"] == 0.0
     assert "reference_candidates_extracted_unresolved" in bundle["validation_report"]["warnings"]
-    assert "reference_resolution_deferred_to_p7" in bundle["validation_report"]["warnings"]
+    assert "reference_resolution_deferred_to_later_phase" in bundle["validation_report"]["warnings"]
 
 
 def test_validation_report_includes_v1_unknown_policy_warnings():
@@ -192,13 +194,24 @@ def test_validation_report_includes_v1_unknown_policy_warnings():
     assert report["quality_metrics"]["source_url_coverage"] == 0.0
     assert report["quality_metrics"]["text_cleanliness"] == 1.0
     assert report["quality_metrics"]["reference_resolution_rate"] == 0.0
-    assert report["corpus_quality"] == 0.75
+    assert report["quality_metrics"]["chunk_coverage_rate"] == 1.0
+    assert report["quality_metrics"]["retrieval_text_non_empty_rate"] == 1.0
+    assert report["quality_metrics"]["embedding_input_hash_integrity"] == 1.0
+    assert report["corpus_quality"] == 0.65
     assert report["import_blocking_passed"] is True
+    assert report["demo_path_passed"] is False
+    assert report["chunks_count"] == len(bundle["legal_chunks"])
+    assert report["embeddings_input_count"] == len(bundle["embeddings_input"])
+    assert report["blocking_errors"] == []
     assert "unknown_fields_left_null_by_policy" in warnings
     assert "source_url_unknown" in warnings
+    assert "source_id_unknown" in warnings
     assert "status_unknown" in warnings
     assert "legal_concepts_empty_for_most_units_by_v1_policy" in warnings
     assert "reference_candidates_not_implemented_or_not_all_resolved" in warnings
+    assert "contextual_retrieval_context_derived_not_citable" in warnings
+    assert "embeddings_vectors_not_generated_in_p8" in warnings
+    assert "codul_muncii_demo_path_missing_critical_units" in warnings
 
 
 def test_repeated_bundle_generation_is_byte_stable_with_fixed_generated_at(tmp_path):
@@ -221,6 +234,8 @@ def test_repeated_bundle_generation_is_byte_stable_with_fixed_generated_at(tmp_p
     for filename in (
         "legal_units.json",
         "legal_edges.json",
+        "legal_chunks.json",
+        "embeddings_input.jsonl",
         "corpus_manifest.json",
         "validation_report.json",
         "reference_candidates.json",
@@ -243,6 +258,8 @@ def test_expected_fixture_bundle_matches_current_exporter(tmp_path):
     for filename in (
         "legal_units.json",
         "legal_edges.json",
+        "legal_chunks.json",
+        "embeddings_input.jsonl",
         "corpus_manifest.json",
         "validation_report.json",
         "reference_candidates.json",

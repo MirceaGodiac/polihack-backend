@@ -1,25 +1,77 @@
 {
   "schema_version": "1.0",
   "parser_version": "0.1.0",
-  "corpus_quality": 0.75,
+  "corpus_quality": 0.65,
   "import_blocking_passed": true,
+  "demo_path_passed": false,
   "units_count": 6,
   "edges_count": 5,
-  "chunks_count": 0,
+  "chunks_count": 6,
+  "embeddings_input_count": 6,
   "reference_candidates_count": 0,
+  "blocking_errors": [],
   "quality_metrics": {
     "unit_completeness": 1.0,
-    "hierarchy_integrity": 1.0,
-    "duplicate_free_score": 1.0,
-    "source_url_coverage": 0.0,
     "raw_text_non_empty_rate": 1.0,
     "stable_id_rate": 1.0,
+    "hierarchy_integrity": 1.0,
+    "edge_endpoint_integrity": 1.0,
+    "duplicate_free_score": 1.0,
+    "source_url_coverage": 0.0,
     "text_cleanliness": 1.0,
-    "reference_resolution_rate": 0.0
+    "reference_candidates_present_rate": 0.0,
+    "reference_resolution_rate": 0.0,
+    "legal_domain_coverage": 1.0,
+    "legal_concepts_coverage": 0.0,
+    "parser_warnings_rate": 1.0,
+    "chunk_coverage_rate": 1.0,
+    "retrieval_text_non_empty_rate": 1.0,
+    "context_coverage_rate": 1.0,
+    "chunk_text_fidelity_rate": 1.0,
+    "embedding_input_hash_integrity": 1.0
   },
+  "validation_config": {
+    "raw_text_non_empty_min_for_citable_units": 1.0,
+    "hierarchy_integrity_min": 1.0,
+    "edge_endpoint_integrity_min": 1.0,
+    "stable_id_rate_min": 1.0,
+    "duplicate_free_score_min": 1.0,
+    "reference_edge_min_confidence": 0.7,
+    "text_cleanliness_blocking_min": 0.8,
+    "source_url_demo_threshold": 0.8,
+    "chunk_coverage_min": 1.0,
+    "retrieval_text_non_empty_min": 1.0,
+    "chunk_text_fidelity_min": 1.0,
+    "embedding_input_hash_integrity_min": 1.0,
+    "demo_law_id": "ro.codul_muncii",
+    "demo_required_unit_ids": [
+      "ro.codul_muncii",
+      "ro.codul_muncii.art_17",
+      "ro.codul_muncii.art_17.alin_3",
+      "ro.codul_muncii.art_17.alin_3.lit_k",
+      "ro.codul_muncii.art_41",
+      "ro.codul_muncii.art_41.alin_1"
+    ],
+    "demo_any_of_unit_groups": [
+      [
+        "ro.codul_muncii.art_41.alin_3",
+        "ro.codul_muncii.art_41.alin_4"
+      ]
+    ]
+  },
+  "validation_notes": [
+    "unknown_stays_unknown_policy_applied",
+    "legal_concepts_coverage_is_informational_only",
+    "codul_muncii_demo_path_failed"
+  ],
   "warnings": [
+    "codul_muncii_demo_path_missing_critical_units",
+    "contextual_retrieval_context_derived_not_citable",
+    "embeddings_vectors_not_generated_in_p8",
     "legal_concepts_empty_for_most_units_by_v1_policy",
+    "publication_date_unknown",
     "reference_candidates_not_implemented_or_not_all_resolved",
+    "source_id_unknown",
     "source_url_unknown",
     "status_unknown",
     "unknown_fields_left_null_by_policy"
