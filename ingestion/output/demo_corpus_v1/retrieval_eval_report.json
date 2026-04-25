@@ -1,0 +1,38 @@
+{
+  "summary": {
+    "avg_recall_10": 0.125,
+    "avg_mrr": 0.0625,
+    "avg_ndcg_10": 0.066,
+    "total_cases": 4
+  },
+  "details": [
+    {
+      "case_id": "Q1",
+      "question": "Care este durata maxima a timpului de munca conform Codului Muncii?",
+      "recall_10": 0.0,
+      "mrr": 0.0,
+      "ndcg_10": 0.0
+    },
+    {
+      "case_id": "Q2",
+      "question": "Ce drepturi au copiii si tinerii in Constitutie?",
+      "recall_10": 0.0,
+      "mrr": 0.0,
+      "ndcg_10": 0.0
+    },
+    {
+      "case_id": "Q3",
+      "question": "Concediul de odihna anual",
+      "recall_10": 0.5,
+      "mrr": 0.25,
+      "ndcg_10": 0.2640681225725909
+    },
+    {
+      "case_id": "Q4",
+      "question": "Libertatea intrunirilor",
+      "recall_10": 0.0,
+      "mrr": 0.0,
+      "ndcg_10": 0.0
+    }
+  ]
+}

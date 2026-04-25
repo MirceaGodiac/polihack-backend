@@ -33,46 +33,6 @@ def _corpus_id_from_unit_id(unit_id: str) -> str:
     return ".".join(parts[:2]) if len(parts) >= 2 else parts[0]
 
 
-def _find_target_id(
-    known_ids: set,
-    corpus_id: str,
-    article: str,
-    paragraph: str | None,
-) -> tuple[str | None, str | None]:
-    """
-    Search known_ids for a unit whose ID belongs to corpus_id and whose
-    last path segment(s) match the referenced article (and optional paragraph).
-
-    Returns (target_id, status) where status is:
-        'resolved_high_confidence'   – article+paragraph matched
-        'resolved_medium_confidence' – article only matched
-        None                         – no match
-    """
-    norm_art  = normalize_number(article)
-    art_suffix  = f".art_{norm_art}"
-
-    if paragraph:
-        norm_para = normalize_number(paragraph)
-        para_suffix = f".alin_{norm_para}"
-
-        # Try to find a unit: <corpus>.<...>.art_N.alin_M
-        for uid in known_ids:
-            if uid.startswith(corpus_id) and uid.endswith(art_suffix + para_suffix):
-                return uid, "resolved_high_confidence"
-
-    # Fallback: article only – find <corpus>.<...>.art_N  (must end exactly there)
-    for uid in known_ids:
-        if uid.startswith(corpus_id) and uid.endswith(art_suffix):
-            # Make sure nothing follows (i.e., uid ends at art_N, not art_N.alin_1)
-            tail = uid[len(corpus_id):]
-            if tail.endswith(art_suffix) and not any(
-                uid.endswith(art_suffix + f".{x}") for x in ["alin", "lit"]
-            ):
-                return uid, "resolved_medium_confidence"
-
-    return None, None
-
-
 def resolve_references(
     candidates: List[Dict[str, Any]],
     units: List[Dict[str, Any]],
@@ -84,14 +44,36 @@ def resolve_references(
         resolved_candidates – candidates enriched with resolution metadata
         edges               – LegalEdge dicts (type="references") for high/medium confidence
     """
-    # Build fast lookup: set of known IDs
-    known_ids: Set[str] = {u["id"] for u in units}
+    # Build fast lookup index: O(N)
+    # Maps (corpus_id, art, alin, lit) -> unit_id
+    known_index = {}
+    for u in units:
+        uid = u["id"]
+        parts = uid.split(".")
+        corpus = ".".join(parts[:2]) if len(parts) >= 2 else parts[0]
+        
+        art = alin = lit = None
+        for p in parts:
+            if p.startswith("art_"):
+                art = p.split("_")[1]
+            elif p.startswith("alin_"):
+                alin = p.split("_")[1]
+            elif p.startswith("lit_"):
+                lit = p.split("_")[1]
+                
+        last_part = parts[-1]
+        if last_part.startswith("art_"):
+            known_index[(corpus, art, None, None)] = uid
+        elif last_part.startswith("alin_"):
+            known_index[(corpus, art, alin, None)] = uid
+        elif last_part.startswith("lit_"):
+            known_index[(corpus, art, alin, lit)] = uid
 
     resolved_candidates: List[Dict[str, Any]] = []
     edges:               List[Dict[str, Any]] = []
 
     for cand in candidates:
-        cand = dict(cand)  # shallow copy – don't mutate caller's data
+        cand = dict(cand)  # shallow copy
 
         if cand.get("target_law_hint") == "external":
             cand["status"]     = "external_unresolved"
@@ -100,10 +82,10 @@ def resolve_references(
             resolved_candidates.append(cand)
             continue
 
-        # ---- intra-act resolution ----
         corpus_id = _corpus_id_from_unit_id(cand["source_unit_id"])
         article   = cand.get("target_article")
         paragraph = cand.get("target_paragraph")
+        letter    = cand.get("target_letter")
 
         if not article:
             cand["status"]     = "unresolved"
@@ -112,8 +94,39 @@ def resolve_references(
             resolved_candidates.append(cand)
             continue
 
-        # Hierarchical ID search – works regardless of chapter/title nesting
-        target_id, status = _find_target_id(known_ids, corpus_id, article, paragraph)
+        # Normalize 
+        norm_art = normalize_number(article)
+        norm_para = normalize_number(paragraph) if paragraph else None
+        norm_lit = letter.lower().strip() if letter else None
+
+        target_id = None
+        status = None
+
+        # O(1) resolution logic
+        if norm_lit:
+            exact = known_index.get((corpus_id, norm_art, norm_para, norm_lit))
+            if exact:
+                target_id, status = exact, "resolved_high_confidence"
+            else:
+                fallback = known_index.get((corpus_id, norm_art, norm_para, None))
+                if fallback:
+                    target_id, status = fallback, "resolved_medium_confidence"
+                else:
+                    fallback_art = known_index.get((corpus_id, norm_art, None, None))
+                    if fallback_art:
+                        target_id, status = fallback_art, "resolved_medium_confidence"
+        elif norm_para:
+            exact = known_index.get((corpus_id, norm_art, norm_para, None))
+            if exact:
+                target_id, status = exact, "resolved_high_confidence"
+            else:
+                fallback_art = known_index.get((corpus_id, norm_art, None, None))
+                if fallback_art:
+                    target_id, status = fallback_art, "resolved_medium_confidence"
+        else:
+            exact = known_index.get((corpus_id, norm_art, None, None))
+            if exact:
+                target_id, status = exact, "resolved_high_confidence"
 
         if target_id is None:
             cand["status"]     = "unresolved"
@@ -129,7 +142,6 @@ def resolve_references(
         cand["status"]     = status
         resolved_candidates.append(cand)
 
-        # Emit edge for high or medium confidence
         edges.append({
             "source_id": cand["source_unit_id"],
             "target_id": target_id,

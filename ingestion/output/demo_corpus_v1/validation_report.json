@@ -1,0 +1,17 @@
+{
+  "duplicate_ids": [],
+  "status": "PASS",
+  "total_units": 26,
+  "total_contains_edges": 23,
+  "total_ref_candidates": 14,
+  "resolved_candidates": 14,
+  "ReferenceResolutionRate": 1.0,
+  "orphan_units": [
+    "ro.codul_muncii.titlu_i",
+    "ro.constitutia.titlu_i",
+    "ro.constitutia.titlu_ii"
+  ],
+  "warnings": [
+    "3 orphan unit(s) detected (no parent contains-edge). These are likely top-level structural nodes."
+  ]
+}

@@ -1,0 +1,283 @@
+[
+  {
+    "id": "ro.codul_muncii.titlu_i",
+    "type": "titlu",
+    "raw_text": "TITLUL I\nDispozitii generale",
+    "hierarchy_path": [
+      "I"
+    ],
+    "corpus_id": "ro.codul_muncii"
+  },
+  {
+    "id": "ro.codul_muncii.titlu_i.capitol_i",
+    "type": "capitol",
+    "raw_text": "CAPITOLUL I\nDomeniul de aplicare",
+    "hierarchy_path": [
+      "I",
+      "I"
+    ],
+    "corpus_id": "ro.codul_muncii"
+  },
+  {
+    "id": "ro.codul_muncii.titlu_i.capitol_i.art_1",
+    "type": "articol",
+    "raw_text": "Art. 1\nPrezentul cod reglementeaza domeniul raporturilor de munca.",
+    "hierarchy_path": [
+      "I",
+      "I",
+      "1"
+    ],
+    "corpus_id": "ro.codul_muncii"
+  },
+  {
+    "id": "ro.codul_muncii.titlu_i.capitol_i.art_2",
+    "type": "articol",
+    "raw_text": "Art. 2\nDispozitiile prezentului cod se aplica:",
+    "hierarchy_path": [
+      "I",
+      "I",
+      "2"
+    ],
+    "corpus_id": "ro.codul_muncii"
+  },
+  {
+    "id": "ro.codul_muncii.titlu_i.capitol_i.art_2.lit_a",
+    "type": "litera",
+    "raw_text": "a) cetatenilor romani cu domiciliul in Romania;",
+    "hierarchy_path": [
+      "I",
+      "I",
+      "2",
+      "a"
+    ],
+    "corpus_id": "ro.codul_muncii"
+  },
+  {
+    "id": "ro.codul_muncii.titlu_i.capitol_i.art_2.lit_b",
+    "type": "litera",
+    "raw_text": "b) cetatenilor straini sau apatrizilor.",
+    "hierarchy_path": [
+      "I",
+      "I",
+      "2",
+      "b"
+    ],
+    "corpus_id": "ro.codul_muncii"
+  },
+  {
+    "id": "ro.codul_muncii.titlu_i.capitol_ii",
+    "type": "capitol",
+    "raw_text": "CAPITOLUL II\nPrincipiile fundamentale",
+    "hierarchy_path": [
+      "I",
+      "II"
+    ],
+    "corpus_id": "ro.codul_muncii"
+  },
+  {
+    "id": "ro.codul_muncii.titlu_i.capitol_ii.art_3",
+    "type": "articol",
+    "raw_text": "Art. 3\nLibertatea muncii este garantata prin Constitutie.",
+    "hierarchy_path": [
+      "I",
+      "II",
+      "3"
+    ],
+    "corpus_id": "ro.codul_muncii"
+  },
+  {
+    "id": "ro.codul_muncii.titlu_i.capitol_ii.art_4",
+    "type": "articol",
+    "raw_text": "Art. 4",
+    "hierarchy_path": [
+      "I",
+      "II",
+      "4"
+    ],
+    "corpus_id": "ro.codul_muncii"
+  },
+  {
+    "id": "ro.codul_muncii.titlu_i.capitol_ii.art_4.alin_1",
+    "type": "alineat",
+    "raw_text": "(1) Munca fortata este interzisa.",
+    "hierarchy_path": [
+      "I",
+      "II",
+      "4",
+      "1"
+    ],
+    "corpus_id": "ro.codul_muncii"
+  },
+  {
+    "id": "ro.codul_muncii.titlu_i.capitol_ii.art_4.alin_2",
+    "type": "alineat",
+    "raw_text": "(2) Prin munca fortata se intelege orice munca impusa unui individ.",
+    "hierarchy_path": [
+      "I",
+      "II",
+      "4",
+      "2"
+    ],
+    "corpus_id": "ro.codul_muncii"
+  },
+  {
+    "id": "ro.codul_muncii.titlu_i.capitol_ii.art_5",
+    "type": "articol",
+    "raw_text": "Art. 5\nOrice discriminare directa sau indirecta este interzisa, conform art. 4 alin. (1) din prezentul cod.",
+    "hierarchy_path": [
+      "I",
+      "II",
+      "5"
+    ],
+    "corpus_id": "ro.codul_muncii"
+  },
+  {
+    "id": "ro.codul_muncii.titlu_i.capitol_ii.art_6",
+    "type": "articol",
+    "raw_text": "Art. 6\nIn sensul prezentului cod, prin angajator se intelege persoana fizica sau juridica.\nDispozitiile art. 3 se aplica in mod corespunzator.",
+    "hierarchy_path": [
+      "I",
+      "II",
+      "6"
+    ],
+    "corpus_id": "ro.codul_muncii"
+  },
+  {
+    "id": "ro.constitutia.titlu_i",
+    "type": "titlu",
+    "raw_text": "TITLUL I\nPrincipii generale",
+    "hierarchy_path": [
+      "I"
+    ],
+    "corpus_id": "ro.constitutia"
+  },
+  {
+    "id": "ro.constitutia.titlu_i.art_1",
+    "type": "articol",
+    "raw_text": "Art. 1\nRomania este stat national, suveran si independent, unitar si indivizibil.",
+    "hierarchy_path": [
+      "I",
+      "1"
+    ],
+    "corpus_id": "ro.constitutia"
+  },
+  {
+    "id": "ro.constitutia.titlu_i.art_2",
+    "type": "articol",
+    "raw_text": "Art. 2",
+    "hierarchy_path": [
+      "I",
+      "2"
+    ],
+    "corpus_id": "ro.constitutia"
+  },
+  {
+    "id": "ro.constitutia.titlu_i.art_2.alin_1",
+    "type": "alineat",
+    "raw_text": "(1) Suveranitatea nationala apartine poporului roman.",
+    "hierarchy_path": [
+      "I",
+      "2",
+      "1"
+    ],
+    "corpus_id": "ro.constitutia"
+  },
+  {
+    "id": "ro.constitutia.titlu_i.art_2.alin_2",
+    "type": "alineat",
+    "raw_text": "(2) Nici un grup si nici o persoana nu poate exercita suveranitatea in nume propriu.",
+    "hierarchy_path": [
+      "I",
+      "2",
+      "2"
+    ],
+    "corpus_id": "ro.constitutia"
+  },
+  {
+    "id": "ro.constitutia.titlu_i.art_3",
+    "type": "articol",
+    "raw_text": "Art. 3\nTeritoriul Romaniei este inalienabil.",
+    "hierarchy_path": [
+      "I",
+      "3"
+    ],
+    "corpus_id": "ro.constitutia"
+  },
+  {
+    "id": "ro.constitutia.titlu_ii",
+    "type": "titlu",
+    "raw_text": "TITLUL II\nDrepturile, libertatile si indatoririle fundamentale",
+    "hierarchy_path": [
+      "II"
+    ],
+    "corpus_id": "ro.constitutia"
+  },
+  {
+    "id": "ro.constitutia.titlu_ii.capitol_i",
+    "type": "capitol",
+    "raw_text": "CAPITOLUL I\nDispozitii comune",
+    "hierarchy_path": [
+      "II",
+      "I"
+    ],
+    "corpus_id": "ro.constitutia"
+  },
+  {
+    "id": "ro.constitutia.titlu_ii.capitol_i.art_15",
+    "type": "articol",
+    "raw_text": "Art. 15",
+    "hierarchy_path": [
+      "II",
+      "I",
+      "15"
+    ],
+    "corpus_id": "ro.constitutia"
+  },
+  {
+    "id": "ro.constitutia.titlu_ii.capitol_i.art_15.alin_1",
+    "type": "alineat",
+    "raw_text": "(1) Cetatenii beneficiaza de drepturile si libertatile consacrate prin Constitutie.",
+    "hierarchy_path": [
+      "II",
+      "I",
+      "15",
+      "1"
+    ],
+    "corpus_id": "ro.constitutia"
+  },
+  {
+    "id": "ro.constitutia.titlu_ii.capitol_i.art_15.alin_2",
+    "type": "alineat",
+    "raw_text": "(2) Legea dispune numai pentru viitor, cu exceptia legii penale mai favorabile.",
+    "hierarchy_path": [
+      "II",
+      "I",
+      "15",
+      "2"
+    ],
+    "corpus_id": "ro.constitutia"
+  },
+  {
+    "id": "ro.constitutia.titlu_ii.capitol_i.art_16",
+    "type": "articol",
+    "raw_text": "Art. 16",
+    "hierarchy_path": [
+      "II",
+      "I",
+      "16"
+    ],
+    "corpus_id": "ro.constitutia"
+  },
+  {
+    "id": "ro.constitutia.titlu_ii.capitol_i.art_16.alin_1",
+    "type": "alineat",
+    "raw_text": "(1) Cetatenii sunt egali in fata legii si a autoritatilor publice.\nDispozitiile art. 15 alin. (1) se aplica in mod corespunzator.",
+    "hierarchy_path": [
+      "II",
+      "I",
+      "16",
+      "1"
+    ],
+    "corpus_id": "ro.constitutia"
+  }
+]

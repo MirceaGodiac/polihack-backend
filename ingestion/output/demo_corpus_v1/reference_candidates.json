@@ -1,0 +1,156 @@
+[
+  {
+    "source_unit_id": "ro.codul_muncii.titlu_i.capitol_i.art_1",
+    "raw_reference": "Art. 1",
+    "target_article": "1",
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_law_hint": "same_act",
+    "target_id": "ro.codul_muncii.titlu_i.capitol_i.art_1",
+    "confidence": 0.9,
+    "status": "resolved_high_confidence"
+  },
+  {
+    "source_unit_id": "ro.codul_muncii.titlu_i.capitol_i.art_2",
+    "raw_reference": "Art. 2",
+    "target_article": "2",
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_law_hint": "same_act",
+    "target_id": "ro.codul_muncii.titlu_i.capitol_i.art_2",
+    "confidence": 0.9,
+    "status": "resolved_high_confidence"
+  },
+  {
+    "source_unit_id": "ro.codul_muncii.titlu_i.capitol_ii.art_3",
+    "raw_reference": "Art. 3",
+    "target_article": "3",
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_law_hint": "same_act",
+    "target_id": "ro.codul_muncii.titlu_i.capitol_ii.art_3",
+    "confidence": 0.9,
+    "status": "resolved_high_confidence"
+  },
+  {
+    "source_unit_id": "ro.codul_muncii.titlu_i.capitol_ii.art_4",
+    "raw_reference": "Art. 4",
+    "target_article": "4",
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_law_hint": "same_act",
+    "target_id": "ro.codul_muncii.titlu_i.capitol_ii.art_4",
+    "confidence": 0.9,
+    "status": "resolved_high_confidence"
+  },
+  {
+    "source_unit_id": "ro.codul_muncii.titlu_i.capitol_ii.art_5",
+    "raw_reference": "Art. 5",
+    "target_article": "5",
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_law_hint": "same_act",
+    "target_id": "ro.codul_muncii.titlu_i.capitol_ii.art_5",
+    "confidence": 0.9,
+    "status": "resolved_high_confidence"
+  },
+  {
+    "source_unit_id": "ro.codul_muncii.titlu_i.capitol_ii.art_5",
+    "raw_reference": "art. 4 alin. (1)",
+    "target_article": "4",
+    "target_paragraph": "1",
+    "target_letter": null,
+    "target_law_hint": "same_act",
+    "target_id": "ro.codul_muncii.titlu_i.capitol_ii.art_4.alin_1",
+    "confidence": 0.9,
+    "status": "resolved_high_confidence"
+  },
+  {
+    "source_unit_id": "ro.codul_muncii.titlu_i.capitol_ii.art_6",
+    "raw_reference": "Art. 6",
+    "target_article": "6",
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_law_hint": "same_act",
+    "target_id": "ro.codul_muncii.titlu_i.capitol_ii.art_6",
+    "confidence": 0.9,
+    "status": "resolved_high_confidence"
+  },
+  {
+    "source_unit_id": "ro.codul_muncii.titlu_i.capitol_ii.art_6",
+    "raw_reference": "art. 3",
+    "target_article": "3",
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_law_hint": "same_act",
+    "target_id": "ro.codul_muncii.titlu_i.capitol_ii.art_3",
+    "confidence": 0.9,
+    "status": "resolved_high_confidence"
+  },
+  {
+    "source_unit_id": "ro.constitutia.titlu_i.art_1",
+    "raw_reference": "Art. 1",
+    "target_article": "1",
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_law_hint": "same_act",
+    "target_id": "ro.constitutia.titlu_i.art_1",
+    "confidence": 0.9,
+    "status": "resolved_high_confidence"
+  },
+  {
+    "source_unit_id": "ro.constitutia.titlu_i.art_2",
+    "raw_reference": "Art. 2",
+    "target_article": "2",
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_law_hint": "same_act",
+    "target_id": "ro.constitutia.titlu_i.art_2",
+    "confidence": 0.9,
+    "status": "resolved_high_confidence"
+  },
+  {
+    "source_unit_id": "ro.constitutia.titlu_i.art_3",
+    "raw_reference": "Art. 3",
+    "target_article": "3",
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_law_hint": "same_act",
+    "target_id": "ro.constitutia.titlu_i.art_3",
+    "confidence": 0.9,
+    "status": "resolved_high_confidence"
+  },
+  {
+    "source_unit_id": "ro.constitutia.titlu_ii.capitol_i.art_15",
+    "raw_reference": "Art. 15",
+    "target_article": "15",
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_law_hint": "same_act",
+    "target_id": "ro.constitutia.titlu_ii.capitol_i.art_15",
+    "confidence": 0.9,
+    "status": "resolved_high_confidence"
+  },
+  {
+    "source_unit_id": "ro.constitutia.titlu_ii.capitol_i.art_16",
+    "raw_reference": "Art. 16",
+    "target_article": "16",
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_law_hint": "same_act",
+    "target_id": "ro.constitutia.titlu_ii.capitol_i.art_16",
+    "confidence": 0.9,
+    "status": "resolved_high_confidence"
+  },
+  {
+    "source_unit_id": "ro.constitutia.titlu_ii.capitol_i.art_16.alin_1",
+    "raw_reference": "art. 15 alin. (1)",
+    "target_article": "15",
+    "target_paragraph": "1",
+    "target_letter": null,
+    "target_law_hint": "same_act",
+    "target_id": "ro.constitutia.titlu_ii.capitol_i.art_15.alin_1",
+    "confidence": 0.9,
+    "status": "resolved_high_confidence"
+  }
+]

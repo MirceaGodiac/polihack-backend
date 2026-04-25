@@ -1,0 +1,28 @@
+{
+  "batch_id": "demo_corpus_v1",
+  "generated_at": "2026-04-25T13:30:34.564371+00:00",
+  "schema_version": "1.0.0",
+  "sources": [
+    {
+      "law_id": "ro.codul_muncii",
+      "law_title": "Codul Muncii",
+      "legal_domain": "dreptul_muncii"
+    },
+    {
+      "law_id": "ro.constitutia",
+      "law_title": "Constitutia Romaniei",
+      "legal_domain": "drept_constitutional"
+    }
+  ],
+  "output_dir": "ingestion\\output\\demo_corpus_v1",
+  "files": {
+    "legal_units": "ingestion\\output\\demo_corpus_v1\\legal_units.json",
+    "legal_edges": "ingestion\\output\\demo_corpus_v1\\legal_edges.json",
+    "validation_report": "ingestion\\output\\demo_corpus_v1\\validation_report.json",
+    "corpus_manifest": "ingestion\\output\\demo_corpus_v1\\corpus_manifest.json",
+    "reference_candidates": "ingestion\\output\\demo_corpus_v1\\reference_candidates.json",
+    "embeddings": "ingestion\\output\\demo_corpus_v1\\embeddings.import.jsonl",
+    "eval_cases": "ingestion\\output\\demo_corpus_v1\\eval_cases.json",
+    "retrieval_report": "ingestion\\output\\demo_corpus_v1\\retrieval_eval_report.json"
+  }
+}

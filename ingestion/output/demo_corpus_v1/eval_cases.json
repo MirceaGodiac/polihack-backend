@@ -1,0 +1,26 @@
+[
+  {
+    "id": "Q1",
+    "question": "Care este durata maxima a timpului de munca conform Codului Muncii?",
+    "expected_domain": "labor",
+    "expected_units": ["ro.codul_muncii.art_112"]
+  },
+  {
+    "id": "Q2",
+    "question": "Ce drepturi au copiii si tinerii in Constitutie?",
+    "expected_domain": "constitutional",
+    "expected_units": ["ro.constitutia.art_49"]
+  },
+  {
+    "id": "Q3",
+    "question": "Concediul de odihna anual",
+    "expected_domain": "labor",
+    "expected_units": ["ro.codul_muncii.art_144", "ro.codul_muncii.art_145"]
+  },
+  {
+    "id": "Q4",
+    "question": "Libertatea intrunirilor",
+    "expected_domain": "constitutional",
+    "expected_units": ["ro.constitutia.art_39"]
+  }
+]

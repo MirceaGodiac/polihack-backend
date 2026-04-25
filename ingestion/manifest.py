@@ -47,10 +47,14 @@ def build_manifest(
         ],
         "output_dir": str(out_dir),
         "files": {
-            "legal_units":        str(out_dir / "legal_units.json"),
-            "legal_edges":        str(out_dir / "legal_edges.json"),
-            "validation_report":  str(out_dir / "validation_report.json"),
-            "corpus_manifest":    str(out_dir / "corpus_manifest.json"),
+            "legal_units":          str(out_dir / "legal_units.json"),
+            "legal_edges":          str(out_dir / "legal_edges.json"),
+            "validation_report":    str(out_dir / "validation_report.json"),
+            "corpus_manifest":      str(out_dir / "corpus_manifest.json"),
+            "reference_candidates": str(out_dir / "reference_candidates.json"),
+            "embeddings":           str(out_dir / "embeddings.import.jsonl"),
+            "eval_cases":           str(out_dir / "eval_cases.json"),
+            "retrieval_report":     str(out_dir / "retrieval_eval_report.json"),
         },
     }
     return manifest

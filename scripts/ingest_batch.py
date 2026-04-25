@@ -135,6 +135,9 @@ def run(manifest_path: str, out_dir: str) -> None:
     with open(out_dir / "legal_edges.json", "w", encoding="utf-8") as f:
         json.dump(all_edges, f, indent=2, ensure_ascii=False)
 
+    with open(out_dir / "reference_candidates.json", "w", encoding="utf-8") as f:
+        json.dump(all_ref_candidates, f, indent=2, ensure_ascii=False)
+
     save_validation_report(report, str(out_dir / "validation_report.json"))
 
     # Derive batch_id from the out_dir name
@@ -142,11 +145,20 @@ def run(manifest_path: str, out_dir: str) -> None:
     manifest = build_manifest(batch_id, sources, out_dir)
     save_manifest(manifest, out_dir / "corpus_manifest.json")
 
+    # Copy eval_cases.json if it exists
+    eval_src = REPO_ROOT / "ingestion" / "eval" / "eval_cases.json"
+    if eval_src.exists():
+        import shutil
+        shutil.copy(eval_src, out_dir / "eval_cases.json")
+        print("  eval_cases.json (copied from ingestion/eval)")
+
     print(f"\nOutput bundle written to: {out_dir.resolve()}")
     print("  legal_units.json")
     print("  legal_edges.json")
+    print("  reference_candidates.json")
     print("  validation_report.json")
     print("  corpus_manifest.json")
+    print("  eval_cases.json")
     print("\n=== Done ===\n")
 
 
