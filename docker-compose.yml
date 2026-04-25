@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: lexai-postgres
+    environment:
+      POSTGRES_DB: lexai
+      POSTGRES_USER: lexai
+      POSTGRES_PASSWORD: lexai
+    ports:
+      - "5432:5432"
+    volumes:
+      - lexai-postgres-data:/var/lib/postgresql/data
+      - ./db-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lexai -d lexai"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  lexai-postgres-data:
