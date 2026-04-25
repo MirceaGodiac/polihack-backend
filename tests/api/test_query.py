@@ -62,6 +62,7 @@ def test_post_api_query_debug_true_includes_debug_payload():
     debug = response.json()["debug"]
     assert debug["orchestrator"] == "QueryOrchestrator"
     assert debug["evidence_service"] == "MockEvidenceService"
+    assert debug["retrieval_mode"] == "fallback_unconfigured"
     assert debug["evidence_units_count"] == 0
     assert debug["query_understanding"]["legal_domain"] == "muncă"
     assert debug["query_understanding"]["domain_confidence"] >= 0.70
@@ -233,6 +234,7 @@ async def test_query_orchestrator_populates_evidence_units_with_fake_candidates(
     assert evidence_payload["score_breakdown"]
     assert response.graph.nodes
     assert response.debug.evidence_pack["fallback_used"] is False
+    assert response.debug.retrieval_mode == "raw_retriever_client:FakeRawRetrieverClient"
     assert response.debug.evidence_pack["selected_evidence_count"] == 1
     assert response.debug.generation["evidence_unit_count_used"] == 1
     assert response.citations == []

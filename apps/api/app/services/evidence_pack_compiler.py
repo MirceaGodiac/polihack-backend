@@ -19,6 +19,7 @@ from ..schemas import (
 EVIDENCE_PACK_NO_RANKED_CANDIDATES = "evidence_pack_no_ranked_candidates"
 EVIDENCE_PACK_PARTIAL = "evidence_pack_partial"
 EVIDENCE_PACK_MISSING_UNIT_TEXT = "evidence_pack_missing_unit_text"
+EVIDENCE_PACK_MISSING_UNIT_RAW_TEXT = "evidence_pack_missing_unit_raw_text"
 EVIDENCE_PACK_MISSING_UNIT_METADATA = "evidence_pack_missing_unit_metadata"
 
 SUPPORT_ROLES = (
@@ -199,13 +200,13 @@ class EvidencePackCompiler:
         warnings: list[str],
     ) -> list[_EvidenceCandidate]:
         pool: list[_EvidenceCandidate] = []
-        missing_text = False
+        missing_raw_text = False
         missing_metadata = False
         for ranked in ranked_candidates[: self.candidate_pool_size]:
             unit = ranked.unit or {}
             text = self._candidate_text(unit)
             if not unit or not text:
-                missing_text = True
+                missing_raw_text = True
                 continue
             if not self._has_required_metadata(unit):
                 missing_metadata = True
@@ -219,7 +220,8 @@ class EvidencePackCompiler:
                     why_selected=self._base_selection_reasons(ranked),
                 )
             )
-        if missing_text:
+        if missing_raw_text:
+            warnings.append(EVIDENCE_PACK_MISSING_UNIT_RAW_TEXT)
             warnings.append(EVIDENCE_PACK_MISSING_UNIT_TEXT)
         if missing_metadata:
             warnings.append(EVIDENCE_PACK_MISSING_UNIT_METADATA)
@@ -539,10 +541,9 @@ class EvidencePackCompiler:
         }
 
     def _candidate_text(self, unit: dict[str, Any]) -> str:
-        for key in ("raw_text", "normalized_text", "text"):
-            value = unit.get(key)
-            if isinstance(value, str) and value.strip():
-                return value.strip()
+        value = unit.get("raw_text")
+        if isinstance(value, str) and value.strip():
+            return value.strip()
         return ""
 
     def _has_required_metadata(self, unit: dict[str, Any]) -> bool:

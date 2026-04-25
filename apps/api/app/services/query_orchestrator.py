@@ -26,7 +26,7 @@ from .graph_expansion_policy import GraphExpansionPolicy
 from .legal_ranker import LegalRanker
 from .mock_evidence import MockEvidenceService
 from .query_understanding import QueryUnderstanding
-from .raw_retriever_client import RawRetrieverClient
+from .raw_retriever_client import RAW_RETRIEVAL_NOT_CONFIGURED, RawRetrieverClient
 
 
 class QueryOrchestrator:
@@ -134,7 +134,7 @@ class QueryOrchestrator:
             debug = QueryDebugData(
                 orchestrator=self.__class__.__name__,
                 evidence_service=self.evidence_service.__class__.__name__,
-                retrieval_mode="mock_static_fixture",
+                retrieval_mode=self._retrieval_mode(raw_retrieval),
                 query_understanding=query_plan,
                 retrieval=raw_retrieval.debug,
                 graph_expansion=graph_expansion.debug,
@@ -322,6 +322,11 @@ class QueryOrchestrator:
             if value not in deduped:
                 deduped.append(value)
         return deduped
+
+    def _retrieval_mode(self, raw_retrieval) -> str:
+        if RAW_RETRIEVAL_NOT_CONFIGURED in raw_retrieval.warnings:
+            return "fallback_unconfigured"
+        return f"raw_retriever_client:{self.raw_retriever_client.__class__.__name__}"
 
     def _query_id(self, request: QueryRequest) -> str:
         stable_input = "|".join(
