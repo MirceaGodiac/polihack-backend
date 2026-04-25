@@ -51,13 +51,26 @@ class LegalUnit(BaseModel):
     incoming_reference_ids: list[str] = Field(default_factory=list)
 
 
-class EvidenceUnit(BaseModel):
+class EvidenceUnit(LegalUnit):
     evidence_id: str
-    legal_unit: LegalUnit
     excerpt: str
     rank: int = Field(..., ge=1)
     relevance_score: float = Field(..., ge=0.0, le=1.0)
     retrieval_method: str
+    retrieval_score: float = 0.0
+    rerank_score: float = Field(default=0.0, ge=0.0, le=1.0)
+    mmr_score: float | None = None
+    support_role: Literal[
+        "direct_basis",
+        "definition",
+        "condition",
+        "exception",
+        "sanction",
+        "procedure",
+        "context",
+    ] = "direct_basis"
+    why_selected: list[str] = Field(default_factory=list)
+    score_breakdown: dict[str, float] = Field(default_factory=dict)
     warnings: list[str] = Field(default_factory=list)
 
 
@@ -224,6 +237,7 @@ class QueryDebugData(BaseModel):
     retrieval: dict[str, Any] | None = None
     graph_expansion: dict[str, Any] | None = None
     legal_ranker: dict[str, Any] | None = None
+    evidence_pack: dict[str, Any] | None = None
     evidence_units_count: int = Field(..., ge=0)
     citations_count: int = Field(..., ge=0)
     graph_nodes_count: int = Field(..., ge=0)

@@ -14,8 +14,9 @@ from ..schemas import (
 
 MOCK_REFUSAL_REASON = "mock_evidence_pack_not_verified"
 MOCK_WARNING = (
-    "mock_unverified_evidence_pack: Phase 1 returns deterministic mock evidence "
-    "only; retrieval, LegalRanker, generation, and citation verification have not run."
+    "mock_unverified_answer: Phase 7 keeps answer generation and citation "
+    "verification mocked; compiled evidence, if present, is not converted into "
+    "a verified legal conclusion."
 )
 
 
@@ -42,7 +43,7 @@ class MockEvidenceService:
         answer = AnswerPayload(
             short_answer=(
                 "Phase 1 mock response only. No verified legal conclusion is provided; "
-                "the evidence below is deterministic placeholder data for API contract testing."
+                "Phase 7 may compile evidence units separately, but generation is not configured."
             ),
             detailed_answer=None,
             confidence=0.0,
@@ -72,7 +73,7 @@ class MockEvidenceService:
             warnings=warnings,
             debug_notes=[
                 "MockEvidenceService.build_pack returned static fixture data.",
-                "No database, vector search, graph expansion, ranker, generation, or verifier was called.",
+                "Generation and citation verification remain mocked and unverified.",
             ],
         )
 
@@ -117,12 +118,15 @@ class MockEvidenceService:
 
         return [
             EvidenceUnit(
+                **legal_unit.model_dump(),
                 evidence_id=f"mock-evidence-{index}",
-                legal_unit=legal_unit,
                 excerpt=excerpt,
                 rank=index,
                 relevance_score=0.0,
                 retrieval_method="mock_static_fixture",
+                retrieval_score=0.0,
+                rerank_score=0.0,
+                support_role="direct_basis",
                 warnings=[MOCK_WARNING],
             )
             for index, (legal_unit, excerpt) in enumerate(
@@ -136,7 +140,7 @@ class MockEvidenceService:
             Citation(
                 citation_id="mock-citation-1",
                 evidence_id=evidence_units[0].evidence_id,
-                legal_unit_id=evidence_units[0].legal_unit.id,
+                legal_unit_id=evidence_units[0].id,
                 label="Codul muncii art. 17 (mock, unverified)",
                 quote=evidence_units[0].excerpt,
                 verified=False,
@@ -144,7 +148,7 @@ class MockEvidenceService:
             Citation(
                 citation_id="mock-citation-2",
                 evidence_id=evidence_units[1].evidence_id,
-                legal_unit_id=evidence_units[1].legal_unit.id,
+                legal_unit_id=evidence_units[1].id,
                 label="Codul muncii art. 41 (mock, unverified)",
                 quote=evidence_units[1].excerpt,
                 verified=False,

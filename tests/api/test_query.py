@@ -1,6 +1,9 @@
+import pytest
 from fastapi.testclient import TestClient
 
 from apps.api.app.main import app
+from apps.api.app.schemas import QueryRequest, RawRetrievalResponse, RetrievalCandidate
+from apps.api.app.services.query_orchestrator import QueryOrchestrator
 
 
 VALID_QUERY = {
@@ -16,7 +19,7 @@ def post_query(payload: dict) -> object:
         return client.post("/api/query", json=payload)
 
 
-def test_post_api_query_returns_mock_evidence_pack():
+def test_post_api_query_returns_unverified_fallback_without_retrieval():
     response = post_query({**VALID_QUERY, "debug": False})
 
     assert response.status_code == 200
@@ -26,12 +29,12 @@ def test_post_api_query_returns_mock_evidence_pack():
     assert payload["answer"]["confidence"] == 0.0
     assert payload["answer"]["not_legal_advice"] is True
     assert payload["answer"]["refusal_reason"] == "mock_evidence_pack_not_verified"
-    assert len(payload["citations"]) >= 2
-    assert len(payload["evidence_units"]) >= 3
+    assert payload["citations"] == []
+    assert payload["evidence_units"] == []
     assert payload["verifier"]["verifier_passed"] is False
-    assert payload["graph"]["nodes"]
-    assert payload["graph"]["edges"]
-    assert payload["warnings"]
+    assert payload["graph"]["nodes"] == []
+    assert payload["graph"]["edges"] == []
+    assert "evidence_pack_no_ranked_candidates" in payload["warnings"]
 
 
 def test_post_api_query_uses_snake_case_fields():
@@ -40,9 +43,9 @@ def test_post_api_query_uses_snake_case_fields():
     payload = response.json()
     assert "query_id" in payload
     assert "short_answer" in payload["answer"]
-    assert "id" in payload["evidence_units"][0]["legal_unit"]
     assert "groundedness_score" in payload["verifier"]
-    assert "source" in payload["graph"]["edges"][0]
+    assert "evidence_units" in payload
+    assert "nodes" in payload["graph"]
 
 
 def test_post_api_query_debug_true_includes_debug_payload():
@@ -52,7 +55,7 @@ def test_post_api_query_debug_true_includes_debug_payload():
     debug = response.json()["debug"]
     assert debug["orchestrator"] == "QueryOrchestrator"
     assert debug["evidence_service"] == "MockEvidenceService"
-    assert debug["evidence_units_count"] >= 3
+    assert debug["evidence_units_count"] == 0
     assert debug["query_understanding"]["legal_domain"] == "muncă"
     assert debug["query_understanding"]["domain_confidence"] >= 0.70
     assert "prohibition" in debug["query_understanding"]["query_types"]
@@ -81,6 +84,11 @@ def test_post_api_query_debug_true_includes_debug_payload():
     assert legal_ranker["ranked_candidate_count"] == 0
     assert legal_ranker["ranked_candidates"] == []
     assert "legal_ranker_no_candidates" in legal_ranker["warnings"]
+    evidence_pack = debug["evidence_pack"]
+    assert evidence_pack["fallback_used"] is True
+    assert evidence_pack["input_ranked_candidate_count"] == 0
+    assert evidence_pack["selected_evidence_count"] == 0
+    assert "evidence_pack_no_ranked_candidates" in evidence_pack["warnings"]
 
 
 def test_post_api_query_debug_false_returns_null_debug():
@@ -92,6 +100,7 @@ def test_post_api_query_debug_false_returns_null_debug():
     assert "raw_retrieval_not_configured" in payload["warnings"]
     assert "graph_expansion_no_seed_candidates" in payload["warnings"]
     assert "legal_ranker_no_candidates" in payload["warnings"]
+    assert "evidence_pack_no_ranked_candidates" in payload["warnings"]
 
 
 def test_post_api_query_debug_true_includes_exact_citations():
@@ -125,13 +134,89 @@ def test_post_api_query_debug_true_includes_exact_citations():
     assert "raw_retrieval_not_configured" in payload["warnings"]
     assert "graph_expansion_no_seed_candidates" in payload["warnings"]
     assert "legal_ranker_no_candidates" in payload["warnings"]
+    assert "evidence_pack_no_ranked_candidates" in payload["warnings"]
     assert payload["debug"]["graph_expansion"]["fallback_used"] is True
     assert payload["debug"]["legal_ranker"]["fallback_used"] is True
+    assert payload["debug"]["evidence_pack"]["fallback_used"] is True
+
+
+class FakeRawRetrieverClient:
+    async def retrieve(self, plan, *, top_k: int = 50, debug: bool = False):
+        return RawRetrievalResponse(
+            candidates=[
+                RetrievalCandidate(
+                    unit_id="ro.codul_muncii.art_41",
+                    rank=1,
+                    retrieval_score=0.78,
+                    score_breakdown={"bm25": 0.9, "dense": 0.7},
+                    why_retrieved="fixture_candidate",
+                    unit={
+                        "id": "ro.codul_muncii.art_41",
+                        "law_id": "ro.codul_muncii",
+                        "law_title": "Codul muncii",
+                        "status": "active",
+                        "hierarchy_path": ["Codul muncii", "art. 41"],
+                        "article_number": "41",
+                        "raw_text": "Contractul individual de munca poate fi modificat prin acordul partilor.",
+                        "legal_domain": "munca",
+                        "legal_concepts": ["contract", "salariu"],
+                        "source_url": "https://legislatie.just.ro/test",
+                        "type": "articol",
+                    },
+                )
+            ],
+            retrieval_methods=["fixture"],
+            warnings=[],
+            debug={
+                "fallback_used": False,
+                "request_payload": {
+                    "question": plan.question,
+                    "retrieval_filters": plan.retrieval_filters,
+                    "exact_citations": [],
+                    "top_k": top_k,
+                    "debug": debug,
+                },
+            }
+            if debug
+            else None,
+        )
+
+
+@pytest.mark.anyio
+async def test_query_orchestrator_populates_evidence_units_with_fake_candidates():
+    orchestrator = QueryOrchestrator(raw_retriever_client=FakeRawRetrieverClient())
+    response = await orchestrator.run(QueryRequest(**VALID_QUERY, debug=True))
+
+    assert len(response.evidence_units) == 1
+    evidence = response.evidence_units[0]
+    assert evidence.id == "ro.codul_muncii.art_41"
+    assert evidence.law_title == "Codul muncii"
+    assert evidence.raw_text == "Contractul individual de munca poate fi modificat prin acordul partilor."
+    assert evidence.excerpt == "Contractul individual de munca poate fi modificat prin acordul partilor."
+    assert evidence.retrieval_score == 0.78
+    assert evidence.rerank_score is not None
+    assert evidence.support_role in {"direct_basis", "condition"}
+    assert "selected_by_mmr" in evidence.why_selected
+    assert evidence.score_breakdown
+    evidence_payload = response.model_dump(mode="json")["evidence_units"][0]
+    assert "legal_unit" not in evidence_payload
+    assert evidence_payload["id"] == "ro.codul_muncii.art_41"
+    assert evidence_payload["law_title"] == "Codul muncii"
+    assert evidence_payload["retrieval_score"] == 0.78
+    assert evidence_payload["support_role"] in {"direct_basis", "condition"}
+    assert isinstance(evidence_payload["why_selected"], list)
+    assert evidence_payload["score_breakdown"]
+    assert response.graph.nodes
+    assert response.debug.evidence_pack["fallback_used"] is False
+    assert response.debug.evidence_pack["selected_evidence_count"] == 1
+    assert response.answer.confidence == 0.0
+    assert response.verifier.verifier_passed is False
 
 
 def test_handoff04_graph_endpoints_are_not_registered():
     paths = {route.path for route in app.routes}
 
+    assert "/api/retrieve/raw" not in paths
     assert "/api/legal-units/{id}/neighbors" not in paths
     assert "/api/explore/root" not in paths
     assert "/api/explore/node/{id}/children" not in paths
