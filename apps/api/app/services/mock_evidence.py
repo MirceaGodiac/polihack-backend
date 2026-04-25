@@ -77,30 +77,42 @@ class MockEvidenceService:
         )
 
     def _build_evidence_units(self) -> list[EvidenceUnit]:
-        legal_units = [
-            LegalUnit(
-                legal_unit_id="mock:ro:codul-muncii:art-17",
-                legal_act="Codul muncii",
-                article="art. 17",
-                title="Informarea salariatului - mock placeholder",
-            ),
-            LegalUnit(
-                legal_unit_id="mock:ro:codul-muncii:art-41",
-                legal_act="Codul muncii",
-                article="art. 41",
-                title="Modificarea contractului individual de munca - mock placeholder",
-            ),
-            LegalUnit(
-                legal_unit_id="mock:ro:codul-muncii:art-159",
-                legal_act="Codul muncii",
-                article="art. 159",
-                title="Salariul - mock placeholder",
-            ),
-        ]
         excerpts = [
             "Mock excerpt for art. 17. This placeholder was not retrieved from an official source.",
             "Mock excerpt for art. 41. This placeholder was not retrieved from an official source.",
             "Mock excerpt for art. 159. This placeholder was not retrieved from an official source.",
+        ]
+        legal_units = [
+            LegalUnit(
+                id="mock:ro:codul-muncii:art-17",
+                law_id="ro.codul_muncii",
+                law_title="Codul muncii",
+                status="active",
+                hierarchy_path=["Codul muncii", "art. 17"],
+                article_number="17",
+                raw_text=excerpts[0],
+                legal_domain="muncă",
+            ),
+            LegalUnit(
+                id="mock:ro:codul-muncii:art-41",
+                law_id="ro.codul_muncii",
+                law_title="Codul muncii",
+                status="active",
+                hierarchy_path=["Codul muncii", "art. 41"],
+                article_number="41",
+                raw_text=excerpts[1],
+                legal_domain="muncă",
+            ),
+            LegalUnit(
+                id="mock:ro:codul-muncii:art-159",
+                law_id="ro.codul_muncii",
+                law_title="Codul muncii",
+                status="active",
+                hierarchy_path=["Codul muncii", "art. 159"],
+                article_number="159",
+                raw_text=excerpts[2],
+                legal_domain="muncă",
+            ),
         ]
 
         return [
@@ -124,7 +136,7 @@ class MockEvidenceService:
             Citation(
                 citation_id="mock-citation-1",
                 evidence_id=evidence_units[0].evidence_id,
-                legal_unit_id=evidence_units[0].legal_unit.legal_unit_id,
+                legal_unit_id=evidence_units[0].legal_unit.id,
                 label="Codul muncii art. 17 (mock, unverified)",
                 quote=evidence_units[0].excerpt,
                 verified=False,
@@ -132,7 +144,7 @@ class MockEvidenceService:
             Citation(
                 citation_id="mock-citation-2",
                 evidence_id=evidence_units[1].evidence_id,
-                legal_unit_id=evidence_units[1].legal_unit.legal_unit_id,
+                legal_unit_id=evidence_units[1].legal_unit.id,
                 label="Codul muncii art. 41 (mock, unverified)",
                 quote=evidence_units[1].excerpt,
                 verified=False,
@@ -142,60 +154,70 @@ class MockEvidenceService:
     def _build_graph(self, request: QueryRequest, query_id: str) -> GraphPayload:
         nodes = [
             GraphNode(
-                node_id=f"query:{query_id}",
-                node_type="query",
+                id=f"query:{query_id}",
+                type="query",
                 label=request.question,
                 metadata={"jurisdiction": request.jurisdiction, "mode": request.mode},
             ),
             GraphNode(
-                node_id="domain:employment_law",
-                node_type="domain",
+                id="domain:employment_law",
+                type="domain",
                 label="Dreptul muncii (mock domain)",
+                domain="muncă",
                 metadata={"mock": True},
             ),
             GraphNode(
-                node_id="legal_act:mock:codul-muncii",
-                node_type="legal_act",
+                id="legal_act:mock:codul-muncii",
+                type="legal_act",
                 label="Codul muncii (mock legal act)",
                 metadata={"mock": True},
             ),
             GraphNode(
-                node_id="article:mock:codul-muncii:art-41",
-                node_type="article",
+                id="article:mock:codul-muncii:art-41",
+                type="article",
                 label="art. 41 (mock article)",
+                legal_unit_id="mock:ro:codul-muncii:art-41",
                 metadata={"mock": True},
             ),
             GraphNode(
-                node_id=f"answer:{query_id}",
-                node_type="answer",
+                id=f"answer:{query_id}",
+                type="answer",
                 label="Mock unverified answer",
                 metadata={"verifier_passed": False},
             ),
         ]
         edges = [
             GraphEdge(
-                edge_id="edge:query-domain",
-                source_node_id=nodes[0].node_id,
-                target_node_id=nodes[1].node_id,
-                edge_type="mock_classified_as",
+                id="edge:query-domain",
+                source=nodes[0].id,
+                target=nodes[1].id,
+                type="retrieved_for_query",
+                weight=0.0,
+                confidence=0.0,
             ),
             GraphEdge(
-                edge_id="edge:domain-act",
-                source_node_id=nodes[1].node_id,
-                target_node_id=nodes[2].node_id,
-                edge_type="mock_related_legal_act",
+                id="edge:domain-act",
+                source=nodes[1].id,
+                target=nodes[2].id,
+                type="contains",
+                weight=0.0,
+                confidence=0.0,
             ),
             GraphEdge(
-                edge_id="edge:act-article",
-                source_node_id=nodes[2].node_id,
-                target_node_id=nodes[3].node_id,
-                edge_type="mock_contains_article",
+                id="edge:act-article",
+                source=nodes[2].id,
+                target=nodes[3].id,
+                type="contains",
+                weight=0.0,
+                confidence=0.0,
             ),
             GraphEdge(
-                edge_id="edge:article-answer",
-                source_node_id=nodes[3].node_id,
-                target_node_id=nodes[4].node_id,
-                edge_type="mock_support_candidate",
+                id="edge:article-answer",
+                source=nodes[3].id,
+                target=nodes[4].id,
+                type="cited_in_answer",
+                weight=0.0,
+                confidence=0.0,
                 metadata={"verified": False},
             ),
         ]

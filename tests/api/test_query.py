@@ -40,9 +40,9 @@ def test_post_api_query_uses_snake_case_fields():
     payload = response.json()
     assert "query_id" in payload
     assert "short_answer" in payload["answer"]
-    assert "legal_unit_id" in payload["evidence_units"][0]["legal_unit"]
+    assert "id" in payload["evidence_units"][0]["legal_unit"]
     assert "groundedness_score" in payload["verifier"]
-    assert "source_node_id" in payload["graph"]["edges"][0]
+    assert "source" in payload["graph"]["edges"][0]
 
 
 def test_post_api_query_debug_true_includes_debug_payload():

@@ -1,3 +1,4 @@
+from datetime import date
 from typing import Any, Literal
 
 from pydantic import BaseModel, Field
@@ -22,12 +23,32 @@ class AnswerPayload(BaseModel):
 
 
 class LegalUnit(BaseModel):
-    legal_unit_id: str
-    legal_act: str
-    article: str | None = None
-    title: str | None = None
-    jurisdiction: Literal["RO"] = "RO"
+    id: str
+    canonical_id: str | None = None
+    source_id: str | None = None
+    law_id: str
+    law_title: str
+    act_type: str | None = None
+    act_number: str | None = None
+    publication_date: date | None = None
+    effective_date: date | None = None
+    version_start: date | None = None
+    version_end: date | None = None
+    status: Literal["active", "historical", "repealed", "unknown"]
+    hierarchy_path: list[str]
+    article_number: str | None = None
+    paragraph_number: str | None = None
+    letter_number: str | None = None
+    point_number: str | None = None
+    raw_text: str
+    normalized_text: str | None = None
+    legal_domain: str
+    legal_concepts: list[str] = Field(default_factory=list)
     source_url: str | None = None
+    parent_id: str | None = None
+    children_ids: list[str] = Field(default_factory=list)
+    outgoing_reference_ids: list[str] = Field(default_factory=list)
+    incoming_reference_ids: list[str] = Field(default_factory=list)
 
 
 class EvidenceUnit(BaseModel):
@@ -51,18 +72,62 @@ class Citation(BaseModel):
 
 
 class GraphNode(BaseModel):
-    node_id: str
-    node_type: str
+    id: str
     label: str
-    metadata: JsonMetadata = Field(default_factory=dict)
+    type: Literal[
+        "root",
+        "domain",
+        "subdomain",
+        "legal_act",
+        "title",
+        "chapter",
+        "section",
+        "article",
+        "paragraph",
+        "letter",
+        "point",
+        "annex",
+        "concept",
+        "query",
+        "answer",
+        "cited_claim",
+    ]
+    legal_unit_id: str | None = None
+    domain: str | None = None
+    status: str | None = None
+    importance: float | None = None
+    metadata: dict[str, Any] = Field(default_factory=dict)
 
 
 class GraphEdge(BaseModel):
-    edge_id: str
-    source_node_id: str
-    target_node_id: str
-    edge_type: str
-    metadata: JsonMetadata = Field(default_factory=dict)
+    id: str
+    source: str
+    target: str
+    type: Literal[
+        "contains",
+        "references",
+        "amends",
+        "repeals",
+        "derogates_from",
+        "exception_to",
+        "defines",
+        "sanctions",
+        "creates_obligation",
+        "creates_right",
+        "creates_prohibition",
+        "procedure_step",
+        "same_topic_as",
+        "semantically_related",
+        "retrieved_for_query",
+        "cited_in_answer",
+        "supports_claim",
+        "contradicts_claim",
+        "historical_version_of",
+    ]
+    weight: float
+    confidence: float
+    explanation: str | None = None
+    metadata: dict[str, Any] = Field(default_factory=dict)
 
 
 class GraphPayload(BaseModel):
