@@ -1,4 +1,4 @@
-# AntiGravity Legal Parser Pipeline
+# Legal Parser Pipeline
 
 A robust pipeline for scraping and parsing Romanian legal documents into atomic, addressable JSON units.
 
