@@ -1,9 +1,11 @@
 import math
+import inspect
 import unicodedata
 from typing import Any
 
 from ..schemas import (
     ExpandedCandidate,
+    GraphEdge,
     GraphExpansionResult,
     GraphNode,
     QueryPlan,
@@ -92,16 +94,24 @@ class GraphExpansionPolicy:
                 debug=debug,
             )
 
-        return self._result(
-            plan=plan,
-            seed_candidates=seeds,
-            expanded_candidates=seeds,
-            graph_nodes=self._seed_graph_nodes(retrieval_response.candidates),
-            warning=GRAPH_EXPANSION_NEIGHBORS_UNAVAILABLE,
-            fallback_used=True,
-            reason="graph neighbors endpoint request failed",
-            debug=debug,
-        )
+        try:
+            return await self._expand_with_neighbors(
+                plan=plan,
+                retrieval_response=retrieval_response,
+                seeds=seeds,
+                debug=debug,
+            )
+        except Exception:
+            return self._result(
+                plan=plan,
+                seed_candidates=seeds,
+                expanded_candidates=seeds,
+                graph_nodes=self._seed_graph_nodes(retrieval_response.candidates),
+                warning=GRAPH_EXPANSION_NEIGHBORS_UNAVAILABLE,
+                fallback_used=True,
+                reason="graph neighbors endpoint request failed",
+                debug=debug,
+            )
 
     def policy_for_plan(self, plan: QueryPlan) -> dict[str, Any]:
         return {
@@ -162,6 +172,87 @@ class GraphExpansionPolicy:
         edge_weight = EDGE_TYPE_WEIGHTS.get(edge_type, 0.0)
         return edge_weight * math.exp(-self.lambda_decay * distance)
 
+    async def _expand_with_neighbors(
+        self,
+        *,
+        plan: QueryPlan,
+        retrieval_response: RawRetrievalResponse,
+        seeds: list[ExpandedCandidate],
+        debug: bool,
+    ) -> GraphExpansionResult:
+        allowed_edge_types = set(self.allowed_edge_types(plan))
+        expanded_by_id = {seed.unit_id: seed for seed in seeds}
+        graph_nodes_by_id = {
+            node.id: node for node in self._seed_graph_nodes(retrieval_response.candidates)
+        }
+        graph_edges_by_id: dict[str, GraphEdge] = {}
+
+        for seed in seeds:
+            records = await self._neighbor_records(
+                seed.unit_id,
+                allowed_edge_types=sorted(allowed_edge_types),
+            )
+            for record in records:
+                if not isinstance(record, dict):
+                    continue
+                edge_type = self._neighbor_edge_type(record)
+                if edge_type not in allowed_edge_types:
+                    continue
+                neighbor_id = self._neighbor_unit_id(seed.unit_id, record)
+                if not neighbor_id or neighbor_id == seed.unit_id:
+                    continue
+                distance = self._neighbor_distance(record)
+                proximity = self.graph_proximity(edge_type, distance)
+
+                expanded_by_id.setdefault(
+                    neighbor_id,
+                    ExpandedCandidate(
+                        unit_id=neighbor_id,
+                        source="graph_expansion",
+                        graph_distance=distance,
+                        graph_proximity=proximity,
+                        expansion_edge_type=edge_type,
+                        expansion_reason=f"fixture_graph:{edge_type}",
+                        score_breakdown={"graph_proximity": proximity},
+                    ),
+                )
+
+                unit = record.get("unit")
+                if isinstance(unit, dict):
+                    node = self._graph_node_from_unit(
+                        unit_id=neighbor_id,
+                        unit=unit,
+                        seed=False,
+                    )
+                    graph_nodes_by_id.setdefault(node.id, node)
+
+                graph_edge = self._graph_edge_from_neighbor(seed.unit_id, record, edge_type)
+                if graph_edge is not None:
+                    graph_edges_by_id.setdefault(graph_edge.id, graph_edge)
+
+        expanded_candidates = sorted(
+            expanded_by_id.values(),
+            key=lambda candidate: (
+                candidate.graph_distance,
+                candidate.source != "seed",
+                candidate.unit_id,
+            ),
+        )
+        graph_nodes = sorted(graph_nodes_by_id.values(), key=lambda node: node.id)
+        graph_edges = sorted(graph_edges_by_id.values(), key=lambda edge: edge.id)
+
+        return self._result(
+            plan=plan,
+            seed_candidates=seeds,
+            expanded_candidates=expanded_candidates,
+            graph_nodes=graph_nodes,
+            graph_edges=graph_edges,
+            warning=None,
+            fallback_used=False,
+            reason="graph neighbors expanded from configured client",
+            debug=debug,
+        )
+
     def _seed_candidate(self, candidate: RetrievalCandidate) -> ExpandedCandidate:
         return ExpandedCandidate(
             unit_id=candidate.unit_id,
@@ -202,6 +293,140 @@ class GraphExpansionPolicy:
                 )
             )
         return nodes
+
+    async def _neighbor_records(
+        self,
+        unit_id: str,
+        *,
+        allowed_edge_types: list[str],
+    ) -> list[dict[str, Any]]:
+        method = (
+            getattr(self.neighbors_client, "neighbors_for", None)
+            or getattr(self.neighbors_client, "get_neighbors", None)
+        )
+        if method is None:
+            return []
+        try:
+            records = method(
+                unit_id,
+                allowed_edge_types=allowed_edge_types,
+                max_depth=self.max_depth,
+            )
+        except TypeError:
+            records = method(unit_id)
+        if inspect.isawaitable(records):
+            records = await records
+        if records is None:
+            return []
+        return list(records)
+
+    def _neighbor_edge_type(self, record: dict[str, Any]) -> str:
+        edge_type = record.get("edge_type") or record.get("expansion_edge_type")
+        if isinstance(edge_type, str) and edge_type:
+            return edge_type
+        edge = record.get("edge")
+        if isinstance(edge, dict) and edge.get("type") == "contains":
+            return "contains_child"
+        return str(record.get("type") or "")
+
+    def _neighbor_unit_id(self, seed_unit_id: str, record: dict[str, Any]) -> str | None:
+        value = record.get("unit_id") or record.get("neighbor_unit_id")
+        if isinstance(value, str) and value:
+            return value
+        edge = record.get("edge")
+        edge_data = edge if isinstance(edge, dict) else record
+        source_id = edge_data.get("source_id")
+        target_id = edge_data.get("target_id")
+        if source_id == seed_unit_id and isinstance(target_id, str):
+            return target_id
+        if target_id == seed_unit_id and isinstance(source_id, str):
+            return source_id
+        return None
+
+    def _neighbor_distance(self, record: dict[str, Any]) -> int:
+        try:
+            distance = int(record.get("distance") or 1)
+        except (TypeError, ValueError):
+            distance = 1
+        return max(1, distance)
+
+    def _graph_node_from_unit(
+        self,
+        *,
+        unit_id: str,
+        unit: dict[str, Any],
+        seed: bool,
+    ) -> GraphNode:
+        label = (
+            unit.get("label")
+            or unit.get("title")
+            or self._hierarchy_label(unit)
+            or unit.get("law_title")
+            or unit.get("id")
+            or unit_id
+        )
+        return GraphNode(
+            id=f"legal_unit:{unit_id}",
+            type=self._node_type(unit),
+            label=str(label),
+            legal_unit_id=unit_id,
+            domain=self._optional_str(unit.get("legal_domain") or unit.get("domain")),
+            status=self._optional_str(unit.get("status")),
+            metadata={
+                **self._scalar_metadata(unit),
+                "legal_unit_id": unit_id,
+                "seed": seed,
+            },
+        )
+
+    def _graph_edge_from_neighbor(
+        self,
+        seed_unit_id: str,
+        record: dict[str, Any],
+        expansion_edge_type: str,
+    ) -> GraphEdge | None:
+        edge = record.get("edge")
+        edge_data = edge if isinstance(edge, dict) else record
+        neighbor_id = self._neighbor_unit_id(seed_unit_id, record)
+        if not neighbor_id:
+            return None
+        source_id = edge_data.get("source_id")
+        target_id = edge_data.get("target_id")
+        direction = str(record.get("direction") or "")
+        if not isinstance(source_id, str) or not isinstance(target_id, str):
+            if direction == "parent":
+                source_id, target_id = neighbor_id, seed_unit_id
+            else:
+                source_id, target_id = seed_unit_id, neighbor_id
+        edge_type = "contains" if expansion_edge_type.startswith("contains_") else str(
+            edge_data.get("type") or expansion_edge_type
+        )
+        if edge_type not in {"contains", "references", "defines", "exception_to", "sanctions"}:
+            edge_type = "contains"
+        return GraphEdge(
+            id=str(edge_data.get("id") or f"edge:{edge_type}:{source_id}:{target_id}"),
+            source=f"legal_unit:{source_id}",
+            target=f"legal_unit:{target_id}",
+            type=edge_type,
+            weight=float(edge_data.get("weight") or 1.0),
+            confidence=float(edge_data.get("confidence") or 1.0),
+            explanation="Graph edge supplied by configured neighbors client.",
+            metadata={
+                **(
+                    edge_data.get("metadata")
+                    if isinstance(edge_data.get("metadata"), dict)
+                    else {}
+                ),
+                "expansion_edge_type": expansion_edge_type,
+                "seed_unit_id": seed_unit_id,
+            },
+        )
+
+    def _hierarchy_label(self, unit: dict[str, Any]) -> str | None:
+        hierarchy_path = unit.get("hierarchy_path")
+        if isinstance(hierarchy_path, list) and hierarchy_path:
+            return str(hierarchy_path[-1])
+        return None
 
     def _node_label(self, candidate: RetrievalCandidate) -> str:
         if not candidate.unit:
@@ -275,17 +500,19 @@ class GraphExpansionPolicy:
         seed_candidates: list[ExpandedCandidate],
         expanded_candidates: list[ExpandedCandidate],
         graph_nodes: list[GraphNode],
-        warning: str,
+        warning: str | None,
         fallback_used: bool,
         reason: str,
         debug: bool,
+        graph_edges: list[GraphEdge] | None = None,
     ) -> GraphExpansionResult:
+        graph_edges = graph_edges or []
         result = GraphExpansionResult(
             seed_candidates=seed_candidates,
             expanded_candidates=expanded_candidates,
             graph_nodes=graph_nodes,
-            graph_edges=[],
-            warnings=[warning],
+            graph_edges=graph_edges,
+            warnings=[warning] if warning else [],
             debug=None,
         )
         if debug:
@@ -300,7 +527,7 @@ class GraphExpansionPolicy:
                     for candidate in expanded_candidates
                 ],
                 "graph_node_count": len(graph_nodes),
-                "graph_edge_count": 0,
+                "graph_edge_count": len(graph_edges),
                 "warnings": result.warnings,
             }
         return result
