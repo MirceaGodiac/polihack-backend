@@ -73,7 +73,8 @@ async def test_seed_candidate_without_neighbors_client_returns_seed_only_fallbac
     assert expanded.graph_distance == 0
     assert expanded.graph_proximity == 1.0
     assert expanded.retrieval_candidate == candidate
-    assert result.graph_nodes[0].node_type == "legal_unit"
+    assert result.graph_nodes[0].type == "article"
+    assert result.graph_nodes[0].legal_unit_id == "ro.codul_muncii.art_41.alin_1"
     assert result.graph_edges == []
     assert result.debug["fallback_used"] is True
     assert result.debug["reason"] == "graph neighbors endpoint is not configured"

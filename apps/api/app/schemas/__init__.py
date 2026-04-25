@@ -18,6 +18,7 @@ from .graph import (
     ExpandedCandidate,
     GraphExpansionResult,
 )
+from .evidence import EvidencePackResult
 from .ranking import (
     LegalRankerResult,
     RankedCandidate,
@@ -34,6 +35,7 @@ __all__ = [
     "Citation",
     "ClaimResult",
     "EvidenceUnit",
+    "EvidencePackResult",
     "ExpandedCandidate",
     "ExactCitation",
     "GraphExpansionResult",

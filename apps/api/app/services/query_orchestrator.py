@@ -1,6 +1,7 @@
 from uuid import NAMESPACE_URL, uuid5
 
-from ..schemas import QueryDebugData, QueryRequest, QueryResponse
+from ..schemas import GraphPayload, QueryDebugData, QueryRequest, QueryResponse
+from .evidence_pack_compiler import EvidencePackCompiler
 from .graph_expansion_policy import GraphExpansionPolicy
 from .legal_ranker import LegalRanker
 from .mock_evidence import MockEvidenceService
@@ -16,6 +17,7 @@ class QueryOrchestrator:
         raw_retriever_client: RawRetrieverClient | None = None,
         graph_expansion_policy: GraphExpansionPolicy | None = None,
         legal_ranker: LegalRanker | None = None,
+        evidence_pack_compiler: EvidencePackCompiler | None = None,
     ) -> None:
         self.evidence_service = evidence_service or MockEvidenceService()
         self.query_understanding = query_understanding or QueryUnderstanding()
@@ -24,6 +26,9 @@ class QueryOrchestrator:
             graph_expansion_policy or GraphExpansionPolicy()
         )
         self.legal_ranker = legal_ranker or LegalRanker()
+        self.evidence_pack_compiler = (
+            evidence_pack_compiler or EvidencePackCompiler()
+        )
 
     async def run(self, request: QueryRequest) -> QueryResponse:
         query_id = self._query_id(request)
@@ -45,7 +50,17 @@ class QueryOrchestrator:
             graph_expansion=graph_expansion,
             debug=request.debug,
         )
+        compiled_evidence = self.evidence_pack_compiler.compile(
+            ranked_candidates=legal_ranker.ranked_candidates,
+            graph_expansion=graph_expansion,
+            plan=query_plan,
+            debug=request.debug,
+        )
         evidence_pack = await self.evidence_service.build_pack(request, query_id)
+        graph = GraphPayload(
+            nodes=compiled_evidence.graph_nodes,
+            edges=compiled_evidence.graph_edges,
+        )
         debug = None
         if request.debug:
             debug = QueryDebugData(
@@ -56,10 +71,11 @@ class QueryOrchestrator:
                 retrieval=raw_retrieval.debug,
                 graph_expansion=graph_expansion.debug,
                 legal_ranker=legal_ranker.debug,
-                evidence_units_count=len(evidence_pack.evidence_units),
-                citations_count=len(evidence_pack.citations),
-                graph_nodes_count=len(evidence_pack.graph.nodes),
-                graph_edges_count=len(evidence_pack.graph.edges),
+                evidence_pack=compiled_evidence.debug,
+                evidence_units_count=len(compiled_evidence.evidence_units),
+                citations_count=0,
+                graph_nodes_count=len(graph.nodes),
+                graph_edges_count=len(graph.edges),
                 notes=evidence_pack.debug_notes,
             )
 
@@ -67,16 +83,17 @@ class QueryOrchestrator:
             query_id=query_id,
             question=request.question,
             answer=evidence_pack.answer,
-            citations=evidence_pack.citations,
-            evidence_units=evidence_pack.evidence_units,
+            citations=[],
+            evidence_units=compiled_evidence.evidence_units,
             verifier=evidence_pack.verifier,
-            graph=evidence_pack.graph,
+            graph=graph,
             debug=debug,
             warnings=(
                 evidence_pack.warnings
                 + raw_retrieval.warnings
                 + graph_expansion.warnings
                 + legal_ranker.warnings
+                + compiled_evidence.warnings
             ),
         )
 

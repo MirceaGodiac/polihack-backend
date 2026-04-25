@@ -185,9 +185,15 @@ class GraphExpansionPolicy:
             label = self._node_label(candidate)
             nodes.append(
                 GraphNode(
-                    node_id=f"legal_unit:{candidate.unit_id}",
-                    node_type="legal_unit",
+                    id=f"legal_unit:{candidate.unit_id}",
+                    type=self._node_type(candidate.unit),
                     label=label,
+                    legal_unit_id=candidate.unit_id,
+                    domain=self._optional_str(
+                        candidate.unit.get("legal_domain")
+                        or candidate.unit.get("domain")
+                    ),
+                    status=self._optional_str(candidate.unit.get("status")),
                     metadata={
                         **self._scalar_metadata(candidate.unit),
                         "legal_unit_id": candidate.unit_id,
@@ -212,6 +218,47 @@ class GraphExpansionPolicy:
             for key, value in metadata.items()
             if isinstance(value, str | int | float | bool) or value is None
         }
+
+    def _node_type(self, unit: dict[str, Any]) -> str:
+        unit_type = self._match_text(
+            str(unit.get("type") or unit.get("unit_type") or "")
+        )
+        mapping = {
+            "legal_act": "legal_act",
+            "act": "legal_act",
+            "title": "title",
+            "titlu": "title",
+            "chapter": "chapter",
+            "capitol": "chapter",
+            "section": "section",
+            "sectiune": "section",
+            "article": "article",
+            "articol": "article",
+            "paragraph": "paragraph",
+            "paragraf": "paragraph",
+            "alineat": "paragraph",
+            "letter": "letter",
+            "litera": "letter",
+            "point": "point",
+            "punct": "point",
+            "annex": "annex",
+            "anexa": "annex",
+            "concept": "concept",
+        }
+        if unit_type in mapping:
+            return mapping[unit_type]
+        if unit.get("paragraph_number"):
+            return "paragraph"
+        if unit.get("letter_number"):
+            return "letter"
+        if unit.get("point_number"):
+            return "point"
+        return "article"
+
+    def _optional_str(self, value: Any) -> str | None:
+        if value is None:
+            return None
+        return str(value)
 
     def _neighbors_client_configured(self) -> bool:
         if self.neighbors_client is None:
