@@ -25,6 +25,7 @@ from .generation_adapter import (
 from .graph_expansion_policy import GraphExpansionPolicy
 from .legal_ranker import LegalRanker
 from .mock_evidence import MockEvidenceService
+from .query_frame import QueryFrameBuilder
 from .query_understanding import QueryUnderstanding
 from .raw_retriever_client import RAW_RETRIEVAL_NOT_CONFIGURED, RawRetrieverClient
 
@@ -41,6 +42,7 @@ class QueryOrchestrator:
         generation_adapter: GenerationAdapter | None = None,
         citation_verifier: CitationVerifier | None = None,
         answer_repair: AnswerRepair | None = None,
+        query_frame_builder: QueryFrameBuilder | None = None,
     ) -> None:
         self.evidence_service = evidence_service or MockEvidenceService()
         self.query_understanding = query_understanding or QueryUnderstanding()
@@ -55,10 +57,15 @@ class QueryOrchestrator:
         self.generation_adapter = generation_adapter or GenerationAdapter()
         self.citation_verifier = citation_verifier or CitationVerifier()
         self.answer_repair = answer_repair or AnswerRepair()
+        self.query_frame_builder = query_frame_builder or QueryFrameBuilder()
 
     async def run(self, request: QueryRequest) -> QueryResponse:
         query_id = self._query_id(request)
         query_plan = self.query_understanding.build_plan(request)
+        query_frame = self.query_frame_builder.build(
+            question=request.question,
+            plan=query_plan,
+        )
         raw_retrieval = await self.raw_retriever_client.retrieve(
             query_plan,
             top_k=50,
@@ -136,6 +143,7 @@ class QueryOrchestrator:
                 evidence_service=self.evidence_service.__class__.__name__,
                 retrieval_mode=self._retrieval_mode(raw_retrieval),
                 query_understanding=query_plan,
+                query_frame=query_frame.model_dump(mode="json"),
                 retrieval=raw_retrieval.debug,
                 graph_expansion=graph_expansion.debug,
                 legal_ranker=legal_ranker.debug,

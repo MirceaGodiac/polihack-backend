@@ -244,6 +244,7 @@ class QueryDebugData(BaseModel):
     evidence_service: str
     retrieval_mode: str
     query_understanding: QueryPlan | None = None
+    query_frame: dict[str, Any] | None = None
     retrieval: dict[str, Any] | None = None
     graph_expansion: dict[str, Any] | None = None
     legal_ranker: dict[str, Any] | None = None

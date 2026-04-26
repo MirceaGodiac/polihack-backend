@@ -84,6 +84,14 @@ def test_post_api_query_debug_true_includes_debug_payload():
     assert "obligation" in debug["query_understanding"]["query_types"]
     assert debug["query_understanding"]["exact_citations"] == []
     assert debug["query_understanding"]["retrieval_filters"]["status"] == "active"
+    assert debug["query_frame"]["domain"] == "munca"
+    assert "labor_contract_modification" in debug["query_frame"]["intents"]
+    assert "salary" in debug["query_frame"]["targets"]
+    assert {
+        "without_addendum",
+        "without_agreement",
+    }.intersection(debug["query_frame"]["qualifiers"])
+    assert debug["query_frame"]["requires_clarification"] is False
     retrieval = debug["retrieval"]
     assert retrieval["fallback_used"] is True
     assert retrieval["request_payload"]["filters"]["legal_domain"] == "munca"
@@ -254,6 +262,13 @@ def test_post_api_query_demo_uses_raw_retriever_client_internal_candidates():
         "status": "active",
         "date_context": "current",
     }
+    assert payload["debug"]["query_frame"]["domain"] == "munca"
+    assert "labor_contract_modification" in payload["debug"]["query_frame"]["intents"]
+    assert "salary" in payload["debug"]["query_frame"]["targets"]
+    assert {
+        "without_addendum",
+        "without_agreement",
+    }.intersection(payload["debug"]["query_frame"]["qualifiers"])
     assert payload["debug"]["evidence_pack"]["selected_evidence_count"] > 0
 
 
