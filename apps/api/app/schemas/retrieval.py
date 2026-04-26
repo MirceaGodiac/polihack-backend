@@ -27,6 +27,7 @@ class RawRetrievalRequest(BaseModel):
     question: str
     filters: dict[str, Any] = Field(default_factory=dict)
     retrieval_filters: dict[str, Any] = Field(default_factory=dict)
+    query_frame: dict[str, Any] | None = None
     exact_citations: list[RawExactCitation] = Field(default_factory=list)
     query_embedding: list[float] | None = None
     top_k: int = Field(default=50, ge=1, le=100)

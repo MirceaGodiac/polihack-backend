@@ -1,3 +1,6 @@
+import json
+from pathlib import Path
+
 import pytest
 from fastapi.testclient import TestClient
 
@@ -7,13 +10,18 @@ from apps.api.app.services.raw_retriever import (
     EmptyRawRetrievalStore,
     PostgresRawRetrievalStore,
     RawRetriever,
+    _build_lexical_query,
     _detect_fallback_intent,
     _expanded_query_terms,
     _fallback_search_terms,
+    _labor_contract_modification_governing_rule_match,
     _lexical_ilike_score_for_text,
+    _lexical_scoring_strategy,
     _query_terms,
     _weighted_fallback_terms,
 )
+from apps.api.app.services.query_frame import QueryFrameBuilder
+from apps.api.app.services.query_understanding import QueryUnderstanding
 
 
 def test_endpoint_schema_valid_with_dependency_override():
@@ -208,10 +216,186 @@ async def test_debug_includes_lexical_terms_expanded_terms_and_fallback_flag():
     assert response.debug is not None
     assert response.debug["fts_fallback_used"] is True
     assert response.debug["fallback_intent"] == "labor_contract_modification"
-    assert response.debug["scoring_strategy"] == "intent_grouped_lexical_fallback"
+    assert response.debug["fallback_intent_source"] == "legacy"
+    assert response.debug["scoring_strategy"] == "legacy_intent_grouped_lexical_fallback"
     assert "salariul" in response.debug["lexical_terms"]
     assert "modificare contract" in response.debug["expanded_terms"]
     assert "contract individual de munca" in response.debug["expanded_terms"]
+
+
+@pytest.mark.anyio
+async def test_registry_query_frame_drives_demo_expanded_terms():
+    question = "Poate angajatorul sa-mi scada salariul fara act aditional?"
+    query_frame = _query_frame_for(question)
+    response = await RawRetriever(FallbackProbeStore()).retrieve(
+        _request(
+            question=question,
+            exact_citations=[],
+            query_frame=query_frame,
+            debug=True,
+        )
+    )
+
+    assert response.debug["fallback_intent"] == "labor_contract_modification"
+    assert response.debug["fallback_intent_source"] == "query_frame_registry"
+    assert response.debug["scoring_strategy"] == "registry_intent_grouped_lexical_fallback"
+    assert "modificare contract" in response.debug["expanded_terms"]
+    assert "contract individual de munca" in response.debug["expanded_terms"]
+    assert "acordul partilor" in response.debug["expanded_terms"]
+    assert "salariu" in response.debug["expanded_terms"]
+    assert "salariul" in response.debug["expanded_terms"]
+    assert "act aditional" in response.debug["expanded_terms"]
+    assert response.debug["query_frame_intents"] == ["labor_contract_modification"]
+    assert response.debug["query_frame_confidence"] >= 0.70
+    assert response.debug["registry_expanded_terms"]
+
+
+def test_intent_governing_rule_helper_matches_agreement_rule_text():
+    match = _labor_contract_modification_governing_rule_match(
+        "Contractul individual de munca poate fi modificat numai prin acordul partilor."
+    )
+
+    assert match.matched is True
+    assert match.role == "agreement_rule"
+    assert match.score == 1.0
+
+
+def test_intent_governing_rule_helper_matches_salary_scope_text():
+    match = _labor_contract_modification_governing_rule_match(
+        "Modificarea contractului individual de munca poate privi salariul."
+    )
+
+    assert match.matched is True
+    assert match.role == "salary_scope"
+    assert match.score >= 0.90
+
+
+def test_intent_governing_rule_helper_rejects_formare_profesionala_distractor():
+    match = _labor_contract_modification_governing_rule_match(
+        "Modalitatea concreta de formare profesionala, drepturile si obligatiile "
+        "partilor, durata formarii profesionale, precum si orice alte aspecte "
+        "legate de formarea profesionala fac obiectul unor acte aditionale la "
+        "contractele individuale de munca."
+    )
+
+    assert match.matched is False
+    assert match.score == 0.0
+
+
+@pytest.mark.anyio
+async def test_intent_governing_rule_lookup_surfaces_live_like_art_41_units():
+    question = "Poate angajatorul sa-mi scada salariul fara act aditional?"
+    query_frame = _query_frame_for(question)
+    response = await RawRetriever(
+        FallbackProbeStore(units=_live_like_units_for_raw_retriever())
+    ).retrieve(
+        _request(
+            question=question,
+            filters={"legal_domain": "munca", "status": "active"},
+            exact_citations=[],
+            query_frame=query_frame,
+            top_k=5,
+            debug=True,
+        )
+    )
+
+    top_ids = [candidate.unit_id for candidate in response.candidates[:3]]
+    assert "ro.codul_muncii.art_41.alin_1" in top_ids
+    assert "ro.codul_muncii.art_41.alin_3" in top_ids
+    assert "ro.codul_muncii.art_196.alin_2" not in top_ids
+    assert response.debug["intent_governing_rule_candidate_count"] >= 2
+    assert response.debug["rankings"]["intent_governing_rule_lookup"][:2] == [
+        "ro.codul_muncii.art_41.alin_1",
+        "ro.codul_muncii.art_41.alin_3",
+    ]
+    by_id = {candidate.unit_id: candidate for candidate in response.candidates}
+    assert by_id["ro.codul_muncii.art_41.alin_1"].score_breakdown[
+        "intent_governing_rule"
+    ] == 1.0
+    assert "intent_governing_rule_lookup:labor_contract_modification" in by_id[
+        "ro.codul_muncii.art_41.alin_1"
+    ].why_retrieved
+
+
+@pytest.mark.anyio
+async def test_registry_query_frame_generalizes_contravention_challenge_fallback():
+    question = "Cum contest o amenda contraventionala?"
+    query_frame = _query_frame_for(question)
+    response = await RawRetriever(FallbackProbeStore()).retrieve(
+        _request(
+            question=question,
+            filters={"legal_domain": "contraventional", "status": "active"},
+            exact_citations=[],
+            query_frame=query_frame,
+            debug=True,
+        )
+    )
+
+    expanded_terms = response.debug["expanded_terms"]
+    assert query_frame["intents"][0] == "contravention_challenge"
+    assert response.debug["fallback_intent"] == "contravention_challenge"
+    assert response.debug["fallback_intent_source"] == "query_frame_registry"
+    assert response.debug["scoring_strategy"] == "registry_intent_grouped_lexical_fallback"
+    assert {"plangere contraventionala", "proces verbal", "amenda", "contraventie"}.issubset(
+        set(expanded_terms)
+    )
+
+
+def test_registry_query_frame_expands_civil_prescription_terms():
+    question = "In cat timp se prescrie dreptul la actiune pentru o datorie civila?"
+    query_frame = _query_frame_for(question)
+
+    lexical_query = _build_lexical_query(
+        question,
+        {"legal_domain": "civil", "status": "active"},
+        query_frame=query_frame,
+    )
+
+    assert lexical_query.fallback_intent is not None
+    assert lexical_query.fallback_intent.name == "civil_prescription"
+    assert lexical_query.fallback_intent_source == "query_frame_registry"
+    assert "prescriptie" in lexical_query.expanded_terms
+    assert "dreptul la actiune" in lexical_query.expanded_terms
+    assert "termen" in lexical_query.expanded_terms
+    assert "datorie civila" in lexical_query.expanded_terms
+
+
+def test_unknown_query_does_not_fabricate_confident_fallback_intent():
+    question = "Ce fac exact aici?"
+    query_frame = _query_frame_for(question)
+
+    lexical_query = _build_lexical_query(
+        question,
+        {},
+        query_frame=query_frame,
+    )
+
+    assert lexical_query.fallback_intent is None
+    assert _lexical_scoring_strategy(lexical_query, fallback_used=True) == "weighted_lexical_fallback"
+
+
+def test_registry_expanded_terms_generated_for_confident_eval_frames():
+    fixture_path = (
+        Path(__file__).resolve().parents[1]
+        / "fixtures"
+        / "eval"
+        / "query_frame_cases.json"
+    )
+
+    cases = json.loads(fixture_path.read_text(encoding="utf-8"))
+    for case in cases:
+        if case["id"] == "unknown_short":
+            continue
+        query_frame = _query_frame_for(case["question"])
+        if query_frame["confidence"] < 0.70:
+            continue
+        lexical_query = _build_lexical_query(
+            case["question"],
+            {"legal_domain": query_frame["domain"]},
+            query_frame=query_frame,
+        )
+        assert lexical_query.fallback_intent is not None, case["id"]
+        assert lexical_query.registry_expanded_terms, case["id"]
 
 
 def test_stopwords_are_removed_from_lexical_terms():
@@ -516,6 +700,66 @@ def _request(**overrides):
     return RawRetrievalRequest.model_validate(payload)
 
 
+def _query_frame_for(question: str) -> dict:
+    from apps.api.app.schemas import QueryRequest
+
+    plan = QueryUnderstanding().build_plan(
+        QueryRequest(
+            question=question,
+            jurisdiction="RO",
+            date="current",
+            mode="strict_citations",
+            debug=True,
+        )
+    )
+    return QueryFrameBuilder().build(question=question, plan=plan).model_dump(
+        mode="json"
+    )
+
+
+def _live_like_units_for_raw_retriever():
+    from tests.helpers.live_like_demo import LIVE_LIKE_UNITS
+
+    base = {
+        "canonical_id": None,
+        "source_id": "fixture",
+        "law_id": "ro.codul_muncii",
+        "law_title": "Codul muncii",
+        "act_type": "code",
+        "act_number": None,
+        "publication_date": None,
+        "effective_date": None,
+        "version_start": None,
+        "version_end": None,
+        "status": "active",
+        "legal_domain": "munca",
+        "legal_concepts": ["contract", "salariu"],
+        "source_url": "https://legislatie.just.ro/test",
+        "parser_warnings": [],
+        "created_at": None,
+        "updated_at": None,
+        "type": "alineat",
+    }
+    units = []
+    for unit in LIVE_LIKE_UNITS:
+        units.append(
+            {
+                **base,
+                **unit,
+                "canonical_id": unit["id"],
+                "parent_id": unit.get("parent_id"),
+                "point_number": None,
+                "normalized_text": unit["raw_text"].casefold(),
+                "hierarchy_path": [
+                    "Codul muncii",
+                    f"Art. {unit['article_number']}",
+                    f"Alin. ({unit['paragraph_number']})",
+                ],
+            }
+        )
+    return units
+
+
 class FakeStore:
     def __init__(self):
         self.dense_called = False
@@ -579,9 +823,15 @@ class FallbackProbeStore(PostgresRawRetrievalStore):
         limit,
         available_columns=None,
         terms=None,
+        query_frame=None,
+        lexical_query=None,
     ):
         self.fallback_called = True
-        fallback_intent = _detect_fallback_intent(question, filters)
+        fallback_intent = (
+            lexical_query.fallback_intent
+            if lexical_query is not None
+            else _detect_fallback_intent(question, filters, query_frame=query_frame)
+        )
         self.fallback_terms = _fallback_search_terms(terms or [], fallback_intent)
         weighted_terms = _weighted_fallback_terms(self.fallback_terms)
         rows = []

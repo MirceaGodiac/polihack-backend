@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import inspect
 import math
 import re
 import unicodedata
@@ -16,6 +17,7 @@ from ..schemas.retrieval import (
     RawRetrievalResponse,
     RetrievalCandidate,
 )
+from .query_frame import LegalIntentRegistry, QueryFrameBuilder
 from .retrieval_scoring import ScoreBreakdown, reciprocal_rank_fusion, weighted_retrieval_score
 
 
@@ -23,6 +25,7 @@ DEFAULT_METHOD_LIMIT_MULTIPLIER = 3
 FTS_METHOD = "fts"
 EXACT_METHOD = "exact_citation"
 DENSE_METHOD = "dense_optional"
+INTENT_GOVERNING_RULE_METHOD = "intent_governing_rule_lookup"
 
 
 class RawRetrievalStore(Protocol):
@@ -41,6 +44,7 @@ class RawRetrievalStore(Protocol):
         *,
         filters: Mapping[str, Any],
         limit: int,
+        query_frame: Mapping[str, Any] | None = None,
     ) -> list[dict[str, Any]]:
         ...
 
@@ -48,6 +52,15 @@ class RawRetrievalStore(Protocol):
         self,
         query_embedding: Sequence[float],
         *,
+        filters: Mapping[str, Any],
+        limit: int,
+    ) -> list[dict[str, Any]]:
+        ...
+
+    async def intent_governing_rule_lookup(
+        self,
+        *,
+        intent: str,
         filters: Mapping[str, Any],
         limit: int,
     ) -> list[dict[str, Any]]:
@@ -140,9 +153,14 @@ class PostgresRawRetrievalStore:
         *,
         filters: Mapping[str, Any],
         limit: int,
+        query_frame: Mapping[str, Any] | None = None,
     ) -> list[dict[str, Any]]:
         available_columns = await self._get_unit_columns()
-        lexical_query = _build_lexical_query(question, filters)
+        lexical_query = _build_lexical_query(
+            question,
+            filters,
+            query_frame=query_frame,
+        )
         self.last_lexical_debug = _lexical_debug_payload(
             lexical_query,
             fallback_used=False,
@@ -177,6 +195,8 @@ class PostgresRawRetrievalStore:
             limit=limit,
             available_columns=available_columns,
             terms=lexical_query.expanded_terms,
+            query_frame=query_frame,
+            lexical_query=lexical_query,
         )
 
     async def _strict_fts_search(
@@ -219,8 +239,14 @@ class PostgresRawRetrievalStore:
         limit: int,
         available_columns: set[str] | None = None,
         terms: Sequence[str] | None = None,
+        query_frame: Mapping[str, Any] | None = None,
+        lexical_query: _LexicalQuery | None = None,
     ) -> list[dict[str, Any]]:
-        lexical_query = _build_lexical_query(question, filters)
+        lexical_query = lexical_query or _build_lexical_query(
+            question,
+            filters,
+            query_frame=query_frame,
+        )
         base_terms = terms if terms is not None else lexical_query.expanded_terms
         search_terms = _fallback_search_terms(
             base_terms,
@@ -275,7 +301,9 @@ class PostgresRawRetrievalStore:
                     ({group_sql["core_score"]}) AS core_score,
                     ({group_sql["target_score"]}) AS target_score,
                     ({group_sql["actor_score"]}) AS actor_score,
+                    ({group_sql["qualifier_score"]}) AS qualifier_score,
                     ({group_sql["generic_score"]}) AS generic_score,
+                    ({group_sql["distractor_score"]}) AS distractor_score,
                     ({group_sql["core_match_count"]}) AS central_match_count,
             """
             order_by = "bm25_score DESC, core_score DESC, phrase_match_count DESC, u.id"
@@ -340,6 +368,58 @@ class PostgresRawRetrievalStore:
             )
         return [_unit_from_row(row) for row in result.mappings().all()]
 
+    async def intent_governing_rule_lookup(
+        self,
+        *,
+        intent: str,
+        filters: Mapping[str, Any],
+        limit: int,
+    ) -> list[dict[str, Any]]:
+        if intent != "labor_contract_modification":
+            return []
+        units = getattr(self, "units", None)
+        if units is not None and not hasattr(self, "session"):
+            return _intent_governing_rule_rows_from_units(
+                units,
+                intent=intent,
+                filters=filters,
+                limit=limit,
+            )
+        available_columns = await self._get_unit_columns()
+        clauses, params = _sql_filters(
+            filters,
+            alias="u",
+            available_columns=available_columns,
+        )
+        select_columns = _unit_select_columns_sql(available_columns, alias="u")
+        search_document = _unit_search_text_sql(available_columns, alias="u")
+        if search_document == "''":
+            return []
+        normalized_search_document = _sql_normalized_text(search_document)
+        sql_parts, sql_params = _labor_contract_modification_governing_rule_sql(
+            normalized_search_document
+        )
+        params.update(sql_params)
+        params["limit"] = limit
+        async with self.session.begin_nested():
+            result = await self.session.execute(
+                text(
+                    f"""
+                    SELECT
+                        {select_columns},
+                        ({sql_parts["score"]}) AS intent_governing_rule_score,
+                        ({sql_parts["role"]}) AS intent_governing_rule_role
+                    FROM legal_units u
+                    WHERE {' AND '.join(clauses)}
+                      AND ({sql_parts["match"]})
+                    ORDER BY intent_governing_rule_score DESC, u.id
+                    LIMIT :limit
+                    """
+                ),
+                params,
+            )
+        return [_unit_from_row(row) for row in result.mappings().all()]
+
     async def _get_unit_columns(self) -> set[str]:
         if self._unit_columns is None:
             async with self.session.begin_nested():
@@ -376,6 +456,7 @@ class EmptyRawRetrievalStore:
         *,
         filters: Mapping[str, Any],
         limit: int,
+        query_frame: Mapping[str, Any] | None = None,
     ) -> list[dict[str, Any]]:
         return []
 
@@ -394,6 +475,7 @@ class _CandidateAccumulator:
     unit: dict[str, Any]
     bm25: float = 0.0
     dense: float = 0.0
+    intent_governing_rule: float = 0.0
     exact_citation_boost: float = 0.0
     methods: set[str] = field(default_factory=set)
     rrf: float = 0.0
@@ -406,7 +488,10 @@ class _FallbackIntent:
     core_phrases: tuple[str, ...]
     target_terms: tuple[str, ...]
     actor_terms: tuple[str, ...]
+    qualifier_terms: tuple[str, ...]
     generic_terms: tuple[str, ...]
+    distractor_terms: tuple[str, ...]
+    source: str
 
 
 @dataclass(frozen=True)
@@ -414,6 +499,13 @@ class _LexicalQuery:
     lexical_terms: list[str]
     expanded_terms: list[str]
     fallback_intent: _FallbackIntent | None = None
+    registry_expanded_terms: list[str] = field(default_factory=list)
+    decomposition_retrieval_queries: list[str] = field(default_factory=list)
+    decomposition_expanded_terms: list[str] = field(default_factory=list)
+    decomposition_source: str | None = None
+    query_frame_intents: list[str] = field(default_factory=list)
+    query_frame_confidence: float | None = None
+    fallback_intent_source: str | None = None
 
 
 @dataclass(frozen=True)
@@ -424,6 +516,14 @@ class _WeightedLexicalTerm:
     is_generic: bool
     is_central: bool
     is_salary_or_employer: bool
+
+
+@dataclass(frozen=True)
+class _IntentGoverningRuleMatch:
+    matched: bool
+    score: float = 0.0
+    role: str | None = None
+    matched_terms: tuple[str, ...] = ()
 
 
 class RawRetriever:
@@ -444,6 +544,12 @@ class RawRetriever:
         retrieval_methods = [EXACT_METHOD, FTS_METHOD, DENSE_METHOD]
         rankings: dict[str, list[str]] = {}
         candidates: dict[str, _CandidateAccumulator] = {}
+        governing_rule_intent = _intent_governing_rule_intent(request.query_frame)
+        governing_rule_terms = (
+            _intent_governing_rule_terms(governing_rule_intent)
+            if governing_rule_intent
+            else {}
+        )
 
         citation_filters = _citation_filters(request)
         exact_rows = await self._call_store(
@@ -466,7 +572,12 @@ class RawRetriever:
             accumulator.methods.add(EXACT_METHOD)
 
         fts_rows = await self._call_store(
-            self.store.lexical_search(request.question, filters=filters, limit=method_limit),
+            self._lexical_search(
+                request.question,
+                filters=filters,
+                limit=method_limit,
+                query_frame=request.query_frame,
+            ),
             warnings=warnings,
             warning_code="fts_retrieval_failed",
             debug=request.debug,
@@ -481,6 +592,34 @@ class RawRetriever:
             raw_score = _float(row.get("bm25_score"))
             accumulator.bm25 = max(accumulator.bm25, _normalize_score(raw_score, max_bm25))
             accumulator.methods.add(FTS_METHOD)
+
+        governing_rule_rows: list[dict[str, Any]] = []
+        if governing_rule_intent:
+            governing_rule_rows = await self._call_store(
+                self._intent_governing_rule_lookup(
+                    intent=governing_rule_intent,
+                    filters=filters,
+                    limit=method_limit,
+                ),
+                warnings=warnings,
+                warning_code="intent_governing_rule_lookup_failed",
+                debug=request.debug,
+            )
+            rankings[INTENT_GOVERNING_RULE_METHOD] = [
+                row["id"] for row in governing_rule_rows
+            ]
+            if INTENT_GOVERNING_RULE_METHOD not in retrieval_methods:
+                retrieval_methods.insert(2, INTENT_GOVERNING_RULE_METHOD)
+        for row in governing_rule_rows:
+            accumulator = candidates.setdefault(
+                row["id"],
+                _CandidateAccumulator(unit=row),
+            )
+            accumulator.intent_governing_rule = max(
+                accumulator.intent_governing_rule,
+                _clamp01(_float(row.get("intent_governing_rule_score"))),
+            )
+            accumulator.methods.add(INTENT_GOVERNING_RULE_METHOD)
 
         dense_rows: list[dict[str, Any]] = []
         if request.query_embedding:
@@ -523,6 +662,7 @@ class RawRetriever:
                 accumulator,
                 filters=filters,
                 question=request.question,
+                query_frame=request.query_frame,
                 dense_available=dense_available,
             )
             for accumulator in candidates.values()
@@ -545,6 +685,7 @@ class RawRetriever:
                 self.store,
                 question=request.question,
                 filters=filters,
+                query_frame=request.query_frame,
             )
             debug_payload = {
                 "candidate_count_before_top_k": len(candidates),
@@ -553,9 +694,26 @@ class RawRetriever:
                 "filters": filters,
                 "lexical_terms": lexical_debug["lexical_terms"],
                 "expanded_terms": lexical_debug["expanded_terms"],
+                "query_frame_intents": lexical_debug.get("query_frame_intents"),
+                "query_frame_confidence": lexical_debug.get("query_frame_confidence"),
+                "registry_expanded_terms": lexical_debug.get("registry_expanded_terms"),
+                "intent_governing_rule_candidate_count": len(governing_rule_rows),
+                "intent_governing_rule_terms": governing_rule_terms,
+                "decomposition_retrieval_queries": lexical_debug.get(
+                    "decomposition_retrieval_queries"
+                ),
+                "decomposition_expanded_terms": lexical_debug.get(
+                    "decomposition_expanded_terms"
+                ),
+                "decomposition_source": lexical_debug.get("decomposition_source"),
                 "fts_fallback_used": lexical_debug["fts_fallback_used"],
                 "fallback_intent": lexical_debug.get("fallback_intent"),
+                "fallback_intent_source": lexical_debug.get("fallback_intent_source"),
                 "scoring_strategy": lexical_debug.get("scoring_strategy"),
+                "group_scores": _debug_group_scores(
+                    ranked_candidates,
+                    lexical_debug.get("lexical_query"),
+                ),
                 "dense_available": dense_available,
                 "rankings": rankings,
                 "rrf_scores": rrf_scores,
@@ -568,6 +726,45 @@ class RawRetriever:
             warnings=warnings,
             debug=debug_payload,
         )
+
+    async def _lexical_search(
+        self,
+        question: str,
+        *,
+        filters: Mapping[str, Any],
+        limit: int,
+        query_frame: Mapping[str, Any] | None,
+    ) -> list[dict[str, Any]]:
+        lexical_search = self.store.lexical_search
+        parameters = inspect.signature(lexical_search).parameters
+        if "query_frame" in parameters:
+            return await lexical_search(
+                question,
+                filters=filters,
+                limit=limit,
+                query_frame=query_frame,
+            )
+        return await lexical_search(question, filters=filters, limit=limit)
+
+    async def _intent_governing_rule_lookup(
+        self,
+        *,
+        intent: str,
+        filters: Mapping[str, Any],
+        limit: int,
+    ) -> list[dict[str, Any]]:
+        units = getattr(self.store, "units", None)
+        if units is not None and not hasattr(self.store, "session"):
+            return _intent_governing_rule_rows_from_units(
+                units,
+                intent=intent,
+                filters=filters,
+                limit=limit,
+            )
+        lookup = getattr(self.store, "intent_governing_rule_lookup", None)
+        if lookup is None:
+            return []
+        return await lookup(intent=intent, filters=filters, limit=limit)
 
     async def _call_store(
         self,
@@ -595,6 +792,7 @@ class RawRetriever:
         *,
         filters: Mapping[str, Any],
         question: str,
+        query_frame: Mapping[str, Any] | None,
         dense_available: bool,
     ) -> RetrievalCandidate:
         unit = accumulator.unit
@@ -607,6 +805,14 @@ class RawRetriever:
             exact_citation_boost=accumulator.exact_citation_boost,
         )
         score = weighted_retrieval_score(breakdown, dense_available=dense_available)
+        score = max(
+            score,
+            _intent_governing_rule_retrieval_score(
+                accumulator.intent_governing_rule,
+                domain_match=breakdown.domain_match,
+                metadata_validity=breakdown.metadata_validity,
+            ),
+        )
         return RetrievalCandidate(
             unit_id=unit["id"],
             unit=unit,
@@ -618,9 +824,13 @@ class RawRetriever:
                 "domain_match": round(breakdown.domain_match, 6),
                 "metadata_validity": round(breakdown.metadata_validity, 6),
                 "exact_citation_boost": round(breakdown.exact_citation_boost, 6),
+                "intent_governing_rule": round(
+                    accumulator.intent_governing_rule,
+                    6,
+                ),
                 "rrf": round(breakdown.rrf, 6),
             },
-            matched_terms=_matched_terms(question, unit),
+            matched_terms=_matched_terms(question, unit, query_frame=query_frame),
             why_retrieved=_why_retrieved(accumulator.methods),
         )
 
@@ -772,6 +982,14 @@ def _unit_from_row(row: Mapping[str, Any]) -> dict[str, Any]:
         unit["bm25_score"] = _float(row.get("bm25_score"))
     if "dense_score" in row:
         unit["dense_score"] = _float(row.get("dense_score"))
+    if "intent_governing_rule_score" in row:
+        unit["intent_governing_rule_score"] = _float(
+            row.get("intent_governing_rule_score")
+        )
+    if "intent_governing_rule_role" in row:
+        unit["intent_governing_rule_role"] = _text_value(
+            row.get("intent_governing_rule_role")
+        )
     return unit
 
 
@@ -780,6 +998,7 @@ def _store_lexical_debug(
     *,
     question: str,
     filters: Mapping[str, Any],
+    query_frame: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     store_debug = getattr(store, "last_lexical_debug", None)
     if isinstance(store_debug, Mapping):
@@ -787,15 +1006,42 @@ def _store_lexical_debug(
         expanded_terms = store_debug.get("expanded_terms")
         fallback_used = store_debug.get("fts_fallback_used")
         if isinstance(lexical_terms, list) and isinstance(expanded_terms, list):
+            lexical_query = _build_lexical_query(
+                question,
+                filters,
+                query_frame=query_frame,
+            )
             return {
                 "lexical_terms": lexical_terms,
                 "expanded_terms": expanded_terms,
+                "query_frame_intents": store_debug.get("query_frame_intents") or [],
+                "query_frame_confidence": store_debug.get("query_frame_confidence"),
+                "registry_expanded_terms": store_debug.get("registry_expanded_terms")
+                or [],
+                "decomposition_retrieval_queries": store_debug.get(
+                    "decomposition_retrieval_queries"
+                )
+                or lexical_query.decomposition_retrieval_queries,
+                "decomposition_expanded_terms": store_debug.get(
+                    "decomposition_expanded_terms"
+                )
+                or lexical_query.decomposition_expanded_terms,
+                "decomposition_source": store_debug.get("decomposition_source")
+                or lexical_query.decomposition_source,
                 "fts_fallback_used": bool(fallback_used),
                 "fallback_intent": store_debug.get("fallback_intent"),
+                "fallback_intent_source": store_debug.get("fallback_intent_source"),
                 "scoring_strategy": store_debug.get("scoring_strategy"),
+                "lexical_query": lexical_query,
             }
-    lexical_query = _build_lexical_query(question, filters)
-    return _lexical_debug_payload(lexical_query, fallback_used=False)
+    lexical_query = _build_lexical_query(
+        question,
+        filters,
+        query_frame=query_frame,
+    )
+    payload = _lexical_debug_payload(lexical_query, fallback_used=False)
+    payload["lexical_query"] = lexical_query
+    return payload
 
 
 def _lexical_debug_payload(
@@ -806,10 +1052,17 @@ def _lexical_debug_payload(
     return {
         "lexical_terms": lexical_query.lexical_terms,
         "expanded_terms": lexical_query.expanded_terms,
+        "query_frame_intents": lexical_query.query_frame_intents,
+        "query_frame_confidence": lexical_query.query_frame_confidence,
+        "registry_expanded_terms": lexical_query.registry_expanded_terms,
+        "decomposition_retrieval_queries": lexical_query.decomposition_retrieval_queries,
+        "decomposition_expanded_terms": lexical_query.decomposition_expanded_terms,
+        "decomposition_source": lexical_query.decomposition_source,
         "fts_fallback_used": fallback_used,
         "fallback_intent": (
             lexical_query.fallback_intent.name if lexical_query.fallback_intent else None
         ),
+        "fallback_intent_source": lexical_query.fallback_intent_source,
         "scoring_strategy": _lexical_scoring_strategy(lexical_query, fallback_used),
     }
 
@@ -817,12 +1070,42 @@ def _lexical_debug_payload(
 def _build_lexical_query(
     question: str,
     filters: Mapping[str, Any] | None = None,
+    *,
+    query_frame: Mapping[str, Any] | None = None,
 ) -> _LexicalQuery:
-    fallback_intent = _detect_fallback_intent(question, filters or {})
+    fallback_intent = _detect_fallback_intent(
+        question,
+        filters or {},
+        query_frame=query_frame,
+    )
+    query_frame_intents = _query_frame_list(query_frame, "intents")
+    query_frame_confidence = _query_frame_float(query_frame, "confidence")
+    decomposition_retrieval_queries = _query_frame_retrieval_queries(query_frame)
+    decomposition_source = _query_frame_decomposition_source(query_frame)
+    expanded_terms = _expanded_query_terms(
+        question,
+        filters or {},
+        query_frame=query_frame,
+    )
+    legacy_terms = _expanded_query_terms(question, filters or {}, query_frame=None)
+    registry_expanded_terms = [
+        term for term in expanded_terms if term not in set(legacy_terms)
+    ]
     return _LexicalQuery(
         lexical_terms=_query_terms(question),
-        expanded_terms=_expanded_query_terms(question, filters or {}),
+        expanded_terms=expanded_terms,
         fallback_intent=fallback_intent,
+        registry_expanded_terms=registry_expanded_terms,
+        decomposition_retrieval_queries=decomposition_retrieval_queries,
+        decomposition_expanded_terms=[
+            term
+            for term in decomposition_retrieval_queries
+            if term in set(expanded_terms)
+        ],
+        decomposition_source=decomposition_source,
+        query_frame_intents=query_frame_intents,
+        query_frame_confidence=query_frame_confidence,
+        fallback_intent_source=fallback_intent.source if fallback_intent else None,
     )
 
 
@@ -833,14 +1116,22 @@ def _lexical_scoring_strategy(
     if not fallback_used:
         return "strict_fts"
     if lexical_query.fallback_intent:
-        return "intent_grouped_lexical_fallback"
+        if lexical_query.fallback_intent_source == "query_frame_registry":
+            return "registry_intent_grouped_lexical_fallback"
+        return "legacy_intent_grouped_lexical_fallback"
     return "weighted_lexical_fallback"
 
 
 def _detect_fallback_intent(
     question: str,
     filters: Mapping[str, Any] | None = None,
+    *,
+    query_frame: Mapping[str, Any] | None = None,
 ) -> _FallbackIntent | None:
+    registry_intent = _registry_fallback_intent(query_frame)
+    if registry_intent:
+        return registry_intent
+
     legal_domain = _canonical_domain(filters.get("legal_domain")) if filters else None
     if legal_domain != "munca":
         return None
@@ -859,11 +1150,17 @@ def _detect_fallback_intent(
 def _expanded_query_terms(
     question: str,
     filters: Mapping[str, Any] | None = None,
+    *,
+    query_frame: Mapping[str, Any] | None = None,
 ) -> list[str]:
     lexical_terms = _query_terms(question)
     normalized_question = _normalize_text(question)
     legal_domain = _canonical_domain(filters.get("legal_domain")) if filters else None
-    fallback_intent = _detect_fallback_intent(question, filters or {})
+    fallback_intent = _detect_fallback_intent(
+        question,
+        filters or {},
+        query_frame=query_frame,
+    )
     term_set = set(lexical_terms)
     expanded: list[str] = list(lexical_terms)
 
@@ -929,13 +1226,85 @@ def _expanded_query_terms(
         )
     if fallback_intent:
         add(
+            *fallback_intent.triggers,
             *fallback_intent.core_phrases,
             *fallback_intent.target_terms,
             *fallback_intent.actor_terms,
+            *fallback_intent.qualifier_terms,
             *fallback_intent.generic_terms,
         )
+    decomposition_retrieval_queries = _query_frame_retrieval_queries(query_frame)
+    if decomposition_retrieval_queries:
+        add(*decomposition_retrieval_queries)
 
     return _dedupe_terms(expanded)
+
+
+def _registry_fallback_intent(
+    query_frame: Mapping[str, Any] | None,
+) -> _FallbackIntent | None:
+    intent_ids = _query_frame_list(query_frame, "intents")
+    if not intent_ids:
+        return None
+    registry = LegalIntentRegistry()
+    builder = QueryFrameBuilder(registry=registry)
+    frame_terms = _query_frame_list(query_frame, "normalized_terms")
+    decomposition_retrieval_queries = _query_frame_retrieval_queries(query_frame)
+    for intent_id in intent_ids:
+        legal_intent = registry.get(intent_id)
+        if legal_intent is None:
+            continue
+        core_aliases = [
+            alias
+            for concept in legal_intent.core_concepts
+            for alias in builder._concept_terms(concept)
+        ]
+        target_aliases = [
+            alias
+            for concept in [
+                *legal_intent.target_concepts,
+                *_query_frame_list(query_frame, "targets"),
+            ]
+            for alias in builder._concept_terms(concept)
+        ]
+        actor_aliases = [
+            alias
+            for concept in [
+                *legal_intent.actor_concepts,
+                *_query_frame_list(query_frame, "actors"),
+            ]
+            for alias in builder._concept_terms(concept)
+        ]
+        qualifier_aliases = [
+            alias
+            for concept in [
+                *legal_intent.qualifier_concepts,
+                *_query_frame_list(query_frame, "qualifiers"),
+            ]
+            for alias in builder._concept_terms(concept)
+        ]
+        return _FallbackIntent(
+            name=legal_intent.id,
+            triggers=tuple(_dedupe_terms(legal_intent.triggers)),
+            core_phrases=tuple(
+                _dedupe_terms([*legal_intent.core_phrases, *core_aliases])
+            ),
+            target_terms=tuple(
+                _dedupe_terms([*legal_intent.target_terms, *target_aliases])
+            ),
+            actor_terms=tuple(
+                _dedupe_terms([*legal_intent.actor_terms, *actor_aliases])
+            ),
+            qualifier_terms=tuple(
+                _dedupe_terms([*legal_intent.qualifier_terms, *qualifier_aliases])
+            ),
+            generic_terms=tuple(
+                _dedupe_terms([*frame_terms, *decomposition_retrieval_queries])
+            ),
+            distractor_terms=tuple(_dedupe_terms(legal_intent.distractor_terms)),
+            source="query_frame_registry",
+        )
+    return None
 
 
 def _query_terms(question: str) -> list[str]:
@@ -979,10 +1348,13 @@ def _fallback_search_terms(
 ) -> list[str]:
     expanded = list(terms)
     if intent:
+        expanded.extend(intent.triggers)
         expanded.extend(intent.core_phrases)
         expanded.extend(intent.target_terms)
         expanded.extend(intent.actor_terms)
+        expanded.extend(intent.qualifier_terms)
         expanded.extend(intent.generic_terms)
+        expanded.extend(intent.distractor_terms)
     return _dedupe_terms(expanded)[:80]
 
 
@@ -1038,8 +1410,18 @@ def _intent_group_score_sql(
         weighted_terms,
         condition_by_term=condition_by_term,
     )
+    qualifier_score, qualifier_count = _intent_group_sql_parts(
+        intent.qualifier_terms,
+        weighted_terms,
+        condition_by_term=condition_by_term,
+    )
     generic_score, generic_count = _intent_group_sql_parts(
         intent.generic_terms,
+        weighted_terms,
+        condition_by_term=condition_by_term,
+    )
+    distractor_score, distractor_count = _intent_group_sql_parts(
+        intent.distractor_terms,
         weighted_terms,
         condition_by_term=condition_by_term,
     )
@@ -1047,11 +1429,15 @@ def _intent_group_score_sql(
         "core_score": core_score,
         "target_score": target_score,
         "actor_score": actor_score,
+        "qualifier_score": qualifier_score,
         "generic_score": generic_score,
+        "distractor_score": distractor_score,
         "core_match_count": core_count,
         "target_match_count": target_count,
         "actor_match_count": actor_count,
+        "qualifier_match_count": qualifier_count,
         "generic_match_count": generic_count,
+        "distractor_match_count": distractor_count,
     }
 
 
@@ -1086,24 +1472,49 @@ def _intent_group_sql_parts(
 
 def _intent_final_score_sql(group_sql: Mapping[str, str]) -> str:
     intent_score = (
-        f"(0.60 * ({group_sql['core_score']}) "
-        f"+ 0.25 * ({group_sql['target_score']}) "
+        f"(0.55 * ({group_sql['core_score']}) "
+        f"+ 0.20 * ({group_sql['target_score']}) "
         f"+ 0.10 * ({group_sql['actor_score']}) "
-        f"+ 0.05 * ({group_sql['generic_score']}))"
+        f"+ 0.10 * ({group_sql['qualifier_score']}) "
+        f"+ 0.05 * ({group_sql['generic_score']}) "
+        f"- 0.25 * ({group_sql['distractor_score']}))"
     )
     return f"""
-        CASE WHEN ({group_sql['core_score']}) > 0
-             THEN LEAST(1.0, 0.70 + (0.30 * {intent_score}))
-             WHEN ({group_sql['core_score']}) = 0
-                  AND (({group_sql['target_score']}) > 0 OR ({group_sql['actor_score']}) > 0)
-             THEN LEAST({intent_score}, 0.55)
-             WHEN ({group_sql['core_score']}) = 0
-                  AND ({group_sql['target_score']}) = 0
-                  AND ({group_sql['actor_score']}) = 0
-                  AND ({group_sql['generic_score']}) > 0
-             THEN LEAST({intent_score}, 0.25)
-             ELSE {intent_score}
-        END
+        GREATEST(0.0,
+            CASE WHEN ({group_sql['distractor_score']}) >= 0.7
+                       AND ({group_sql['core_score']}) < 0.25
+                 THEN LEAST(0.35,
+                     CASE WHEN ({group_sql['core_score']}) > 0
+                          THEN LEAST(1.0, 0.70 + (0.30 * {intent_score}))
+                          WHEN ({group_sql['core_score']}) = 0
+                               AND (({group_sql['target_score']}) > 0
+                                    OR ({group_sql['actor_score']}) > 0
+                                    OR ({group_sql['qualifier_score']}) > 0)
+                          THEN LEAST({intent_score}, 0.55)
+                          WHEN ({group_sql['core_score']}) = 0
+                               AND ({group_sql['target_score']}) = 0
+                               AND ({group_sql['actor_score']}) = 0
+                               AND ({group_sql['qualifier_score']}) = 0
+                               AND ({group_sql['generic_score']}) > 0
+                          THEN LEAST({intent_score}, 0.25)
+                          ELSE {intent_score}
+                     END)
+                 WHEN ({group_sql['core_score']}) > 0
+                 THEN LEAST(1.0, 0.70 + (0.30 * {intent_score}))
+                 WHEN ({group_sql['core_score']}) = 0
+                      AND (({group_sql['target_score']}) > 0
+                           OR ({group_sql['actor_score']}) > 0
+                           OR ({group_sql['qualifier_score']}) > 0)
+                 THEN LEAST({intent_score}, 0.55)
+                 WHEN ({group_sql['core_score']}) = 0
+                      AND ({group_sql['target_score']}) = 0
+                      AND ({group_sql['actor_score']}) = 0
+                      AND ({group_sql['qualifier_score']}) = 0
+                      AND ({group_sql['generic_score']}) > 0
+                 THEN LEAST({intent_score}, 0.25)
+                 ELSE {intent_score}
+            END
+        )
     """
 
 
@@ -1134,23 +1545,75 @@ def _intent_score_for_text(
     weighted_terms: Sequence[_WeightedLexicalTerm],
     intent: _FallbackIntent,
 ) -> float:
-    core_score = _intent_group_score_for_text(haystack, weighted_terms, intent.core_phrases)
-    target_score = _intent_group_score_for_text(haystack, weighted_terms, intent.target_terms)
-    actor_score = _intent_group_score_for_text(haystack, weighted_terms, intent.actor_terms)
-    generic_score = _intent_group_score_for_text(haystack, weighted_terms, intent.generic_terms)
+    group_scores = _intent_group_scores_for_text(haystack, weighted_terms, intent)
+    return _intent_final_score_for_groups(group_scores)
+
+
+def _intent_final_score_for_groups(group_scores: Mapping[str, float]) -> float:
+    core_score = group_scores["core_score"]
+    target_score = group_scores["target_score"]
+    actor_score = group_scores["actor_score"]
+    qualifier_score = group_scores["qualifier_score"]
+    generic_score = group_scores["generic_score"]
+    distractor_score = group_scores["distractor_score"]
     intent_score = (
-        0.60 * core_score
-        + 0.25 * target_score
+        0.55 * core_score
+        + 0.20 * target_score
         + 0.10 * actor_score
+        + 0.10 * qualifier_score
         + 0.05 * generic_score
+        - 0.25 * distractor_score
     )
     if core_score > 0.0:
-        return min(1.0, 0.70 + 0.30 * intent_score)
-    if target_score > 0.0 or actor_score > 0.0:
-        return min(intent_score, 0.55)
-    if generic_score > 0.0:
-        return min(intent_score, 0.25)
-    return intent_score
+        final_score = min(1.0, 0.70 + 0.30 * intent_score)
+    elif target_score > 0.0 or actor_score > 0.0 or qualifier_score > 0.0:
+        final_score = min(intent_score, 0.55)
+    elif generic_score > 0.0:
+        final_score = min(intent_score, 0.25)
+    else:
+        final_score = intent_score
+    if distractor_score >= 0.7 and core_score < 0.25:
+        final_score = min(final_score, 0.35)
+    return _clamp01(final_score)
+
+
+def _intent_group_scores_for_text(
+    haystack: str,
+    weighted_terms: Sequence[_WeightedLexicalTerm],
+    intent: _FallbackIntent,
+) -> dict[str, float]:
+    return {
+        "core_score": _intent_group_score_for_text(
+            haystack,
+            weighted_terms,
+            intent.core_phrases,
+        ),
+        "target_score": _intent_group_score_for_text(
+            haystack,
+            weighted_terms,
+            intent.target_terms,
+        ),
+        "actor_score": _intent_group_score_for_text(
+            haystack,
+            weighted_terms,
+            intent.actor_terms,
+        ),
+        "qualifier_score": _intent_group_score_for_text(
+            haystack,
+            weighted_terms,
+            intent.qualifier_terms,
+        ),
+        "generic_score": _intent_group_score_for_text(
+            haystack,
+            weighted_terms,
+            intent.generic_terms,
+        ),
+        "distractor_score": _intent_group_score_for_text(
+            haystack,
+            weighted_terms,
+            intent.distractor_terms,
+        ),
+    }
 
 
 def _intent_group_score_for_text(
@@ -1173,7 +1636,12 @@ def _intent_group_score_for_text(
     return matched_weight / total_weight if total_weight > 0.0 else 0.0
 
 
-def _matched_terms(question: str, unit: Mapping[str, Any]) -> list[str]:
+def _matched_terms(
+    question: str,
+    unit: Mapping[str, Any],
+    *,
+    query_frame: Mapping[str, Any] | None = None,
+) -> list[str]:
     haystack = _normalize_text(
         f"{unit.get('raw_text') or ''} {unit.get('normalized_text') or ''}"
     )
@@ -1182,6 +1650,7 @@ def _matched_terms(question: str, unit: Mapping[str, Any]) -> list[str]:
         for term in _expanded_query_terms(
             question,
             {"legal_domain": unit.get("legal_domain")},
+            query_frame=query_frame,
         )
         if term in haystack
     ]
@@ -1189,6 +1658,201 @@ def _matched_terms(question: str, unit: Mapping[str, Any]) -> list[str]:
     if "act aditional" in normalized_question and "act" in matches and "aditional" in matches:
         matches.append("act adițional")
     return matches[:10]
+
+
+def _debug_group_scores(
+    ranked_candidates: Sequence[RetrievalCandidate],
+    lexical_query: Any,
+) -> dict[str, dict[str, float]]:
+    if not isinstance(lexical_query, _LexicalQuery) or not lexical_query.fallback_intent:
+        return {}
+    weighted_terms = _weighted_fallback_terms(
+        _fallback_search_terms(
+            lexical_query.expanded_terms,
+            lexical_query.fallback_intent,
+        )
+    )
+    scores: dict[str, dict[str, float]] = {}
+    for candidate in ranked_candidates[:10]:
+        unit = candidate.unit or {}
+        haystack = _normalize_text(
+            f"{unit.get('raw_text') or ''} {unit.get('normalized_text') or ''}"
+        )
+        group_scores = _intent_group_scores_for_text(
+            haystack,
+            weighted_terms,
+            lexical_query.fallback_intent,
+        )
+        scores[candidate.unit_id] = {
+            name: round(value, 6) for name, value in group_scores.items()
+        }
+    return scores
+
+
+def build_registry_lexical_query(
+    question: str,
+    filters: Mapping[str, Any] | None = None,
+    *,
+    query_frame: Mapping[str, Any] | None = None,
+) -> _LexicalQuery:
+    return _build_lexical_query(
+        question,
+        filters or {},
+        query_frame=query_frame,
+    )
+
+
+def score_unit_for_fallback(
+    unit: Mapping[str, Any],
+    lexical_query: _LexicalQuery,
+) -> dict[str, Any]:
+    weighted_terms = _weighted_fallback_terms(
+        _fallback_search_terms(
+            lexical_query.expanded_terms,
+            lexical_query.fallback_intent,
+        )
+    )
+    haystack = _normalize_text(
+        f"{unit.get('raw_text') or ''} {unit.get('normalized_text') or ''}"
+    )
+    if lexical_query.fallback_intent:
+        group_scores = _intent_group_scores_for_text(
+            haystack,
+            weighted_terms,
+            lexical_query.fallback_intent,
+        )
+        fallback_score = _intent_final_score_for_groups(group_scores)
+    else:
+        group_scores = {
+            "core_score": 0.0,
+            "target_score": 0.0,
+            "actor_score": 0.0,
+            "qualifier_score": 0.0,
+            "generic_score": 0.0,
+            "distractor_score": 0.0,
+        }
+        fallback_score = _lexical_ilike_score_for_text(haystack, weighted_terms)
+    return {
+        "unit_id": str(unit.get("id") or ""),
+        "fallback_score": round(_clamp01(fallback_score), 6),
+        "group_scores": {
+            name: round(value, 6) for name, value in group_scores.items()
+        },
+    }
+
+
+def evaluate_fallback_candidates(
+    *,
+    question: str,
+    filters: Mapping[str, Any] | None = None,
+    query_frame: Mapping[str, Any] | None = None,
+    candidate_units: Sequence[Mapping[str, Any]],
+) -> dict[str, Any]:
+    lexical_query = build_registry_lexical_query(
+        question,
+        filters or {},
+        query_frame=query_frame,
+    )
+    ranked = []
+    for unit in candidate_units:
+        score_row = score_unit_for_fallback(unit, lexical_query)
+        if score_row["fallback_score"] <= 0.0:
+            continue
+        ranked.append(
+            {
+                **score_row,
+                "unit": dict(unit),
+            }
+        )
+    ranked.sort(
+        key=lambda row: (
+            -row["fallback_score"],
+            -row["group_scores"].get("core_score", 0.0),
+            row["unit_id"],
+        ),
+    )
+    for index, row in enumerate(ranked, start=1):
+        row["rank"] = index
+    debug_payload = _lexical_debug_payload(lexical_query, fallback_used=True)
+    return {
+        "lexical_query": lexical_query,
+        "lexical_terms": debug_payload["lexical_terms"],
+        "expanded_terms": debug_payload["expanded_terms"],
+        "registry_expanded_terms": debug_payload["registry_expanded_terms"],
+        "fallback_intent": debug_payload["fallback_intent"],
+        "fallback_intent_source": debug_payload["fallback_intent_source"],
+        "scoring_strategy": debug_payload["scoring_strategy"],
+        "ranked": ranked,
+    }
+
+
+def _query_frame_list(
+    query_frame: Mapping[str, Any] | None,
+    field_name: str,
+) -> list[str]:
+    if not query_frame:
+        return []
+    value = query_frame.get(field_name)
+    if not isinstance(value, list):
+        return []
+    return [str(item) for item in value if item not in (None, "")]
+
+
+def _query_frame_retrieval_queries(
+    query_frame: Mapping[str, Any] | None,
+) -> list[str]:
+    queries: list[str] = []
+    for value in _query_frame_list(query_frame, "retrieval_queries")[:6]:
+        normalized = _normalize_text(value[:240]).strip()
+        if not normalized or _unsafe_decomposition_term(normalized):
+            continue
+        queries.append(normalized)
+    return _dedupe_terms(queries)
+
+
+def _query_frame_decomposition_source(
+    query_frame: Mapping[str, Any] | None,
+) -> str | None:
+    if not query_frame:
+        return None
+    source = _normalize_text(str(query_frame.get("decomposition_source") or ""))
+    if source in {"deterministic", "llm", "merged"}:
+        return source
+    return None
+
+
+def _unsafe_decomposition_term(term: str) -> bool:
+    return bool(
+        re.search(r"\bart(?:icol|\.?)\s*\d+\b", term)
+        or re.search(r"\b(?:unit_id|legal_unit_id|article_number|law_id|source_url)\b", term)
+        or re.search(r"\bro\.codul", term)
+        or re.search(r"\bcodul\s+muncii\b", term)
+    )
+
+
+def _intent_governing_rule_intent(
+    query_frame: Mapping[str, Any] | None,
+) -> str | None:
+    if _query_frame_float(query_frame, "confidence") is None:
+        return None
+    if (_query_frame_float(query_frame, "confidence") or 0.0) < 0.70:
+        return None
+    intents = set(_query_frame_list(query_frame, "intents"))
+    if "labor_contract_modification" in intents:
+        return "labor_contract_modification"
+    return None
+
+
+def _query_frame_float(
+    query_frame: Mapping[str, Any] | None,
+    field_name: str,
+) -> float | None:
+    if not query_frame:
+        return None
+    try:
+        return float(query_frame.get(field_name))
+    except (TypeError, ValueError):
+        return None
 
 
 def _domain_match(filter_domain: Any, unit_domain: Any) -> float:
@@ -1208,12 +1872,283 @@ def _metadata_validity(unit: Mapping[str, Any]) -> float:
     return 0.7
 
 
+def _intent_governing_rule_rows_from_units(
+    units: Sequence[Mapping[str, Any]],
+    *,
+    intent: str,
+    filters: Mapping[str, Any],
+    limit: int,
+) -> list[dict[str, Any]]:
+    if intent != "labor_contract_modification":
+        return []
+    rows: list[dict[str, Any]] = []
+    for unit in units:
+        if not _unit_matches_filters(unit, filters):
+            continue
+        match = _labor_contract_modification_governing_rule_match(
+            f"{unit.get('raw_text') or ''} {unit.get('normalized_text') or ''}"
+        )
+        if not match.matched:
+            continue
+        rows.append(
+            {
+                **dict(unit),
+                "intent_governing_rule_score": match.score,
+                "intent_governing_rule_role": match.role,
+                "intent_governing_rule_terms": list(match.matched_terms),
+            }
+        )
+    rows.sort(
+        key=lambda row: (
+            -_float(row.get("intent_governing_rule_score")),
+            _intent_governing_rule_role_order(
+                _text_value(row.get("intent_governing_rule_role"))
+            ),
+            str(row.get("id") or ""),
+        )
+    )
+    return rows[:limit]
+
+
+def _unit_matches_filters(
+    unit: Mapping[str, Any],
+    filters: Mapping[str, Any],
+) -> bool:
+    legal_domain = _text_value(filters.get("legal_domain"))
+    if legal_domain and _domain_match(legal_domain, unit.get("legal_domain")) <= 0.0:
+        return False
+    status = _text_value(filters.get("status"))
+    if status and _text_value(unit.get("status")) != status:
+        return False
+    law_id = _text_value(filters.get("law_id"))
+    if law_id and _text_value(unit.get("law_id")) != law_id:
+        return False
+    return True
+
+
+def _labor_contract_modification_governing_rule_match(
+    text_value: str,
+) -> _IntentGoverningRuleMatch:
+    haystack = _normalize_text(text_value)
+    if _contains_any(haystack, _LABOR_CONTRACT_MODIFICATION_DISTRACTOR_TERMS):
+        return _IntentGoverningRuleMatch(matched=False)
+
+    agreement_terms = _matched_term_values(
+        haystack,
+        (
+            _LABOR_CONTRACT_PHRASES,
+            _LABOR_MODIFICATION_TERMS,
+            _LABOR_AGREEMENT_TERMS,
+        ),
+    )
+    if agreement_terms:
+        return _IntentGoverningRuleMatch(
+            matched=True,
+            score=1.0,
+            role="agreement_rule",
+            matched_terms=tuple(agreement_terms),
+        )
+
+    salary_scope_terms = _matched_term_values(
+        haystack,
+        (
+            _LABOR_MODIFICATION_SCOPE_PHRASES,
+            _SALARY_TERMS,
+        ),
+    )
+    if salary_scope_terms:
+        return _IntentGoverningRuleMatch(
+            matched=True,
+            score=0.92,
+            role="salary_scope",
+            matched_terms=tuple(salary_scope_terms),
+        )
+
+    target_terms = [
+        term for term in _SALARY_TERMS if _phrase_in_haystack(term, haystack)
+    ]
+    if target_terms and len(haystack) <= 120:
+        return _IntentGoverningRuleMatch(
+            matched=True,
+            score=0.28,
+            role="target_element",
+            matched_terms=tuple(target_terms),
+        )
+
+    return _IntentGoverningRuleMatch(matched=False)
+
+
+def _matched_term_values(
+    haystack: str,
+    groups: Sequence[Sequence[str]],
+) -> list[str]:
+    matched: list[str] = []
+    for group in groups:
+        group_match = next(
+            (term for term in group if _phrase_in_haystack(term, haystack)),
+            None,
+        )
+        if not group_match:
+            return []
+        matched.append(group_match)
+    return matched
+
+
+def _contains_any(haystack: str, terms: Sequence[str]) -> bool:
+    return any(_phrase_in_haystack(term, haystack) for term in terms)
+
+
+def _phrase_in_haystack(term: str, haystack: str) -> bool:
+    normalized = _normalize_text(term)
+    if not normalized:
+        return False
+    if " " in normalized:
+        return normalized in haystack
+    return normalized in set(re.split(r"[^a-z0-9_]+", haystack))
+
+
+def _intent_governing_rule_retrieval_score(
+    governing_rule_score: float,
+    *,
+    domain_match: float,
+    metadata_validity: float,
+) -> float:
+    if governing_rule_score <= 0.0:
+        return 0.0
+    return _clamp01(
+        0.40
+        + 0.35 * governing_rule_score
+        + 0.15 * domain_match
+        + 0.10 * metadata_validity
+    )
+
+
+def _intent_governing_rule_role_order(role: str | None) -> int:
+    order = {
+        "agreement_rule": 0,
+        "salary_scope": 1,
+        "target_element": 2,
+    }
+    return order.get(role or "", 99)
+
+
+def _intent_governing_rule_terms(intent: str | None) -> dict[str, list[str]]:
+    if intent != "labor_contract_modification":
+        return {}
+    return {
+        "agreement_rule": [
+            *_LABOR_CONTRACT_PHRASES,
+            *_LABOR_MODIFICATION_TERMS,
+            *_LABOR_AGREEMENT_TERMS,
+        ],
+        "salary_scope": [
+            *_LABOR_MODIFICATION_SCOPE_PHRASES,
+            *_SALARY_TERMS,
+        ],
+        "target_element": list(_SALARY_TERMS),
+        "distractors": list(_LABOR_CONTRACT_MODIFICATION_DISTRACTOR_TERMS),
+    }
+
+
+def _sql_normalized_text(expression: str) -> str:
+    return (
+        "lower(translate("
+        f"{expression}, "
+        "'ăâîșşțţĂÂÎȘŞȚŢ', "
+        "'aaissttaaisstt'"
+        "))"
+    )
+
+
+def _labor_contract_modification_governing_rule_sql(
+    normalized_search_document: str,
+) -> tuple[dict[str, str], dict[str, str]]:
+    params: dict[str, str] = {}
+    agreement_contract = _sql_any_like(
+        normalized_search_document,
+        _LABOR_CONTRACT_PHRASES,
+        "gov_agreement_contract",
+        params,
+    )
+    agreement_modification = _sql_any_like(
+        normalized_search_document,
+        _LABOR_MODIFICATION_TERMS,
+        "gov_agreement_modification",
+        params,
+    )
+    agreement_parties = _sql_any_like(
+        normalized_search_document,
+        _LABOR_AGREEMENT_TERMS,
+        "gov_agreement_parties",
+        params,
+    )
+    salary_scope = _sql_any_like(
+        normalized_search_document,
+        _LABOR_MODIFICATION_SCOPE_PHRASES,
+        "gov_salary_scope",
+        params,
+    )
+    salary = _sql_any_like(
+        normalized_search_document,
+        tuple(sorted(_SALARY_TERMS)),
+        "gov_salary",
+        params,
+    )
+    distractors = _sql_any_like(
+        normalized_search_document,
+        _LABOR_CONTRACT_MODIFICATION_DISTRACTOR_TERMS,
+        "gov_distractor",
+        params,
+    )
+    target_element = f"({salary} AND length({normalized_search_document}) <= 120)"
+    agreement_rule = (
+        f"({agreement_contract} AND {agreement_modification} AND {agreement_parties})"
+    )
+    salary_scope_rule = f"({salary_scope} AND {salary})"
+    no_distractors = f"NOT ({distractors})"
+    match = (
+        f"{no_distractors} AND "
+        f"({agreement_rule} OR {salary_scope_rule} OR {target_element})"
+    )
+    score = (
+        "CASE "
+        f"WHEN {no_distractors} AND {agreement_rule} THEN 1.0 "
+        f"WHEN {no_distractors} AND {salary_scope_rule} THEN 0.92 "
+        f"WHEN {no_distractors} AND {target_element} THEN 0.28 "
+        "ELSE 0.0 END"
+    )
+    role = (
+        "CASE "
+        f"WHEN {no_distractors} AND {agreement_rule} THEN 'agreement_rule' "
+        f"WHEN {no_distractors} AND {salary_scope_rule} THEN 'salary_scope' "
+        f"WHEN {no_distractors} AND {target_element} THEN 'target_element' "
+        "ELSE NULL END"
+    )
+    return {"match": match, "score": score, "role": role}, params
+
+
+def _sql_any_like(
+    expression: str,
+    terms: Sequence[str],
+    prefix: str,
+    params: dict[str, str],
+) -> str:
+    clauses: list[str] = []
+    for index, term in enumerate(_dedupe_terms(terms)):
+        name = f"{prefix}_{index}"
+        params[name] = f"%{term}%"
+        clauses.append(f"{expression} LIKE :{name}")
+    return "(" + " OR ".join(clauses or ["FALSE"]) + ")"
+
+
 def _why_retrieved(methods: set[str]) -> str:
     labels = []
     if EXACT_METHOD in methods:
         labels.append("exact citation")
     if FTS_METHOD in methods:
         labels.append("lexical match")
+    if INTENT_GOVERNING_RULE_METHOD in methods:
+        labels.append("intent_governing_rule_lookup:labor_contract_modification")
     if DENSE_METHOD in methods:
         labels.append("dense similarity")
     return " + ".join(labels) if labels else "domain filtered search"
@@ -1394,6 +2329,12 @@ LABOR_FALLBACK_INTENTS = {
             "salariat",
             "salariatul",
         ),
+        qualifier_terms=(
+            "fara act aditional",
+            "fara acord",
+            "fara acordul partilor",
+            "unilateral",
+        ),
         generic_terms=(
             "act",
             "contract",
@@ -1404,6 +2345,28 @@ LABOR_FALLBACK_INTENTS = {
             "parti",
             "partilor",
         ),
+        distractor_terms=(
+            "remuneratie restanta",
+            "persoane angajate ilegal",
+            "neplata salariului",
+            "intarzierea platii salariului",
+            "salariul minim",
+            "confidentialitatea salariului",
+            "registrul general de evidenta",
+            "formare profesionala",
+            "drepturile si obligatiile partilor",
+            "durata formarii profesionale",
+            "semnatura electronica",
+            "delegarea",
+            "detasarea",
+            "locul muncii poate fi modificat unilateral",
+            "recuperarea contravalorii pagubei",
+            "nota de constatare",
+            "clauza de neconcurenta",
+            "munca temporara",
+            "acord scris pentru evidenta orelor",
+        ),
+        source="legacy",
     )
 }
 _LABOR_CONTRACT_MODIFICATION_INTENT = LABOR_FALLBACK_INTENTS[
@@ -1491,6 +2454,41 @@ _STOP_WORDS.update(
 )
 _STOP_WORDS.discard("angajatorul")
 _SALARY_TERMS = {"salariu", "salariul", "salarizare", "salarial", "salarii"}
+_LABOR_CONTRACT_PHRASES = (
+    "contract individual de munca",
+    "contractul individual de munca",
+    "contractului individual de munca",
+    "contractele individuale de munca",
+)
+_LABOR_MODIFICATION_TERMS = (
+    "modificat",
+    "modifica",
+    "modificare",
+    "modificarea",
+)
+_LABOR_AGREEMENT_TERMS = (
+    "acordul partilor",
+    "acord partilor",
+    "acord parti",
+)
+_LABOR_MODIFICATION_SCOPE_PHRASES = (
+    "modificarea contractului individual de munca",
+    "modificare contract individual munca",
+)
+_LABOR_CONTRACT_MODIFICATION_DISTRACTOR_TERMS = (
+    "formare profesionala",
+    "durata formarii profesionale",
+    "semnatura electronica",
+    "delegarea",
+    "detasarea",
+    "recuperarea pagubei",
+    "recuperarea contravalorii pagubei",
+    "nota de constatare",
+    "clauza de neconcurenta",
+    "salariul minim",
+    "munca temporara",
+    "evidenta orelor",
+)
 _LABOR_CONTEXT_TERMS = {
     "act",
     "aditional",

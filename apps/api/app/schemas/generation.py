@@ -23,5 +23,8 @@ class DraftAnswer(BaseModel):
     citations: list[DraftCitation] = Field(default_factory=list)
     used_evidence_unit_ids: list[str] = Field(default_factory=list)
     generation_mode: str
+    meta_intent_used: str | None = None
+    template_id: str | None = None
+    focused_evidence_unit_ids: list[str] = Field(default_factory=list)
     confidence: float = Field(default=0.0, ge=0.0, le=1.0)
     warnings: list[str] = Field(default_factory=list)

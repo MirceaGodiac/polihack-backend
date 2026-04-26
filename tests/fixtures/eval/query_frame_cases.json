@@ -1,0 +1,53 @@
+[
+  {
+    "id": "labor_salary_reduction_without_addendum",
+    "question": "Poate angajatorul să-mi scadă salariul fără act adițional?",
+    "expected_domain": "munca",
+    "expected_intents_any": ["labor_contract_modification"],
+    "expected_targets_any": ["salary"],
+    "expected_actors_any": ["employer", "employee"],
+    "expected_qualifiers_any": ["without_addendum", "without_agreement"],
+    "expected_requires_clarification": false
+  },
+  {
+    "id": "labor_salary_payment_delay",
+    "question": "Ce pot face dacă angajatorul întârzie plata salariului?",
+    "expected_domain": "munca",
+    "expected_intents_any": ["labor_salary_payment"],
+    "expected_targets_any": ["salary"],
+    "expected_actors_any": ["employer", "employee"]
+  },
+  {
+    "id": "labor_dismissal_notice",
+    "question": "Angajatorul trebuie să îmi dea preaviz înainte de concediere?",
+    "expected_domain": "munca",
+    "expected_intents_any": ["labor_dismissal"],
+    "expected_meta_intents_any": ["procedure", "obligation"]
+  },
+  {
+    "id": "contravention_fine_challenge",
+    "question": "Cum contest o amendă contravențională?",
+    "expected_domain": "contraventional",
+    "expected_intents_any": ["contravention_challenge"],
+    "expected_meta_intents_any": ["procedure"]
+  },
+  {
+    "id": "civil_prescription",
+    "question": "În cât timp se prescrie dreptul la acțiune pentru o datorie civilă?",
+    "expected_domain": "civil",
+    "expected_intents_any": ["civil_prescription"],
+    "expected_meta_intents_any": ["limitation_period"]
+  },
+  {
+    "id": "tax_declaration",
+    "question": "Când trebuie depusă declarația fiscală la ANAF?",
+    "expected_domain": "fiscal",
+    "expected_intents_any": ["tax_declaration_obligation"],
+    "expected_meta_intents_any": ["procedure", "obligation"]
+  },
+  {
+    "id": "unknown_short",
+    "question": "Ce fac?",
+    "expected_requires_clarification": true
+  }
+]

@@ -148,6 +148,17 @@ class GraphPayload(BaseModel):
     edges: list[GraphEdge] = Field(default_factory=list)
 
 
+class QueryGraphResponse(BaseModel):
+    query_id: str
+    question: str
+    graph: GraphPayload
+    highlighted_node_ids: list[str] = Field(default_factory=list)
+    highlighted_edge_ids: list[str] = Field(default_factory=list)
+    cited_unit_ids: list[str] = Field(default_factory=list)
+    reasoning_path: list[str] = Field(default_factory=list)
+    verifier_summary: dict[str, int | float | bool] = Field(default_factory=dict)
+
+
 class ClaimResult(BaseModel):
     claim_id: str
     claim_text: str
@@ -244,6 +255,7 @@ class QueryDebugData(BaseModel):
     evidence_service: str
     retrieval_mode: str
     query_understanding: QueryPlan | None = None
+    query_frame: dict[str, Any] | None = None
     retrieval: dict[str, Any] | None = None
     graph_expansion: dict[str, Any] | None = None
     legal_ranker: dict[str, Any] | None = None

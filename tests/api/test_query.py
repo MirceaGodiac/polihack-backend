@@ -50,7 +50,8 @@ def test_post_api_query_returns_unverified_fallback_without_retrieval():
     assert payload["verifier"]["refusal_reason"] == "insufficient_evidence"
     assert payload["verifier"]["citations_checked"] == 0
     assert "verifier_insufficient_evidence" in payload["verifier"]["warnings"]
-    assert payload["graph"]["nodes"] == []
+    assert [node["type"] for node in payload["graph"]["nodes"]] == ["query"]
+    assert payload["graph"]["nodes"][0]["metadata"]["query_id"] == payload["query_id"]
     assert payload["graph"]["edges"] == []
     assert "evidence_pack_no_ranked_candidates" in payload["warnings"]
     assert "generation_insufficient_evidence" in payload["warnings"]
@@ -84,6 +85,14 @@ def test_post_api_query_debug_true_includes_debug_payload():
     assert "obligation" in debug["query_understanding"]["query_types"]
     assert debug["query_understanding"]["exact_citations"] == []
     assert debug["query_understanding"]["retrieval_filters"]["status"] == "active"
+    assert debug["query_frame"]["domain"] == "munca"
+    assert "labor_contract_modification" in debug["query_frame"]["intents"]
+    assert "salary" in debug["query_frame"]["targets"]
+    assert {
+        "without_addendum",
+        "without_agreement",
+    }.intersection(debug["query_frame"]["qualifiers"])
+    assert debug["query_frame"]["requires_clarification"] is False
     retrieval = debug["retrieval"]
     assert retrieval["fallback_used"] is True
     assert retrieval["request_payload"]["filters"]["legal_domain"] == "munca"
@@ -244,6 +253,7 @@ def test_post_api_query_demo_uses_raw_retriever_client_internal_candidates():
         "ro.codul_muncii.art_41.alin_1",
         "ro.codul_muncii.art_41.alin_3",
     }.issubset(citation_unit_ids)
+    assert all(unit_id.startswith("ro.codul_muncii.art_41") for unit_id in citation_unit_ids)
     assert "ro.codul_muncii.art_264.lit_a" in evidence_ids
     assert "ro.codul_muncii.art_264.lit_a" not in citation_unit_ids
     retrieval_debug = payload["debug"]["retrieval"]
@@ -254,6 +264,13 @@ def test_post_api_query_demo_uses_raw_retriever_client_internal_candidates():
         "status": "active",
         "date_context": "current",
     }
+    assert payload["debug"]["query_frame"]["domain"] == "munca"
+    assert "labor_contract_modification" in payload["debug"]["query_frame"]["intents"]
+    assert "salary" in payload["debug"]["query_frame"]["targets"]
+    assert {
+        "without_addendum",
+        "without_agreement",
+    }.intersection(payload["debug"]["query_frame"]["qualifiers"])
     assert payload["debug"]["evidence_pack"]["selected_evidence_count"] > 0
 
 
@@ -478,7 +495,15 @@ def _evidence_unit(
 @pytest.mark.anyio
 async def test_query_orchestrator_populates_evidence_units_with_fake_candidates():
     orchestrator = QueryOrchestrator(raw_retriever_client=FakeRawRetrieverClient())
-    response = await orchestrator.run(QueryRequest(**VALID_QUERY, debug=True))
+    response = await orchestrator.run(
+        QueryRequest(
+            **{
+                **VALID_QUERY,
+                "question": "Ce spune art. 41 din Codul muncii?",
+            },
+            debug=True,
+        )
+    )
 
     assert len(response.evidence_units) == 1
     evidence = response.evidence_units[0]
@@ -568,14 +593,15 @@ def test_generation_adapter_scores_focused_contract_modification_over_distractor
     assert distractor.id not in focused_ids
 
 
-def test_handoff04_graph_endpoints_are_not_registered():
+def test_query_graph_endpoint_is_registered_without_explore_endpoints():
     paths = {route.path for route in app.routes}
 
     assert "/api/retrieve/raw" in paths
+    assert "/api/query/{query_id}" in paths
+    assert "/api/query/{query_id}/graph" in paths
     assert "/api/legal-units/{id}/neighbors" not in paths
     assert "/api/explore/root" not in paths
     assert "/api/explore/node/{id}/children" not in paths
-    assert "/api/query/{id}/graph" not in paths
 
 
 def test_post_api_query_rejects_short_question():

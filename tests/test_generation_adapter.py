@@ -2,9 +2,14 @@ from apps.api.app.schemas import EvidenceUnit
 from apps.api.app.services.generation_adapter import (
     GENERATION_INSUFFICIENT_EVIDENCE,
     GENERATION_LIMITED_EVIDENCE,
+    GENERATION_MODE_TEMPLATE_LABOR_CONTRACT_MODIFICATION,
+    GENERATION_MODE_TEMPLATE_V1,
+    GENERATION_NO_DIRECT_BASIS,
     GENERATION_UNVERIFIED_WARNING,
     GenerationAdapter,
 )
+from apps.api.app.services.query_frame import QueryFrame
+from tests.helpers.live_like_demo import LIVE_LIKE_DEMO_QUERY
 from tests.helpers.fixture_handoff03 import DEMO_QUERY, load_codul_muncii_units
 
 
@@ -134,7 +139,7 @@ def test_generation_uses_only_raw_text_for_citation_snippets():
     ]
 
     draft = GenerationAdapter().generate(
-        question="Poate angajatorul sa-mi scada salariul fara act aditional?",
+        question="Ce spune textul recuperat despre salariu?",
         evidence_units=evidence,
     )
 
@@ -207,3 +212,246 @@ def test_demo_fixture_answer_cites_only_existing_codul_muncii_units():
         assert citation.snippet in units[citation.unit_id]["raw_text"]
     assert draft.confidence == 0.0
     assert GENERATION_UNVERIFIED_WARNING in draft.warnings
+
+
+def test_demo_labor_contract_modification_template_keeps_focused_citations():
+    evidence = [
+        evidence_unit(
+            "ro.codul_muncii.art_41.alin_1",
+            "Contractul individual de munca poate fi modificat numai prin acordul partilor.",
+            rank=2,
+            support_role="direct_basis",
+            paragraph_number="1",
+        ),
+        evidence_unit(
+            "ro.codul_muncii.art_41.alin_3",
+            "Modificarea contractului individual de munca se refera la elementele contractului, inclusiv salariul.",
+            rank=3,
+            support_role="direct_basis",
+            paragraph_number="3",
+        ),
+        evidence_unit(
+            "ro.codul_muncii.art_41.alin_3.lit_e",
+            "e) salariul.",
+            rank=4,
+            support_role="direct_basis",
+            paragraph_number="3",
+            letter_number="e",
+        ),
+        evidence_unit(
+            "ro.codul_muncii.art_264.lit_a",
+            "orice remuneratie restanta datorata persoanelor angajate ilegal, inclusiv salariul;",
+            rank=1,
+            support_role="context",
+            article_number="264",
+            letter_number="a",
+        ),
+    ]
+    query_frame = QueryFrame(
+        domain="munca",
+        intents=["labor_contract_modification"],
+        meta_intents=["modification", "permission"],
+        targets=["salary"],
+        confidence=0.9,
+    )
+
+    draft = GenerationAdapter().generate(
+        question=DEMO_QUERY,
+        evidence_units=evidence,
+        query_frame=query_frame,
+    )
+
+    citation_ids = [citation.unit_id for citation in draft.citations]
+    assert draft.generation_mode == GENERATION_MODE_TEMPLATE_LABOR_CONTRACT_MODIFICATION
+    assert "ro.codul_muncii.art_41.alin_1" in citation_ids
+    assert "ro.codul_muncii.art_41.alin_3" in citation_ids
+    assert "ro.codul_muncii.art_41.alin_3.lit_e" in citation_ids
+    assert "ro.codul_muncii.art_264.lit_a" not in citation_ids
+    assert set(draft.used_evidence_unit_ids) == set(citation_ids)
+    assert "Codul muncii, art. 41 alin. (1)" in draft.short_answer
+    assert "evidence:ro.codul_muncii.art_41.alin_1" in draft.short_answer
+
+
+def test_generic_obligation_template_uses_only_cited_direct_basis():
+    evidence = [
+        evidence_unit(
+            "fixture.obligation",
+            "Angajatorul are obligatia de a informa salariatul in scris.",
+            support_role="direct_basis",
+            article_number="10",
+        )
+    ]
+    query_frame = QueryFrame(
+        domain="munca",
+        meta_intents=["obligation"],
+        confidence=0.9,
+    )
+
+    draft = GenerationAdapter().generate(
+        question="Ce obligatie are angajatorul?",
+        evidence_units=evidence,
+        query_frame=query_frame,
+    )
+
+    assert draft.generation_mode == GENERATION_MODE_TEMPLATE_V1
+    assert draft.meta_intent_used == "obligation"
+    assert draft.template_id == "meta_intent:obligation"
+    assert GENERATION_INSUFFICIENT_EVIDENCE not in draft.warnings
+    assert [citation.unit_id for citation in draft.citations] == ["fixture.obligation"]
+    assert draft.used_evidence_unit_ids == ["fixture.obligation"]
+    assert "Codul muncii, art. 10" in draft.short_answer
+
+
+def test_generic_procedure_template_stays_prudent_about_missing_steps():
+    evidence = [
+        evidence_unit(
+            "fixture.procedure",
+            "Cererea se depune in termenul prevazut si se solutioneaza potrivit procedurii.",
+            support_role="procedure",
+            article_number="20",
+        )
+    ]
+    query_frame = QueryFrame(
+        domain="contraventional",
+        meta_intents=["procedure"],
+        confidence=0.9,
+    )
+
+    draft = GenerationAdapter().generate(
+        question="Cum contest?",
+        evidence_units=evidence,
+        query_frame=query_frame,
+    )
+
+    assert draft.generation_mode == GENERATION_MODE_TEMPLATE_V1
+    assert draft.meta_intent_used == "procedure"
+    assert "Nu completez pasi care nu apar in EvidencePack" in draft.short_answer
+    assert [citation.unit_id for citation in draft.citations] == ["fixture.procedure"]
+
+
+def test_sanction_template_does_not_use_unrelated_context():
+    evidence = [
+        evidence_unit(
+            "fixture.sanction",
+            "Fapta se sanctioneaza cu amenda contraventionala.",
+            support_role="sanction",
+            article_number="30",
+        ),
+        evidence_unit(
+            "fixture.context",
+            "Context general despre procedura administrativa.",
+            support_role="context",
+            article_number="31",
+        ),
+    ]
+    query_frame = QueryFrame(
+        domain="contraventional",
+        meta_intents=["sanction"],
+        confidence=0.9,
+    )
+
+    draft = GenerationAdapter().generate(
+        question="Ce sanctiune se aplica?",
+        evidence_units=evidence,
+        query_frame=query_frame,
+    )
+
+    assert draft.generation_mode == GENERATION_MODE_TEMPLATE_V1
+    assert [citation.unit_id for citation in draft.citations] == ["fixture.sanction"]
+    assert "fixture.context" not in draft.used_evidence_unit_ids
+
+
+def test_exception_evidence_is_used_only_when_query_frame_asks_exception():
+    evidence = [
+        evidence_unit(
+            "fixture.basis",
+            "Regula generala se aplica in conditiile textului citat.",
+            support_role="direct_basis",
+            article_number="40",
+        ),
+        evidence_unit(
+            "fixture.exception",
+            "Prin exceptie, regula nu se aplica in situatiile speciale indicate.",
+            support_role="exception",
+            article_number="41",
+        ),
+    ]
+
+    no_exception = GenerationAdapter().generate(
+        question="Care este regula?",
+        evidence_units=evidence,
+        query_frame=QueryFrame(meta_intents=["obligation"], confidence=0.9),
+    )
+    asks_exception = GenerationAdapter().generate(
+        question="Exista exceptii?",
+        evidence_units=evidence,
+        query_frame=QueryFrame(meta_intents=["exception"], confidence=0.9),
+    )
+
+    assert [citation.unit_id for citation in no_exception.citations] == ["fixture.basis"]
+    assert "fixture.exception" not in no_exception.short_answer
+    assert "fixture.exception" in {citation.unit_id for citation in asks_exception.citations}
+
+
+def test_template_with_only_context_warns_no_direct_basis():
+    evidence = [
+        evidence_unit(
+            "fixture.context_only",
+            "Context recuperat despre termenul folosit in intrebare.",
+            support_role="context",
+            article_number="50",
+        )
+    ]
+    query_frame = QueryFrame(meta_intents=["obligation"], confidence=0.9)
+
+    draft = GenerationAdapter().generate(
+        question="Ce obligatie exista?",
+        evidence_units=evidence,
+        query_frame=query_frame,
+    )
+
+    assert draft.generation_mode == GENERATION_MODE_TEMPLATE_V1
+    assert GENERATION_NO_DIRECT_BASIS in draft.warnings
+    assert [citation.unit_id for citation in draft.citations] == ["fixture.context_only"]
+
+
+def test_labor_contract_modification_with_only_topical_distractors_refuses_extractively():
+    query_frame = QueryFrame(
+        domain="munca",
+        intents=["labor_contract_modification"],
+        meta_intents=["modification", "permission"],
+        targets=["salary"],
+        confidence=0.9,
+    )
+    evidence = [
+        evidence_unit(
+            "ro.codul_muncii.art_196.alin_2",
+            (
+                "Modalitatea concreta de formare profesionala, drepturile si "
+                "obligatiile partilor, durata formarii profesionale si alte "
+                "aspecte fac obiectul unor acte aditionale."
+            ),
+            article_number="196",
+            paragraph_number="2",
+        ),
+        evidence_unit(
+            "ro.codul_muncii.art_254.alin_3",
+            (
+                "Recuperarea contravalorii pagubei se poate realiza prin "
+                "acordul partilor, potrivit notei de constatare."
+            ),
+            article_number="254",
+            paragraph_number="3",
+        ),
+    ]
+
+    draft = GenerationAdapter().generate(
+        question=LIVE_LIKE_DEMO_QUERY,
+        evidence_units=evidence,
+        query_frame=query_frame,
+    )
+
+    assert draft.generation_mode == "deterministic_extractive_v1_insufficient_evidence"
+    assert GENERATION_INSUFFICIENT_EVIDENCE in draft.warnings
+    assert draft.citations == []
+    assert "art. 196" not in draft.short_answer

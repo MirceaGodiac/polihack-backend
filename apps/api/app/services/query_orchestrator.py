@@ -1,3 +1,4 @@
+import inspect
 from uuid import NAMESPACE_URL, uuid5
 
 from ..schemas import (
@@ -25,6 +26,8 @@ from .generation_adapter import (
 from .graph_expansion_policy import GraphExpansionPolicy
 from .legal_ranker import LegalRanker
 from .mock_evidence import MockEvidenceService
+from .query_frame import QueryFrameBuilder
+from .query_graph_enricher import QueryGraphEnricher
 from .query_understanding import QueryUnderstanding
 from .raw_retriever_client import RAW_RETRIEVAL_NOT_CONFIGURED, RawRetrieverClient
 
@@ -41,6 +44,8 @@ class QueryOrchestrator:
         generation_adapter: GenerationAdapter | None = None,
         citation_verifier: CitationVerifier | None = None,
         answer_repair: AnswerRepair | None = None,
+        query_frame_builder: QueryFrameBuilder | None = None,
+        query_graph_enricher: QueryGraphEnricher | None = None,
     ) -> None:
         self.evidence_service = evidence_service or MockEvidenceService()
         self.query_understanding = query_understanding or QueryUnderstanding()
@@ -55,13 +60,19 @@ class QueryOrchestrator:
         self.generation_adapter = generation_adapter or GenerationAdapter()
         self.citation_verifier = citation_verifier or CitationVerifier()
         self.answer_repair = answer_repair or AnswerRepair()
+        self.query_frame_builder = query_frame_builder or QueryFrameBuilder()
+        self.query_graph_enricher = query_graph_enricher or QueryGraphEnricher()
 
     async def run(self, request: QueryRequest) -> QueryResponse:
         query_id = self._query_id(request)
         query_plan = self.query_understanding.build_plan(request)
-        raw_retrieval = await self.raw_retriever_client.retrieve(
-            query_plan,
-            top_k=50,
+        query_frame = self.query_frame_builder.build(
+            question=request.question,
+            plan=query_plan,
+        )
+        raw_retrieval = await self._retrieve_raw(
+            query_plan=query_plan,
+            query_frame=query_frame,
             debug=request.debug,
         )
         graph_expansion = await self.graph_expansion_policy.expand(
@@ -74,18 +85,21 @@ class QueryOrchestrator:
             plan=query_plan,
             retrieval_response=raw_retrieval,
             graph_expansion=graph_expansion,
+            query_frame=query_frame,
             debug=request.debug,
         )
         compiled_evidence = self.evidence_pack_compiler.compile(
             ranked_candidates=legal_ranker.ranked_candidates,
             graph_expansion=graph_expansion,
             plan=query_plan,
+            query_frame=query_frame,
             debug=request.debug,
         )
         draft_answer = self._generate_answer(
             question=request.question,
             evidence_units=compiled_evidence.evidence_units,
             mode=request.mode,
+            query_frame=query_frame,
         )
         answer = self._answer_payload(draft_answer)
         citations = self._citations_from_draft(
@@ -129,6 +143,16 @@ class QueryOrchestrator:
             nodes=compiled_evidence.graph_nodes,
             edges=compiled_evidence.graph_edges,
         )
+        graph = self.query_graph_enricher.enrich(
+            graph=graph,
+            query_id=query_id,
+            question=request.question,
+            query_plan=query_plan,
+            query_frame=query_frame,
+            evidence_units=compiled_evidence.evidence_units,
+            citations=citations,
+            verifier=verifier,
+        )
         debug = None
         if request.debug:
             debug = QueryDebugData(
@@ -136,6 +160,7 @@ class QueryOrchestrator:
                 evidence_service=self.evidence_service.__class__.__name__,
                 retrieval_mode=self._retrieval_mode(raw_retrieval),
                 query_understanding=query_plan,
+                query_frame=query_frame.model_dump(mode="json"),
                 retrieval=raw_retrieval.debug,
                 graph_expansion=graph_expansion.debug,
                 legal_ranker=legal_ranker.debug,
@@ -170,9 +195,19 @@ class QueryOrchestrator:
         question: str,
         evidence_units: list[EvidenceUnit],
         mode: str,
+        query_frame,
     ) -> DraftAnswer:
         try:
-            return self.generation_adapter.generate(
+            generate = self.generation_adapter.generate
+            parameters = inspect.signature(generate).parameters
+            if "query_frame" in parameters:
+                return generate(
+                    question=question,
+                    evidence_units=evidence_units,
+                    constraints=GenerationConstraints(mode=mode),
+                    query_frame=query_frame,
+                )
+            return generate(
                 question=question,
                 evidence_units=evidence_units,
                 constraints=GenerationConstraints(mode=mode),
@@ -300,6 +335,9 @@ class QueryOrchestrator:
             "citation_unit_ids": [
                 citation.unit_id for citation in draft_answer.citations
             ],
+            "meta_intent_used": draft_answer.meta_intent_used,
+            "template_id": draft_answer.template_id,
+            "focused_evidence_unit_ids": draft_answer.focused_evidence_unit_ids,
         }
 
     def _generation_warnings(
@@ -327,6 +365,18 @@ class QueryOrchestrator:
         if RAW_RETRIEVAL_NOT_CONFIGURED in raw_retrieval.warnings:
             return "fallback_unconfigured"
         return f"raw_retriever_client:{self.raw_retriever_client.__class__.__name__}"
+
+    async def _retrieve_raw(self, *, query_plan, query_frame, debug: bool):
+        retrieve = self.raw_retriever_client.retrieve
+        parameters = inspect.signature(retrieve).parameters
+        if "query_frame" in parameters:
+            return await retrieve(
+                query_plan,
+                query_frame=query_frame,
+                top_k=50,
+                debug=debug,
+            )
+        return await retrieve(query_plan, top_k=50, debug=debug)
 
     def _query_id(self, request: QueryRequest) -> str:
         stable_input = "|".join(

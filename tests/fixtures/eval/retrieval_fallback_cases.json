@@ -1,0 +1,368 @@
+[
+  {
+    "id": "labor_salary_reduction_without_addendum",
+    "fixture_scope": "synthetic_retrieval_fallback_eval",
+    "question": "Poate angajatorul sa-mi scada salariul fara act aditional?",
+    "expected_intent": "labor_contract_modification",
+    "expected_expanded_terms_any": [
+      "modificare contract",
+      "contract individual de munca",
+      "acordul partilor",
+      "salariu",
+      "act aditional"
+    ],
+    "expected_top_any": [
+      "ro.codul_muncii.art_41.alin_1",
+      "ro.codul_muncii.art_41.alin_3"
+    ],
+    "forbidden_top_3": [
+      "ro.codul_muncii.art_264.lit_a"
+    ],
+    "candidate_units": [
+      {
+        "id": "ro.codul_muncii.art_41.alin_1",
+        "law_id": "ro.codul_muncii",
+        "law_title": "Codul muncii",
+        "legal_domain": "munca",
+        "status": "active",
+        "article_number": "41",
+        "paragraph_number": "1",
+        "raw_text": "(1) Contractul individual de munca poate fi modificat numai prin acordul partilor.",
+        "normalized_text": "contract individual munca modificat numai acord parti",
+        "legal_concepts": ["contract_modification", "agreement_of_parties"],
+        "hierarchy_path": ["Codul muncii", "Art. 41", "Alin. (1)"],
+        "source_url": "https://legislatie.just.ro/test"
+      },
+      {
+        "id": "ro.codul_muncii.art_41.alin_3",
+        "law_id": "ro.codul_muncii",
+        "law_title": "Codul muncii",
+        "legal_domain": "munca",
+        "status": "active",
+        "article_number": "41",
+        "paragraph_number": "3",
+        "raw_text": "(3) Modificarea contractului individual de munca se refera la durata contractului, locul muncii, felul muncii, conditiile de munca, salariul, timpul de munca si timpul de odihna.",
+        "normalized_text": "modificarea contractului individual munca salariu",
+        "legal_concepts": ["contract_modification", "salary"],
+        "hierarchy_path": ["Codul muncii", "Art. 41", "Alin. (3)"],
+        "source_url": "https://legislatie.just.ro/test"
+      },
+      {
+        "id": "ro.codul_muncii.art_41.context",
+        "law_id": "ro.codul_muncii",
+        "law_title": "Codul muncii",
+        "legal_domain": "munca",
+        "status": "active",
+        "article_number": "41",
+        "raw_text": "Modificarea contractului individual de munca priveste acordul partilor si elementele contractuale.",
+        "normalized_text": "modificare contract individual munca acord parti elemente contractuale",
+        "legal_concepts": ["contract_modification", "agreement_of_parties"],
+        "hierarchy_path": ["Codul muncii", "Art. 41"],
+        "source_url": "https://legislatie.just.ro/test"
+      },
+      {
+        "id": "ro.codul_muncii.art_264.lit_a",
+        "law_id": "ro.codul_muncii",
+        "law_title": "Codul muncii",
+        "legal_domain": "munca",
+        "status": "active",
+        "article_number": "264",
+        "letter_number": "a",
+        "raw_text": "Constituie contraventie primirea la munca a persoanelor fara contract si remuneratie restanta datorata persoanelor angajate ilegal, inclusiv salariul.",
+        "normalized_text": "contraventie persoane angajate ilegal remuneratie restanta salariu",
+        "legal_concepts": ["sanction", "salary"],
+        "hierarchy_path": ["Codul muncii", "Art. 264", "Lit. a"],
+        "source_url": "https://legislatie.just.ro/test"
+      },
+      {
+        "id": "ro.codul_muncii.art_163.alin_1",
+        "law_id": "ro.codul_muncii",
+        "law_title": "Codul muncii",
+        "legal_domain": "munca",
+        "status": "active",
+        "article_number": "163",
+        "paragraph_number": "1",
+        "raw_text": "Salariul este confidential, iar angajatorul ia masuri pentru confidentialitatea salariului.",
+        "normalized_text": "salariul confidential angajator confidentialitatea salariului",
+        "legal_concepts": ["salary", "confidentiality"],
+        "hierarchy_path": ["Codul muncii", "Art. 163", "Alin. (1)"],
+        "source_url": "https://legislatie.just.ro/test"
+      }
+    ]
+  },
+  {
+    "id": "labor_salary_payment_delay",
+    "fixture_scope": "synthetic_retrieval_fallback_eval",
+    "question": "Ce pot face daca angajatorul intarzie plata salariului?",
+    "expected_intent": "labor_salary_payment",
+    "expected_expanded_terms_any": [
+      "plata salariului",
+      "drepturi salariale",
+      "salariul se plateste",
+      "intarziere",
+      "salariu"
+    ],
+    "expected_top_any": [
+      "synthetic.labor.salary_payment.rule"
+    ],
+    "forbidden_top_3": [],
+    "candidate_units": [
+      {
+        "id": "synthetic.labor.salary_payment.rule",
+        "law_id": "synthetic.labor",
+        "law_title": "Synthetic labor fixture",
+        "legal_domain": "munca",
+        "status": "active",
+        "raw_text": "Salariul se plateste la data stabilita, iar drepturile salariale restante sunt datorate salariatului.",
+        "normalized_text": "salariul se plateste drepturi salariale restante datorate salariatului intarziere plata salariului",
+        "legal_concepts": ["salary_payment", "wage_due", "salary"],
+        "hierarchy_path": ["Synthetic labor", "Salary payment"],
+        "source_url": "https://legislatie.just.ro/test"
+      },
+      {
+        "id": "synthetic.labor.salary_confidentiality",
+        "law_id": "synthetic.labor",
+        "law_title": "Synthetic labor fixture",
+        "legal_domain": "munca",
+        "status": "active",
+        "raw_text": "Salariul este confidential si priveste datele de salarizare.",
+        "normalized_text": "salariul confidential salarizare",
+        "legal_concepts": ["salary", "confidentiality"],
+        "hierarchy_path": ["Synthetic labor", "Salary confidentiality"],
+        "source_url": "https://legislatie.just.ro/test"
+      },
+      {
+        "id": "synthetic.labor.contract_modification",
+        "law_id": "synthetic.labor",
+        "law_title": "Synthetic labor fixture",
+        "legal_domain": "munca",
+        "status": "active",
+        "raw_text": "Modificarea contractului individual de munca se face prin acordul partilor.",
+        "normalized_text": "modificarea contractului individual munca acord parti",
+        "legal_concepts": ["contract_modification", "agreement_of_parties"],
+        "hierarchy_path": ["Synthetic labor", "Contract modification"],
+        "source_url": "https://legislatie.just.ro/test"
+      }
+    ]
+  },
+  {
+    "id": "labor_dismissal_notice",
+    "fixture_scope": "synthetic_retrieval_fallback_eval",
+    "question": "Angajatorul trebuie sa imi dea preaviz inainte de concediere?",
+    "expected_intent": "labor_dismissal",
+    "expected_expanded_terms_any": [
+      "concediere",
+      "preaviz",
+      "decizie de concediere",
+      "inainte",
+      "angajator"
+    ],
+    "expected_top_any": [
+      "synthetic.labor.dismissal.notice"
+    ],
+    "forbidden_top_3": [],
+    "candidate_units": [
+      {
+        "id": "synthetic.labor.dismissal.notice",
+        "law_id": "synthetic.labor",
+        "law_title": "Synthetic labor fixture",
+        "legal_domain": "munca",
+        "status": "active",
+        "raw_text": "Inainte de concediere, angajatorul acorda salariatului preaviz si emite decizie de concediere.",
+        "normalized_text": "inainte concediere angajator salariat preaviz decizie concediere",
+        "legal_concepts": ["dismissal", "notice", "employer", "employee"],
+        "hierarchy_path": ["Synthetic labor", "Dismissal notice"],
+        "source_url": "https://legislatie.just.ro/test"
+      },
+      {
+        "id": "synthetic.labor.resignation",
+        "law_id": "synthetic.labor",
+        "law_title": "Synthetic labor fixture",
+        "legal_domain": "munca",
+        "status": "active",
+        "raw_text": "Demisia este actul unilateral al salariatului, cu respectarea termenului de preaviz.",
+        "normalized_text": "demisie salariat termen preaviz",
+        "legal_concepts": ["resignation", "notice"],
+        "hierarchy_path": ["Synthetic labor", "Resignation"],
+        "source_url": "https://legislatie.just.ro/test"
+      },
+      {
+        "id": "synthetic.labor.leave",
+        "law_id": "synthetic.labor",
+        "law_title": "Synthetic labor fixture",
+        "legal_domain": "munca",
+        "status": "active",
+        "raw_text": "Concediul de odihna se efectueaza anual.",
+        "normalized_text": "concediu odihna anual",
+        "legal_concepts": ["leave"],
+        "hierarchy_path": ["Synthetic labor", "Leave"],
+        "source_url": "https://legislatie.just.ro/test"
+      }
+    ]
+  },
+  {
+    "id": "contravention_fine_challenge",
+    "fixture_scope": "synthetic_retrieval_fallback_eval",
+    "question": "Cum contest o amenda contraventionala?",
+    "expected_intent": "contravention_challenge",
+    "expected_expanded_terms_any": [
+      "plangere contraventionala",
+      "proces verbal",
+      "contestare amenda",
+      "amenda",
+      "contraventie"
+    ],
+    "expected_top_any": [
+      "synthetic.contravention.challenge"
+    ],
+    "forbidden_top_3": [],
+    "candidate_units": [
+      {
+        "id": "synthetic.contravention.challenge",
+        "law_id": "synthetic.contravention",
+        "law_title": "Synthetic contravention fixture",
+        "legal_domain": "contraventional",
+        "status": "active",
+        "raw_text": "Procesul verbal contraventional poate fi contestat prin plangere contraventionala pentru contestare amenda si anulare proces verbal.",
+        "normalized_text": "proces verbal contraventional plangere contraventionala contestare amenda anulare proces verbal",
+        "legal_concepts": ["contravention_challenge", "complaint", "fine", "report"],
+        "hierarchy_path": ["Synthetic contravention", "Challenge"],
+        "source_url": "https://legislatie.just.ro/test"
+      },
+      {
+        "id": "synthetic.contravention.payment_deadline",
+        "law_id": "synthetic.contravention",
+        "law_title": "Synthetic contravention fixture",
+        "legal_domain": "contraventional",
+        "status": "active",
+        "raw_text": "Contravenientul poate achita amenda in termenul de plata a amenzii contraventionale.",
+        "normalized_text": "contravenient achita amenda termen plata amenzii contraventionale",
+        "legal_concepts": ["fine_payment", "payment_deadline", "fine"],
+        "hierarchy_path": ["Synthetic contravention", "Payment deadline"],
+        "source_url": "https://legislatie.just.ro/test"
+      },
+      {
+        "id": "synthetic.contravention.sanction",
+        "law_id": "synthetic.contravention",
+        "law_title": "Synthetic contravention fixture",
+        "legal_domain": "contraventional",
+        "status": "active",
+        "raw_text": "Sanctiunea contraventionala consta in avertisment sau amenda.",
+        "normalized_text": "sanctiune contraventionala avertisment amenda",
+        "legal_concepts": ["contravention", "fine", "sanction"],
+        "hierarchy_path": ["Synthetic contravention", "Sanction"],
+        "source_url": "https://legislatie.just.ro/test"
+      }
+    ]
+  },
+  {
+    "id": "civil_prescription",
+    "fixture_scope": "synthetic_retrieval_fallback_eval",
+    "question": "In cat timp se prescrie dreptul la actiune pentru o datorie civila?",
+    "expected_intent": "civil_prescription",
+    "expected_expanded_terms_any": [
+      "prescriptie",
+      "dreptul la actiune",
+      "termen de prescriptie",
+      "datorie civila",
+      "termen"
+    ],
+    "expected_top_any": [
+      "synthetic.civil.prescription"
+    ],
+    "forbidden_top_3": [],
+    "candidate_units": [
+      {
+        "id": "synthetic.civil.prescription",
+        "law_id": "synthetic.civil",
+        "law_title": "Synthetic civil fixture",
+        "legal_domain": "civil",
+        "status": "active",
+        "raw_text": "Dreptul la actiune privind o datorie civila se prescrie la implinirea termenului de prescriptie.",
+        "normalized_text": "dreptul la actiune datorie civila prescrie termen prescriptie",
+        "legal_concepts": ["prescription", "limitation_period", "claim", "debt"],
+        "hierarchy_path": ["Synthetic civil", "Prescription"],
+        "source_url": "https://legislatie.just.ro/test"
+      },
+      {
+        "id": "synthetic.civil.liability",
+        "law_id": "synthetic.civil",
+        "law_title": "Synthetic civil fixture",
+        "legal_domain": "civil",
+        "status": "active",
+        "raw_text": "Raspunderea civila pentru prejudiciu atrage repararea prejudiciului prin despagubiri.",
+        "normalized_text": "raspundere civila prejudiciu despagubiri",
+        "legal_concepts": ["civil_liability", "damage", "damages"],
+        "hierarchy_path": ["Synthetic civil", "Liability"],
+        "source_url": "https://legislatie.just.ro/test"
+      },
+      {
+        "id": "synthetic.civil.contract_validity",
+        "law_id": "synthetic.civil",
+        "law_title": "Synthetic civil fixture",
+        "legal_domain": "civil",
+        "status": "active",
+        "raw_text": "Validitatea contractului presupune consimtamant si capacitate.",
+        "normalized_text": "validitatea contractului consimtamant capacitate",
+        "legal_concepts": ["contract_validity", "consent", "capacity"],
+        "hierarchy_path": ["Synthetic civil", "Contract validity"],
+        "source_url": "https://legislatie.just.ro/test"
+      }
+    ]
+  },
+  {
+    "id": "tax_declaration_obligation",
+    "fixture_scope": "synthetic_retrieval_fallback_eval",
+    "question": "Cand trebuie depusa declaratia fiscala la ANAF?",
+    "expected_intent": "tax_declaration_obligation",
+    "expected_expanded_terms_any": [
+      "declaratie fiscala",
+      "depunerea declaratiei",
+      "formular fiscal",
+      "anaf",
+      "termen"
+    ],
+    "expected_top_any": [
+      "synthetic.fiscal.tax_declaration"
+    ],
+    "forbidden_top_3": [],
+    "candidate_units": [
+      {
+        "id": "synthetic.fiscal.tax_declaration",
+        "law_id": "synthetic.fiscal",
+        "law_title": "Synthetic fiscal fixture",
+        "legal_domain": "fiscal",
+        "status": "active",
+        "raw_text": "Declaratia fiscala se depune la ANAF prin formular fiscal in termenul stabilit pentru depunerea declaratiei.",
+        "normalized_text": "declaratie fiscala depune anaf formular fiscal termen depunerea declaratiei",
+        "legal_concepts": ["tax_declaration", "filing_obligation", "filing_deadline"],
+        "hierarchy_path": ["Synthetic fiscal", "Tax declaration"],
+        "source_url": "https://legislatie.just.ro/test"
+      },
+      {
+        "id": "synthetic.fiscal.tax_payment",
+        "law_id": "synthetic.fiscal",
+        "law_title": "Synthetic fiscal fixture",
+        "legal_domain": "fiscal",
+        "status": "active",
+        "raw_text": "Contribuabilul achita obligatia de plata fiscala la scadenta.",
+        "normalized_text": "contribuabil plata obligatie fiscala scadenta",
+        "legal_concepts": ["tax_payment", "tax_obligation"],
+        "hierarchy_path": ["Synthetic fiscal", "Tax payment"],
+        "source_url": "https://legislatie.just.ro/test"
+      },
+      {
+        "id": "synthetic.fiscal.penalty_interest",
+        "law_id": "synthetic.fiscal",
+        "law_title": "Synthetic fiscal fixture",
+        "legal_domain": "fiscal",
+        "status": "active",
+        "raw_text": "Pentru intarziere la plata se pot calcula dobanzi si penalitati fiscale.",
+        "normalized_text": "intarziere plata dobanzi penalitati fiscale",
+        "legal_concepts": ["tax_penalty", "interest", "late_payment"],
+        "hierarchy_path": ["Synthetic fiscal", "Penalty interest"],
+        "source_url": "https://legislatie.just.ro/test"
+      }
+    ]
+  }
+]

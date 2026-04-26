@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import re
 import unicodedata
+from dataclasses import dataclass
 
 from ..schemas import (
     DraftAnswer,
@@ -9,8 +10,13 @@ from ..schemas import (
     EvidenceUnit,
     GenerationConstraints,
 )
+from .query_frame import QueryFrame
 
 GENERATION_MODE_EXTRACTIVE_V1 = "deterministic_extractive_v1"
+GENERATION_MODE_TEMPLATE_V1 = "deterministic_template_v1"
+GENERATION_MODE_TEMPLATE_LABOR_CONTRACT_MODIFICATION = (
+    "deterministic_template_v1_labor_contract_modification"
+)
 GENERATION_MODE_INSUFFICIENT_EVIDENCE = "deterministic_extractive_v1_insufficient_evidence"
 GENERATION_INSUFFICIENT_EVIDENCE = "generation_insufficient_evidence"
 GENERATION_LIMITED_EVIDENCE = "generation_limited_evidence"
@@ -62,6 +68,132 @@ STOPWORDS = {
     "si",
 }
 
+FOCUSED_ROLE_PRIORITY = {
+    "direct_basis": 0,
+    "condition": 1,
+    "procedure": 2,
+    "sanction": 3,
+    "exception": 4,
+    "definition": 5,
+    "context": 6,
+}
+
+
+@dataclass(frozen=True)
+class GenerationTemplate:
+    meta_intent: str
+    template_id: str
+    required_roles: set[str]
+    allowed_roles: set[str]
+    opening: str
+    warning_if_missing_direct_basis: str = GENERATION_NO_DIRECT_BASIS
+
+
+GENERATION_TEMPLATES = {
+    "modification": GenerationTemplate(
+        meta_intent="modification",
+        template_id="meta_intent:modification",
+        required_roles={"direct_basis"},
+        allowed_roles={"direct_basis", "condition", "definition", "context"},
+        opening=(
+            "Pe baza unitatilor recuperate, regula relevanta priveste "
+            "modificarea raportului/actului juridic indicat in textele citate. "
+            "Textul legal recuperat trebuie citit impreuna cu unitatile citate"
+        ),
+    ),
+    "obligation": GenerationTemplate(
+        meta_intent="obligation",
+        template_id="meta_intent:obligation",
+        required_roles={"direct_basis"},
+        allowed_roles={"direct_basis", "condition", "procedure", "definition", "context"},
+        opening=(
+            "Pe baza unitatilor recuperate, exista o obligatie sau un set de "
+            "conditii indicate de textele citate. Raspunsul este limitat la "
+            "obligatia sustinuta de EvidencePack"
+        ),
+    ),
+    "prohibition": GenerationTemplate(
+        meta_intent="prohibition",
+        template_id="meta_intent:prohibition",
+        required_roles={"direct_basis"},
+        allowed_roles={"direct_basis", "condition", "definition", "context"},
+        opening=(
+            "Pe baza unitatilor recuperate, textele citate indica o interdictie "
+            "sau limita relevanta. Raspunsul este limitat la textele citate"
+        ),
+    ),
+    "permission": GenerationTemplate(
+        meta_intent="permission",
+        template_id="meta_intent:permission",
+        required_roles={"direct_basis"},
+        allowed_roles={"direct_basis", "condition", "definition", "context"},
+        opening=(
+            "Pe baza unitatilor recuperate, textele citate indica daca actiunea "
+            "intrebata este permisa sau conditionata. Raspunsul este limitat "
+            "la EvidencePack"
+        ),
+    ),
+    "procedure": GenerationTemplate(
+        meta_intent="procedure",
+        template_id="meta_intent:procedure",
+        required_roles=set(),
+        allowed_roles={"direct_basis", "procedure", "condition", "definition", "context"},
+        opening=(
+            "Pe baza unitatilor recuperate, textele citate indica o "
+            "procedura/termen/pasi relevanti. Nu completez pasi care nu apar "
+            "in EvidencePack"
+        ),
+    ),
+    "sanction": GenerationTemplate(
+        meta_intent="sanction",
+        template_id="meta_intent:sanction",
+        required_roles=set(),
+        allowed_roles={"sanction", "direct_basis", "condition"},
+        opening=(
+            "Pe baza unitatilor recuperate, textele citate indica o sanctiune "
+            "sau consecinta juridica. Raspunsul este limitat la sanctiunea "
+            "recuperata"
+        ),
+    ),
+    "definition": GenerationTemplate(
+        meta_intent="definition",
+        template_id="meta_intent:definition",
+        required_roles=set(),
+        allowed_roles={"definition", "direct_basis", "context"},
+        opening="Textul recuperat defineste sau explica termenul relevant astfel",
+    ),
+    "exception": GenerationTemplate(
+        meta_intent="exception",
+        template_id="meta_intent:exception",
+        required_roles=set(),
+        allowed_roles={"exception", "direct_basis", "condition"},
+        opening=(
+            "Textele recuperate indica o posibila exceptie/limitare. "
+            "Aplicarea ei depinde de conditiile din unitatile citate"
+        ),
+    ),
+    "limitation_period": GenerationTemplate(
+        meta_intent="limitation_period",
+        template_id="meta_intent:limitation_period",
+        required_roles=set(),
+        allowed_roles={"direct_basis", "condition", "procedure", "context"},
+        opening=(
+            "Textele recuperate indica un termen/prescriptie/limitare "
+            "temporala. Nu extrapolez dincolo de unitatile citate"
+        ),
+    ),
+    "validity_condition": GenerationTemplate(
+        meta_intent="validity_condition",
+        template_id="meta_intent:validity_condition",
+        required_roles={"direct_basis"},
+        allowed_roles={"direct_basis", "condition", "definition", "context"},
+        opening=(
+            "Pe baza unitatilor recuperate, textele citate indica o conditie "
+            "de validitate sau aplicare. Raspunsul este limitat la EvidencePack"
+        ),
+    ),
+}
+
 LABOR_CONTRACT_MODIFICATION_TRIGGERS = (
     "act aditional",
     "fara act aditional",
@@ -89,6 +221,18 @@ LABOR_CONTRACT_DISTRACTOR_TERMS = (
     "registrul salariatilor",
     "registrul general de evidenta",
     "munca nedeclarata",
+    "formare profesionala",
+    "drepturile si obligatiile partilor",
+    "durata formarii profesionale",
+    "semnatura electronica",
+    "delegarea",
+    "detasarea",
+    "locul muncii poate fi modificat unilateral",
+    "recuperarea contravalorii pagubei",
+    "nota de constatare",
+    "clauza de neconcurenta",
+    "munca temporara",
+    "acord scris pentru evidenta orelor",
 )
 
 
@@ -99,33 +243,61 @@ class GenerationAdapter:
         question: str,
         evidence_units: list[EvidenceUnit],
         constraints: GenerationConstraints | None = None,
+        query_frame: QueryFrame | None = None,
     ) -> DraftAnswer:
         constraints = constraints or GenerationConstraints()
         selected, warnings = self._select_evidence(evidence_units, constraints)
-        answer_intent = self._detect_answer_intent(question, selected)
+        answer_intent = self._detect_answer_intent(
+            question,
+            selected,
+            query_frame=query_frame,
+        )
         focused_contract_modification = (
             answer_intent == ANSWER_INTENT_LABOR_CONTRACT_MODIFICATION
         )
         if focused_contract_modification:
             focused = self._select_focused_answer_evidence(question, selected)
+            if not focused:
+                return self._insufficient_evidence_draft(warnings=warnings)
+            selected = focused
+            template_result = self._template_answer(
+                question=question,
+                selected=selected,
+                warnings=warnings,
+                generation_mode=GENERATION_MODE_TEMPLATE_LABOR_CONTRACT_MODIFICATION,
+                meta_intent_used="modification",
+                template_id=ANSWER_INTENT_LABOR_CONTRACT_MODIFICATION,
+                focused_contract_modification=True,
+            )
+            if template_result is not None:
+                return template_result
+
+        template = self._template_for_query_frame(query_frame)
+        if template is not None and not focused_contract_modification:
+            focused = self._select_template_evidence(
+                selected,
+                template=template,
+                query_frame=query_frame,
+                question=question,
+                max_units=constraints.max_evidence_units,
+            )
             if focused:
                 selected = focused
-        if not selected:
-            return DraftAnswer(
-                short_answer=INSUFFICIENT_EVIDENCE_ANSWER,
-                detailed_answer=None,
-                citations=[],
-                used_evidence_unit_ids=[],
-                generation_mode=GENERATION_MODE_INSUFFICIENT_EVIDENCE,
-                confidence=0.0,
-                warnings=self._dedupe(
-                    [
-                        *warnings,
-                        GENERATION_INSUFFICIENT_EVIDENCE,
-                        GENERATION_UNVERIFIED_WARNING,
-                    ]
-                ),
+            template_result = self._template_answer(
+                question=question,
+                selected=selected,
+                warnings=warnings,
+                generation_mode=GENERATION_MODE_TEMPLATE_V1,
+                meta_intent_used=template.meta_intent,
+                template_id=template.template_id,
+                template=template,
+                focused_contract_modification=False,
             )
+            if template_result is not None:
+                return template_result
+
+        if not selected:
+            return self._insufficient_evidence_draft(warnings=warnings)
 
         citations = [
             self._draft_citation(
@@ -138,21 +310,8 @@ class GenerationAdapter:
         ]
         citations = [citation for citation in citations if citation is not None]
         if not citations:
-            return DraftAnswer(
-                short_answer=INSUFFICIENT_EVIDENCE_ANSWER,
-                detailed_answer=None,
-                citations=[],
-                used_evidence_unit_ids=[],
-                generation_mode=GENERATION_MODE_INSUFFICIENT_EVIDENCE,
-                confidence=0.0,
-                warnings=self._dedupe(
-                    [
-                        *warnings,
-                        GENERATION_INSUFFICIENT_EVIDENCE,
-                        GENERATION_MISSING_CITABLE_RAW_TEXT,
-                        GENERATION_UNVERIFIED_WARNING,
-                    ]
-                ),
+            return self._insufficient_evidence_draft(
+                warnings=[*warnings, GENERATION_MISSING_CITABLE_RAW_TEXT],
             )
 
         if len(citations) < 2:
@@ -171,8 +330,27 @@ class GenerationAdapter:
             citations=citations,
             used_evidence_unit_ids=[citation.unit_id for citation in citations],
             generation_mode=GENERATION_MODE_EXTRACTIVE_V1,
+            focused_evidence_unit_ids=[citation.unit_id for citation in citations],
             confidence=0.0,
             warnings=self._dedupe(warnings),
+        )
+
+    def _insufficient_evidence_draft(self, *, warnings: list[str]) -> DraftAnswer:
+        return DraftAnswer(
+            short_answer=INSUFFICIENT_EVIDENCE_ANSWER,
+            detailed_answer=None,
+            citations=[],
+            used_evidence_unit_ids=[],
+            generation_mode=GENERATION_MODE_INSUFFICIENT_EVIDENCE,
+            focused_evidence_unit_ids=[],
+            confidence=0.0,
+            warnings=self._dedupe(
+                [
+                    *warnings,
+                    GENERATION_INSUFFICIENT_EVIDENCE,
+                    GENERATION_UNVERIFIED_WARNING,
+                ]
+            ),
         )
 
     def _select_evidence(
@@ -202,6 +380,161 @@ class GenerationAdapter:
             ),
         )[: constraints.max_evidence_units]
         return selected, warnings
+
+    def _template_answer(
+        self,
+        *,
+        question: str,
+        selected: list[EvidenceUnit],
+        warnings: list[str],
+        generation_mode: str,
+        meta_intent_used: str | None,
+        template_id: str | None,
+        template: GenerationTemplate | None = None,
+        focused_contract_modification: bool,
+    ) -> DraftAnswer | None:
+        if not selected:
+            return None
+
+        citations = [
+            self._draft_citation(
+                unit,
+                question=question,
+                warnings=warnings,
+                focused_contract_modification=focused_contract_modification,
+            )
+            for unit in selected
+        ]
+        citations = [citation for citation in citations if citation is not None]
+        if not citations:
+            return DraftAnswer(
+                short_answer=INSUFFICIENT_EVIDENCE_ANSWER,
+                detailed_answer=None,
+                citations=[],
+                used_evidence_unit_ids=[],
+                generation_mode=GENERATION_MODE_INSUFFICIENT_EVIDENCE,
+                meta_intent_used=meta_intent_used,
+                template_id=template_id,
+                focused_evidence_unit_ids=[],
+                confidence=0.0,
+                warnings=self._dedupe(
+                    [
+                        *warnings,
+                        GENERATION_INSUFFICIENT_EVIDENCE,
+                        GENERATION_MISSING_CITABLE_RAW_TEXT,
+                        GENERATION_UNVERIFIED_WARNING,
+                    ]
+                ),
+            )
+
+        if len(citations) < 2:
+            warnings.append(GENERATION_LIMITED_EVIDENCE)
+        if not any(unit.support_role == "direct_basis" for unit in selected):
+            warnings.append(GENERATION_NO_DIRECT_BASIS)
+        if template and template.required_roles and not any(
+            unit.support_role in template.required_roles for unit in selected
+        ):
+            warnings.append(template.warning_if_missing_direct_basis)
+        warnings.append(GENERATION_UNVERIFIED_WARNING)
+
+        if focused_contract_modification:
+            short_answer = self._contract_modification_short_answer(selected, citations)
+            if not short_answer:
+                return None
+        else:
+            short_answer = self._generic_template_short_answer(template, citations)
+
+        return DraftAnswer(
+            short_answer=short_answer,
+            detailed_answer=self._detailed_answer(selected, citations),
+            citations=citations,
+            used_evidence_unit_ids=[citation.unit_id for citation in citations],
+            generation_mode=generation_mode,
+            meta_intent_used=meta_intent_used,
+            template_id=template_id,
+            focused_evidence_unit_ids=[citation.unit_id for citation in citations],
+            confidence=0.0,
+            warnings=self._dedupe(warnings),
+        )
+
+    def _template_for_query_frame(
+        self,
+        query_frame: QueryFrame | None,
+    ) -> GenerationTemplate | None:
+        if query_frame is None:
+            return None
+        for meta_intent in query_frame.meta_intents:
+            normalized = self._template_meta_intent(meta_intent)
+            if normalized in GENERATION_TEMPLATES:
+                return GENERATION_TEMPLATES[normalized]
+        return None
+
+    def _template_meta_intent(self, meta_intent: str) -> str:
+        aliases = {
+            "validity": "validity_condition",
+            "condition": "validity_condition",
+            "deadline": "limitation_period",
+        }
+        normalized = self._normalize_text(meta_intent).replace(" ", "_")
+        return aliases.get(normalized, normalized)
+
+    def _select_template_evidence(
+        self,
+        evidence_units: list[EvidenceUnit],
+        *,
+        template: GenerationTemplate,
+        query_frame: QueryFrame | None,
+        question: str,
+        max_units: int,
+    ) -> list[EvidenceUnit]:
+        direct_available = any(unit.support_role == "direct_basis" for unit in evidence_units)
+        asks_exception = self._asks_for_exception(question) or bool(
+            query_frame and "exception" in query_frame.meta_intents
+        )
+        asks_sanction = bool(query_frame and "sanction" in query_frame.meta_intents) or any(
+            term in self._normalize_text(question)
+            for term in ("amenda", "sanctiune", "consecinta", "pedeapsa")
+        )
+
+        focused: list[EvidenceUnit] = []
+        for unit in evidence_units:
+            if unit.support_role == "exception" and not asks_exception:
+                continue
+            if unit.support_role == "sanction" and not asks_sanction:
+                continue
+            if unit.support_role == "context" and direct_available and template.meta_intent != "definition":
+                continue
+            if unit.support_role not in template.allowed_roles:
+                continue
+            focused.append(unit)
+
+        if not focused and template.meta_intent in {"procedure", "definition"}:
+            focused = [
+                unit
+                for unit in evidence_units
+                if unit.support_role in {"direct_basis", "procedure", "definition", "context"}
+            ]
+        focused.sort(
+            key=lambda unit: (
+                FOCUSED_ROLE_PRIORITY.get(unit.support_role, 99),
+                unit.rank,
+                -unit.rerank_score,
+                unit.id,
+            ),
+        )
+        return focused[:max_units]
+
+    def _generic_template_short_answer(
+        self,
+        template: GenerationTemplate | None,
+        citations: list[DraftCitation],
+    ) -> str:
+        if template is None:
+            return ""
+        citation_refs = "; ".join(
+            f"{citation.label}; evidence:{citation.unit_id}" for citation in citations
+        )
+        return f"{template.opening}: [{citation_refs}]."
 
     def _draft_citation(
         self,
@@ -271,7 +604,11 @@ class GenerationAdapter:
         self,
         question: str,
         evidence_units: list[EvidenceUnit],
+        *,
+        query_frame: QueryFrame | None = None,
     ) -> str | None:
+        if query_frame and ANSWER_INTENT_LABOR_CONTRACT_MODIFICATION in query_frame.intents:
+            return ANSWER_INTENT_LABOR_CONTRACT_MODIFICATION
         normalized_question = self._normalize_text(question)
         if any(term in normalized_question for term in LABOR_CONTRACT_MODIFICATION_TRIGGERS):
             return ANSWER_INTENT_LABOR_CONTRACT_MODIFICATION
@@ -419,7 +756,7 @@ class GenerationAdapter:
             if unit.support_role == "direct_basis"
             and self._is_contract_modification_basis(self._unit_haystack(unit))
         ]
-        return self._best_contract_unit(candidates)
+        return self._best_contract_basis_unit(candidates)
 
     def _salary_scope_unit(
         self,
@@ -457,6 +794,23 @@ class GenerationAdapter:
             units,
             key=lambda unit: (
                 self._focused_unit_score(unit),
+                self._label_specificity(self._label(unit)),
+                unit.rerank_score,
+                -unit.rank,
+                unit.id,
+            ),
+        )
+
+    def _best_contract_basis_unit(
+        self,
+        units: list[EvidenceUnit],
+    ) -> EvidenceUnit | None:
+        if not units:
+            return None
+        return max(
+            units,
+            key=lambda unit: (
+                0 if self._is_salary_scope(self._unit_haystack(unit)) else 1,
                 self._label_specificity(self._label(unit)),
                 unit.rerank_score,
                 -unit.rank,
@@ -738,6 +1092,7 @@ class GenerationAdapter:
         stripped = "".join(
             char for char in normalized if unicodedata.category(char) != "Mn"
         )
+        stripped = re.sub(r"\badi[?\ufffd]ional(a?)\b", r"aditional\1", stripped)
         return " ".join(stripped.replace(".", " ").replace("-", "_").split())
 
     def _clean_metadata(self, value: str | None) -> str | None:

@@ -92,13 +92,12 @@ class GraphExpansionPolicy:
                 seed_candidates=seeds,
                 expanded_candidates=seeds,
                 graph_nodes=self._seed_graph_nodes(retrieval_response.candidates),
-                warnings=[
-                    GRAPH_EXPANSION_NOT_CONFIGURED,
-                    GRAPH_EXPANSION_EMPTY_OR_UNAVAILABLE,
-                ],
+                warnings=[],
                 fallback_used=True,
                 reason="graph neighbors endpoint is not configured",
                 debug=debug,
+                backend="fallback",
+                expanded_from_raw_candidates=True,
             )
 
         try:
@@ -114,13 +113,12 @@ class GraphExpansionPolicy:
                 seed_candidates=seeds,
                 expanded_candidates=seeds,
                 graph_nodes=self._seed_graph_nodes(retrieval_response.candidates),
-                warnings=[
-                    GRAPH_EXPANSION_NEIGHBORS_UNAVAILABLE,
-                    GRAPH_EXPANSION_EMPTY_OR_UNAVAILABLE,
-                ],
+                warnings=[],
                 fallback_used=True,
                 reason="graph neighbors endpoint request failed",
                 debug=debug,
+                backend="fallback",
+                expanded_from_raw_candidates=True,
             )
 
     def policy_for_plan(self, plan: QueryPlan) -> dict[str, Any]:
@@ -263,10 +261,12 @@ class GraphExpansionPolicy:
                 expanded_candidates=seeds,
                 graph_nodes=graph_nodes,
                 graph_edges=graph_edges,
-                warnings=[GRAPH_EXPANSION_EMPTY_OR_UNAVAILABLE],
+                warnings=[],
                 fallback_used=True,
                 reason="graph neighbors returned no usable expansion records",
                 debug=debug,
+                backend="fallback",
+                expanded_from_raw_candidates=True,
             )
 
         return self._result(
@@ -279,6 +279,8 @@ class GraphExpansionPolicy:
             fallback_used=False,
             reason="graph neighbors expanded from configured client",
             debug=debug,
+            backend="neighbors_client",
+            expanded_from_raw_candidates=False,
         )
 
     def _seed_candidate(self, candidate: RetrievalCandidate) -> ExpandedCandidate:
@@ -533,6 +535,8 @@ class GraphExpansionPolicy:
         reason: str,
         debug: bool,
         graph_edges: list[GraphEdge] | None = None,
+        backend: str | None = None,
+        expanded_from_raw_candidates: bool = False,
     ) -> GraphExpansionResult:
         graph_edges = graph_edges or []
         result = GraphExpansionResult(
@@ -546,6 +550,11 @@ class GraphExpansionPolicy:
         if debug:
             result.debug = {
                 "fallback_used": fallback_used,
+                "graph_expansion_fallback_used": fallback_used,
+                "backend": backend or ("fallback" if fallback_used else "neighbors_client"),
+                "graph_expansion_backend": backend
+                or ("fallback" if fallback_used else "neighbors_client"),
+                "expanded_from_raw_candidates": expanded_from_raw_candidates,
                 "reason": reason,
                 "policy": self.policy_for_plan(plan),
                 "seed_candidate_count": len(seed_candidates),

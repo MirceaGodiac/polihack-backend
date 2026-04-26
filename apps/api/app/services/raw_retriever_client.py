@@ -6,6 +6,7 @@ import httpx
 
 from ..schemas import QueryPlan, RawRetrievalRequest, RawRetrievalResponse
 from ..config import settings
+from .query_frame import QueryFrame
 
 RAW_RETRIEVAL_NOT_CONFIGURED = "raw_retrieval_not_configured"
 RAW_RETRIEVAL_UNAVAILABLE = "raw_retrieval_unavailable"
@@ -32,10 +33,16 @@ class RawRetrieverClient:
         self,
         plan: QueryPlan,
         *,
+        query_frame: QueryFrame | None = None,
         top_k: int = 50,
         debug: bool = False,
     ) -> RawRetrievalResponse:
-        request = self.build_request(plan=plan, top_k=top_k, debug=debug)
+        request = self.build_request(
+            plan=plan,
+            query_frame=query_frame,
+            top_k=top_k,
+            debug=debug,
+        )
         request_payload = request.model_dump(mode="json")
 
         if self.use_internal:
@@ -80,6 +87,7 @@ class RawRetrieverClient:
         self,
         plan: QueryPlan,
         *,
+        query_frame: QueryFrame | None = None,
         top_k: int = 50,
         debug: bool = False,
     ) -> RawRetrievalRequest:
@@ -87,6 +95,9 @@ class RawRetrieverClient:
             question=plan.question,
             filters=plan.retrieval_filters,
             retrieval_filters=plan.retrieval_filters,
+            query_frame=(
+                query_frame.model_dump(mode="json") if query_frame is not None else None
+            ),
             exact_citations=[
                 citation.model_dump(mode="json") for citation in plan.exact_citations
             ],
