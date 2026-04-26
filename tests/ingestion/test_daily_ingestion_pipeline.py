@@ -43,6 +43,7 @@ def test_run_daily_ingestion_skips_disabled_sources(tmp_path, monkeypatch):
     summary = daily_pipeline.run_daily_ingestion(
         sources_path=sources_path,
         output_root=tmp_path / "output",
+        summary_dir=tmp_path / "runs",
     )
 
     assert summary["sources_total"] == 2
@@ -63,6 +64,7 @@ def test_dry_run_does_not_write_output_or_call_pipeline(tmp_path, monkeypatch):
     summary = daily_pipeline.run_daily_ingestion(
         sources_path=sources_path,
         output_root=output_root,
+        summary_dir=tmp_path / "runs",
         dry_run=True,
         with_embeddings=True,
         embedding_dim=2,
@@ -94,6 +96,7 @@ def test_output_dir_is_deterministic(tmp_path, monkeypatch):
     summary = daily_pipeline.run_daily_ingestion(
         sources_path=sources_path,
         output_root=output_root,
+        summary_dir=tmp_path / "runs",
     )
 
     expected = output_root / "ro_codul_muncii"
@@ -129,6 +132,7 @@ def test_artifact_check_passes_when_required_files_exist(tmp_path, monkeypatch):
     summary = daily_pipeline.run_daily_ingestion(
         sources_path=sources_path,
         output_root=tmp_path / "output",
+        summary_dir=tmp_path / "runs",
     )
 
     source_summary = summary["sources"][0]
@@ -147,6 +151,7 @@ def test_missing_artifact_marks_source_failed(tmp_path, monkeypatch):
     summary = daily_pipeline.run_daily_ingestion(
         sources_path=sources_path,
         output_root=tmp_path / "output",
+        summary_dir=tmp_path / "runs",
     )
 
     assert summary["sources_succeeded"] == 0
@@ -164,6 +169,7 @@ def test_validation_report_import_blocking_false_marks_failed(tmp_path, monkeypa
     summary = daily_pipeline.run_daily_ingestion(
         sources_path=sources_path,
         output_root=tmp_path / "output",
+        summary_dir=tmp_path / "runs",
     )
 
     assert summary["sources_failed"] == 1
@@ -182,6 +188,7 @@ def test_skip_validation_gate_turns_failure_into_warning(tmp_path, monkeypatch):
     summary = daily_pipeline.run_daily_ingestion(
         sources_path=sources_path,
         output_root=tmp_path / "output",
+        summary_dir=tmp_path / "runs",
         skip_validation_gate=True,
     )
 
@@ -202,6 +209,7 @@ def test_with_embeddings_fake_provider_writes_output_and_validates(tmp_path, mon
     summary = daily_pipeline.run_daily_ingestion(
         sources_path=sources_path,
         output_root=tmp_path / "output",
+        summary_dir=tmp_path / "runs",
         with_embeddings=True,
         embedding_dim=2,
         embedding_batch_size=1,
@@ -230,6 +238,7 @@ def test_embedding_limit_allows_partial_pair_validation(tmp_path, monkeypatch):
     summary = daily_pipeline.run_daily_ingestion(
         sources_path=sources_path,
         output_root=tmp_path / "output",
+        summary_dir=tmp_path / "runs",
         with_embeddings=True,
         embedding_dim=2,
         embedding_limit=1,
@@ -253,6 +262,7 @@ def test_embedding_limit_does_not_write_import_ready_manifest(tmp_path, monkeypa
     summary = daily_pipeline.run_daily_ingestion(
         sources_path=sources_path,
         output_root=tmp_path / "output",
+        summary_dir=tmp_path / "runs",
         with_embeddings=True,
         embedding_dim=2,
         embedding_limit=1,
@@ -275,6 +285,7 @@ def test_complete_embeddings_writes_manifest(tmp_path, monkeypatch):
     summary = daily_pipeline.run_daily_ingestion(
         sources_path=sources_path,
         output_root=tmp_path / "output",
+        summary_dir=tmp_path / "runs",
         with_embeddings=True,
         embedding_dim=2,
     )
@@ -312,6 +323,7 @@ def test_openai_compatible_provider_can_be_monkeypatched_without_network(tmp_pat
     summary = daily_pipeline.run_daily_ingestion(
         sources_path=sources_path,
         output_root=tmp_path / "output",
+        summary_dir=tmp_path / "runs",
         with_embeddings=True,
         embedding_provider="openai-compatible",
         embedding_base_url="http://ollama.railway.internal:11434/v1",
@@ -342,6 +354,7 @@ def test_summary_counts_success_and_failure(tmp_path, monkeypatch):
     summary = daily_pipeline.run_daily_ingestion(
         sources_path=sources_path,
         output_root=tmp_path / "output",
+        summary_dir=tmp_path / "runs",
     )
 
     assert summary["sources_total"] == 3
@@ -349,13 +362,13 @@ def test_summary_counts_success_and_failure(tmp_path, monkeypatch):
     assert summary["sources_succeeded"] == 1
     assert summary["sources_failed"] == 1
     assert len(summary["output_dirs"]) == 2
-    assert summary["errors"] == [
-        {
-            "source_id": "source_ro_fail",
-            "law_id": "ro.fail",
-            "error": "fixture failure",
-        }
-    ]
+    assert summary["errors"][0] == {
+        "source_id": "source_ro_fail",
+        "law_id": "ro.fail",
+        "error": "fixture failure",
+        "error_type": "source_processing_failed",
+        "exit_code": 1,
+    }
 
 
 def test_no_database_url_required(tmp_path, monkeypatch):
@@ -369,9 +382,220 @@ def test_no_database_url_required(tmp_path, monkeypatch):
     summary = daily_pipeline.run_daily_ingestion(
         sources_path=sources_path,
         output_root=tmp_path / "output",
+        summary_dir=tmp_path / "runs",
     )
 
     assert summary["sources_succeeded"] == 1
+
+
+def test_run_id_auto_is_present_in_summary(tmp_path):
+    sources_path = _write_sources(tmp_path, [_source("ro.codul_muncii")])
+
+    summary = daily_pipeline.run_daily_ingestion(
+        sources_path=sources_path,
+        output_root=tmp_path / "output",
+        summary_dir=tmp_path / "runs",
+        dry_run=True,
+    )
+
+    assert summary["run_id"].startswith("daily_ingestion_")
+    assert summary["sources"][0]["run_id"] == summary["run_id"]
+    assert summary["started_at"].endswith("Z")
+    assert summary["finished_at"].endswith("Z")
+    assert summary["duration_seconds"] >= 0
+    assert summary["exit_code"] == 0
+
+
+def test_custom_run_id_is_respected(tmp_path):
+    sources_path = _write_sources(tmp_path, [_source("ro.codul_muncii")])
+
+    summary = daily_pipeline.run_daily_ingestion(
+        sources_path=sources_path,
+        output_root=tmp_path / "output",
+        summary_dir=tmp_path / "runs",
+        run_id="custom_run_123",
+        dry_run=True,
+    )
+
+    assert summary["run_id"] == "custom_run_123"
+    assert summary["sources"][0]["run_id"] == "custom_run_123"
+
+
+def test_non_dry_run_writes_run_summary(tmp_path, monkeypatch):
+    def fake_run_pipeline(**kwargs):
+        _write_bundle(kwargs["out_dir"], law_id=kwargs["law_id"])
+
+    monkeypatch.setattr(daily_pipeline, "run_pipeline", fake_run_pipeline)
+    sources_path = _write_sources(tmp_path, [_source("ro.codul_muncii")])
+
+    summary = daily_pipeline.run_daily_ingestion(
+        sources_path=sources_path,
+        output_root=tmp_path / "output",
+        summary_dir=tmp_path / "runs",
+        run_id="summary_write_test",
+    )
+
+    summary_path = tmp_path / "runs" / "summary_write_test" / "run_summary.json"
+    persisted = json.loads(summary_path.read_text(encoding="utf-8"))
+    assert summary["summary_path"] == str(summary_path)
+    assert persisted["run_id"] == "summary_write_test"
+    assert persisted["exit_code"] == 0
+    assert persisted["sources_succeeded"] == 1
+
+
+def test_railway_job_sets_flag_and_writes_summary(tmp_path):
+    sources_path = _write_sources(tmp_path, [_source("ro.codul_muncii")])
+
+    summary = daily_pipeline.run_daily_ingestion(
+        sources_path=sources_path,
+        output_root=tmp_path / "output",
+        summary_dir=tmp_path / "runs",
+        run_id="railway_dry_run",
+        dry_run=True,
+        railway_job=True,
+    )
+
+    summary_path = tmp_path / "runs" / "railway_dry_run" / "run_summary.json"
+    persisted = json.loads(summary_path.read_text(encoding="utf-8"))
+    assert summary["railway_job"] is True
+    assert summary["retry_config"]["max_attempts"] == 3
+    assert persisted["railway_job"] is True
+    assert persisted["dry_run"] is True
+
+
+def test_parser_failure_exit_code_1_and_source_failed(tmp_path, monkeypatch):
+    def fake_run_pipeline(**kwargs):
+        raise RuntimeError("fetch timeout")
+
+    monkeypatch.setattr(daily_pipeline, "run_pipeline", fake_run_pipeline)
+    sources_path = _write_sources(tmp_path, [_source("ro.codul_muncii")])
+
+    summary = daily_pipeline.run_daily_ingestion(
+        sources_path=sources_path,
+        output_root=tmp_path / "output",
+        summary_dir=tmp_path / "runs",
+        max_attempts=1,
+    )
+
+    assert summary["exit_code"] == 1
+    assert summary["sources_failed"] == 1
+    assert summary["sources"][0]["status"] == "failed"
+    assert summary["sources"][0]["attempts_count"] == 1
+    assert summary["sources"][0]["attempt_errors"][0]["error"] == "fetch timeout"
+
+
+def test_retry_attempts_can_succeed_on_second_attempt(tmp_path, monkeypatch):
+    calls = []
+    sleeps = []
+
+    def fake_run_pipeline(**kwargs):
+        calls.append(kwargs["law_id"])
+        if len(calls) == 1:
+            raise RuntimeError("temporary fetch timeout")
+        _write_bundle(kwargs["out_dir"], law_id=kwargs["law_id"])
+
+    monkeypatch.setattr(daily_pipeline, "run_pipeline", fake_run_pipeline)
+    sources_path = _write_sources(tmp_path, [_source("ro.codul_muncii")])
+
+    summary = daily_pipeline.run_daily_ingestion(
+        sources_path=sources_path,
+        output_root=tmp_path / "output",
+        summary_dir=tmp_path / "runs",
+        max_attempts=2,
+        retry_backoff_seconds=0.5,
+        sleep_func=sleeps.append,
+    )
+
+    source_summary = summary["sources"][0]
+    assert summary["exit_code"] == 0
+    assert summary["sources_succeeded"] == 1
+    assert source_summary["attempts_count"] == 2
+    assert source_summary["attempt_errors"][0]["error"] == "temporary fetch timeout"
+    assert sleeps == [0.5]
+
+
+def test_validation_gate_failure_exit_code_3(tmp_path, monkeypatch):
+    def fake_run_pipeline(**kwargs):
+        _write_bundle(kwargs["out_dir"], law_id=kwargs["law_id"], import_blocking_passed=False)
+
+    monkeypatch.setattr(daily_pipeline, "run_pipeline", fake_run_pipeline)
+    sources_path = _write_sources(tmp_path, [_source("ro.codul_muncii")])
+
+    summary = daily_pipeline.run_daily_ingestion(
+        sources_path=sources_path,
+        output_root=tmp_path / "output",
+        summary_dir=tmp_path / "runs",
+    )
+
+    assert summary["exit_code"] == 3
+    assert summary["errors"][0]["error_type"] == "validation_gate_failed"
+
+
+def test_embeddings_failure_exit_code_4(tmp_path, monkeypatch):
+    def fake_run_pipeline(**kwargs):
+        _write_bundle(kwargs["out_dir"], law_id=kwargs["law_id"])
+
+    def fail_generate_embeddings(**kwargs):
+        raise RuntimeError("embedding provider unavailable")
+
+    monkeypatch.setattr(daily_pipeline, "run_pipeline", fake_run_pipeline)
+    monkeypatch.setattr(daily_pipeline, "generate_embeddings", fail_generate_embeddings)
+    sources_path = _write_sources(tmp_path, [_source("ro.codul_muncii")])
+
+    summary = daily_pipeline.run_daily_ingestion(
+        sources_path=sources_path,
+        output_root=tmp_path / "output",
+        summary_dir=tmp_path / "runs",
+        with_embeddings=True,
+        embedding_dim=2,
+    )
+
+    assert summary["exit_code"] == 4
+    assert summary["embeddings_sources_failed"] == 1
+    assert summary["errors"][0]["error_type"] == "embeddings_stage_failed"
+
+
+def test_allow_partial_run_exits_success_when_at_least_one_source_succeeds(tmp_path, monkeypatch):
+    def fake_run_pipeline(**kwargs):
+        if kwargs["law_id"] == "ro.fail":
+            raise RuntimeError("fetch timeout")
+        _write_bundle(kwargs["out_dir"], law_id=kwargs["law_id"])
+
+    monkeypatch.setattr(daily_pipeline, "run_pipeline", fake_run_pipeline)
+    sources_path = _write_sources(tmp_path, [_source("ro.ok"), _source("ro.fail")])
+
+    summary = daily_pipeline.run_daily_ingestion(
+        sources_path=sources_path,
+        output_root=tmp_path / "output",
+        summary_dir=tmp_path / "runs",
+        allow_partial_run=True,
+    )
+
+    assert summary["exit_code"] == 0
+    assert summary["partial_success"] is True
+    assert "partial_success=true" in summary["warnings"]
+
+
+def test_summary_does_not_include_legal_text_or_vectors(tmp_path, monkeypatch):
+    def fake_run_pipeline(**kwargs):
+        _write_bundle(kwargs["out_dir"], law_id=kwargs["law_id"])
+
+    monkeypatch.setattr(daily_pipeline, "run_pipeline", fake_run_pipeline)
+    sources_path = _write_sources(tmp_path, [_source("ro.codul_muncii")])
+
+    summary = daily_pipeline.run_daily_ingestion(
+        sources_path=sources_path,
+        output_root=tmp_path / "output",
+        summary_dir=tmp_path / "runs",
+        with_embeddings=True,
+        embedding_dim=2,
+    )
+
+    serialized = json.dumps(summary, ensure_ascii=False)
+    assert "raw_text" not in serialized
+    assert "embedding_text" not in serialized
+    assert "retrieval text one" not in serialized
+    assert "[0.1, 0.2]" not in serialized
 
 
 def _write_sources(tmp_path: Path, sources: list[dict]) -> Path:
