@@ -852,13 +852,19 @@ class LegalRanker:
         bundle: _CandidateBundle,
         haystack: str,
     ) -> float:
-        scores = [
-            max(
-                self._core_phrase_score(intent, haystack),
-                self._core_concept_score(intent, bundle, haystack),
+        scores: list[float] = []
+        for intent in self._intents_for_frame(query_frame):
+            if intent.id == "labor_contract_modification":
+                scores.append(
+                    self._labor_contract_modification_core_issue_score(haystack)
+                )
+                continue
+            scores.append(
+                max(
+                    self._core_phrase_score(intent, haystack),
+                    self._core_concept_score(intent, bundle, haystack),
+                )
             )
-            for intent in self._intents_for_frame(query_frame)
-        ]
         if scores:
             return self._clamp(max(scores))
         if not query_frame.normalized_terms:
@@ -869,6 +875,47 @@ class LegalRanker:
             if self._phrase_present(term, haystack)
         )
         return self._clamp(matched / len(query_frame.normalized_terms))
+
+    def _labor_contract_modification_core_issue_score(self, haystack: str) -> float:
+        if (
+            "contractul individual de munca poate fi modificat numai prin acordul partilor"
+            in haystack
+            or "contract individual de munca poate fi modificat numai prin acordul partilor"
+            in haystack
+        ):
+            return 1.0
+        if "poate fi modificat numai prin acordul partilor" in haystack:
+            return 0.95
+
+        has_contract_modification_scope = (
+            "modificarea contractului individual de munca" in haystack
+            or "modificare contract individual munca" in haystack
+        )
+        if has_contract_modification_scope and any(
+            marker in haystack
+            for marker in (
+                "element",
+                "elemente",
+                "elementele",
+                "poate privi",
+                "se refera",
+                "salariu",
+                "salariul",
+            )
+        ):
+            return 0.90
+        if has_contract_modification_scope:
+            return 0.75
+
+        if (
+            "contract individual de munca" in haystack
+            or "contractul individual de munca" in haystack
+        ) and (
+            "poate fi modificat unilateral" in haystack
+            or "locul muncii poate fi modificat" in haystack
+        ):
+            return 0.20
+        return 0.0
 
     def _core_phrase_score(self, intent: LegalIntent, haystack: str) -> float:
         if not intent.core_phrases:
@@ -1082,6 +1129,20 @@ class LegalRanker:
         features: dict[str, float],
         haystack: str,
     ) -> str | None:
+        if self._is_labor_contract_modification_frame(query_frame):
+            if (
+                features["core_issue_score"] >= 0.70
+                and features["distractor_penalty"] < 0.5
+            ):
+                return "direct_basis"
+            if (
+                features["distractor_penalty"] >= 0.5
+                or features["target_object_score"] > 0
+                or features.get("qualifier_score", 0.0) > 0
+                or features.get("actor_score", 0.0) > 0
+            ):
+                return "context"
+            return None
         if features["distractor_penalty"] >= 0.7:
             return "context"
         if features["core_issue_score"] >= 0.70:
@@ -1097,6 +1158,9 @@ class LegalRanker:
         if features["target_object_score"] > 0 and features["core_issue_score"] < 0.25:
             return "context"
         return None
+
+    def _is_labor_contract_modification_frame(self, query_frame: QueryFrame) -> bool:
+        return "labor_contract_modification" in query_frame.intents
 
     def _support_role_hint_from_breakdown(
         self,
@@ -1323,6 +1387,7 @@ class LegalRanker:
         stripped = "".join(
             char for char in normalized if unicodedata.category(char) != "Mn"
         )
+        stripped = re.sub(r"\badi[?\ufffd]ional(a?)\b", r"aditional\1", stripped)
         return " ".join(stripped.replace(".", " ").replace("-", "_").split())
 
     def _normal_label(self, text: str) -> str:

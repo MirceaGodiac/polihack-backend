@@ -12,6 +12,10 @@ from apps.api.app.services.legal_ranker import (
 )
 from apps.api.app.services.query_frame import QueryFrame, QueryFrameBuilder
 from apps.api.app.services.query_understanding import QueryUnderstanding
+from tests.helpers.live_like_demo import (
+    LIVE_LIKE_DEMO_QUERY,
+    live_like_retrieval_candidates,
+)
 
 
 def build_plan(question: str):
@@ -480,3 +484,37 @@ def test_v2_support_role_hint_for_governing_rule():
     top = result.ranked_candidates[0]
     assert top.score_breakdown.support_role_hint_score == 1.0
     assert "support_role_hint:direct_basis" in top.why_ranked
+
+
+def test_v2_live_like_contract_modification_ranks_central_rule_above_topical_distractors():
+    question = LIVE_LIKE_DEMO_QUERY
+    plan = build_plan(question)
+    query_frame = build_frame(question)
+
+    result = LegalRanker().rank(
+        question=question,
+        plan=plan,
+        retrieval_response=RawRetrievalResponse(
+            candidates=live_like_retrieval_candidates()
+        ),
+        graph_expansion=empty_graph(),
+        query_frame=query_frame,
+        debug=True,
+    )
+
+    top3_ids = [candidate.unit_id for candidate in result.ranked_candidates[:3]]
+    assert "ro.codul_muncii.art_41.alin_1" in top3_ids
+    assert "ro.codul_muncii.art_41.alin_3" in top3_ids
+
+    ranked = {candidate.unit_id: candidate for candidate in result.ranked_candidates}
+    assert ranked["ro.codul_muncii.art_41.alin_1"].score_breakdown.core_issue_score >= 0.70
+    assert ranked["ro.codul_muncii.art_41.alin_3"].score_breakdown.core_issue_score >= 0.70
+
+    for unit_id in {
+        "ro.codul_muncii.art_16.alin_1",
+        "ro.codul_muncii.art_196.alin_2",
+        "ro.codul_muncii.art_42.alin_1",
+        "ro.codul_muncii.art_254.alin_3",
+    }:
+        assert ranked[unit_id].score_breakdown.core_issue_score < 0.70
+        assert "support_role_hint:direct_basis" not in ranked[unit_id].why_ranked

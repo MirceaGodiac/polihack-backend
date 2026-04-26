@@ -82,6 +82,15 @@ def test_demo_query_frame_keeps_expected_labor_contract_fields():
     assert frame.requires_clarification is False
 
 
+def test_demo_query_frame_tolerates_replacement_mark_in_aditional():
+    frame = build_frame("Poate angajatorul sa-mi scada salariul fara act adi?ional?")
+
+    assert frame.domain == "munca"
+    assert "labor_contract_modification" in frame.intents
+    assert "without_addendum" in frame.qualifiers
+    assert frame.requires_clarification is False
+
+
 @pytest.mark.parametrize(
     ("question", "intent_id"),
     [

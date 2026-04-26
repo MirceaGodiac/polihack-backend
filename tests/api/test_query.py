@@ -50,7 +50,8 @@ def test_post_api_query_returns_unverified_fallback_without_retrieval():
     assert payload["verifier"]["refusal_reason"] == "insufficient_evidence"
     assert payload["verifier"]["citations_checked"] == 0
     assert "verifier_insufficient_evidence" in payload["verifier"]["warnings"]
-    assert payload["graph"]["nodes"] == []
+    assert [node["type"] for node in payload["graph"]["nodes"]] == ["query"]
+    assert payload["graph"]["nodes"][0]["metadata"]["query_id"] == payload["query_id"]
     assert payload["graph"]["edges"] == []
     assert "evidence_pack_no_ranked_candidates" in payload["warnings"]
     assert "generation_insufficient_evidence" in payload["warnings"]
@@ -493,7 +494,15 @@ def _evidence_unit(
 @pytest.mark.anyio
 async def test_query_orchestrator_populates_evidence_units_with_fake_candidates():
     orchestrator = QueryOrchestrator(raw_retriever_client=FakeRawRetrieverClient())
-    response = await orchestrator.run(QueryRequest(**VALID_QUERY, debug=True))
+    response = await orchestrator.run(
+        QueryRequest(
+            **{
+                **VALID_QUERY,
+                "question": "Ce spune art. 41 din Codul muncii?",
+            },
+            debug=True,
+        )
+    )
 
     assert len(response.evidence_units) == 1
     evidence = response.evidence_units[0]

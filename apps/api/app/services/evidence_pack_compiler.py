@@ -15,6 +15,8 @@ from ..schemas import (
     QueryPlan,
     RankedCandidate,
 )
+from .legal_issue_frame import CandidateRoleClassifier, CandidateRoleDecision
+from .query_frame import QueryFrame
 
 EVIDENCE_PACK_NO_RANKED_CANDIDATES = "evidence_pack_no_ranked_candidates"
 EVIDENCE_PACK_PARTIAL = "evidence_pack_partial"
@@ -126,6 +128,8 @@ class _EvidenceCandidate:
     tokens: set[str]
     support_role: str
     why_selected: list[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
+    role_decision: CandidateRoleDecision | None = None
     mmr_score: float = 0.0
 
 
@@ -136,11 +140,13 @@ class EvidencePackCompiler:
         candidate_pool_size: int = 40,
         target_evidence_units: int = 12,
         max_evidence_units: int = 14,
+        role_classifier: CandidateRoleClassifier | None = None,
     ) -> None:
         self.mmr_lambda = mmr_lambda
         self.candidate_pool_size = candidate_pool_size
         self.target_evidence_units = target_evidence_units
         self.max_evidence_units = max_evidence_units
+        self.role_classifier = role_classifier or CandidateRoleClassifier()
 
     def compile(
         self,
@@ -148,6 +154,7 @@ class EvidencePackCompiler:
         ranked_candidates: list[RankedCandidate],
         graph_expansion: GraphExpansionResult | None = None,
         plan: QueryPlan | None = None,
+        query_frame: QueryFrame | None = None,
         debug: bool = False,
     ) -> EvidencePackResult:
         if not ranked_candidates:
@@ -155,7 +162,12 @@ class EvidencePackCompiler:
 
         warnings: list[str] = []
         unique_ranked = self._dedupe_ranked_candidates(ranked_candidates)
-        candidate_pool = self._candidate_pool(unique_ranked, plan=plan, warnings=warnings)
+        candidate_pool = self._candidate_pool(
+            unique_ranked,
+            plan=plan,
+            query_frame=query_frame,
+            warnings=warnings,
+        )
         if not candidate_pool:
             warnings.append(EVIDENCE_PACK_NO_RANKED_CANDIDATES)
             return self._empty_result(
@@ -263,6 +275,7 @@ class EvidencePackCompiler:
         ranked_candidates: list[RankedCandidate],
         *,
         plan: QueryPlan | None,
+        query_frame: QueryFrame | None,
         warnings: list[str],
     ) -> list[_EvidenceCandidate]:
         pool: list[_EvidenceCandidate] = []
@@ -276,14 +289,34 @@ class EvidencePackCompiler:
                 continue
             if not self._has_required_metadata(unit):
                 missing_metadata = True
+            role_decision = self._role_decision(
+                ranked=ranked,
+                unit=unit,
+                query_frame=query_frame,
+            )
+            support_role = (
+                role_decision.support_role
+                if role_decision is not None
+                else self._support_role(ranked, unit, plan=plan)
+            )
+            why_selected = self._base_selection_reasons(ranked)
+            role_warnings: list[str] = []
+            if role_decision is not None:
+                why_selected.extend(role_decision.why_role)
+                role_warnings.extend(
+                    f"role_disqualified:{requirement_id}"
+                    for requirement_id in role_decision.disqualified_requirement_ids
+                )
             pool.append(
                 _EvidenceCandidate(
                     ranked=ranked,
                     unit=unit,
                     text=text,
                     tokens=self._tokenize(text),
-                    support_role=self._support_role(ranked, unit, plan=plan),
-                    why_selected=self._base_selection_reasons(ranked),
+                    support_role=support_role,
+                    why_selected=why_selected,
+                    warnings=role_warnings,
+                    role_decision=role_decision,
                 )
             )
         if missing_raw_text:
@@ -305,6 +338,12 @@ class EvidencePackCompiler:
             plan=plan,
             target=target,
         )
+        self._include_contract_modification_condition(
+            selected,
+            candidate_pool,
+            plan=plan,
+            target=target,
+        )
         selected_ids = {candidate.ranked.unit_id for candidate in selected}
         remaining = [
             candidate
@@ -321,6 +360,45 @@ class EvidencePackCompiler:
             selected.append(best)
             remaining.remove(best)
         return selected
+
+    def _include_contract_modification_condition(
+        self,
+        selected: list[_EvidenceCandidate],
+        candidate_pool: list[_EvidenceCandidate],
+        *,
+        plan: QueryPlan | None,
+        target: int,
+    ) -> None:
+        if (
+            len(selected) >= target
+            or not self._is_contract_modification_query(plan)
+        ):
+            return
+        selected_ids = {candidate.ranked.unit_id for candidate in selected}
+        candidates = [
+            candidate
+            for candidate in candidate_pool
+            if candidate.ranked.unit_id not in selected_ids
+            and self._is_contract_modification_condition(
+                self._haystack(candidate.ranked, candidate.unit)
+            )
+        ]
+        if not candidates:
+            return
+        best = max(
+            candidates,
+            key=lambda candidate: (
+                self._unit_specificity(candidate.unit),
+                candidate.ranked.rerank_score,
+                -candidate.ranked.rank,
+                candidate.ranked.unit_id,
+            ),
+        )
+        best.support_role = "condition"
+        best.mmr_score = self._mmr_score(best, selected)
+        self._append_reason(best, "contract_modification_condition")
+        self._append_reason(best, "priority_condition:act_additional")
+        selected.append(best)
 
     def _priority_direct_basis_candidates(
         self,
@@ -488,6 +566,7 @@ class EvidencePackCompiler:
             support_role=candidate.support_role,
             why_selected=self._dedupe(candidate.why_selected),
             score_breakdown=ranked.score_breakdown.model_dump(mode="json"),
+            warnings=self._dedupe(candidate.warnings),
         )
 
     def _legal_unit_from_dict(
@@ -617,6 +696,27 @@ class EvidencePackCompiler:
         plan: QueryPlan | None,
     ) -> str:
         score = ranked.score_breakdown
+        haystack = self._haystack(ranked, unit)
+        contract_modification_query = self._is_contract_modification_query(plan)
+        if contract_modification_query:
+            if score.distractor_penalty >= 0.5:
+                return "context"
+            if score.core_issue_score >= 0.70 and score.distractor_penalty < 0.5:
+                return "direct_basis"
+            if self._contains_any(
+                haystack,
+                (
+                    "exceptie",
+                    "exceptii",
+                    "cu titlu de exceptie",
+                    "locul muncii poate fi modificat unilateral",
+                    "unilateral",
+                    "delegarea",
+                    "detasarea",
+                ),
+            ):
+                return "exception"
+            return "context"
         if "support_role_hint:context" in ranked.why_ranked:
             return "context"
         if "support_role_hint:direct_basis" in ranked.why_ranked:
@@ -636,8 +736,6 @@ class EvidencePackCompiler:
         if score.target_object_score > 0 and score.core_issue_score < 0.25:
             return "context"
 
-        haystack = self._haystack(ranked, unit)
-        contract_modification_query = self._is_contract_modification_query(plan)
         if contract_modification_query and self._is_contract_modification_direct_basis(haystack):
             return "direct_basis"
         if self._contains_any(haystack, ("exception", "exceptie", "except", "cu exceptia", "exception_to")):
@@ -700,6 +798,32 @@ class EvidencePackCompiler:
             ("modificarea", "modificare", "poate privi", "salariul", "elementele"),
         )
 
+    def _is_contract_modification_condition(self, haystack: str) -> bool:
+        return (
+            self._contains_any(
+                haystack,
+                (
+                    "impune incheierea unui act aditional",
+                    "incheierea unui act aditional",
+                ),
+            )
+            and self._contains_any(
+                haystack,
+                (
+                    "elementele prevazute",
+                    "modificare",
+                    "modificarea",
+                ),
+            )
+            and not self._contains_any(
+                haystack,
+                (
+                    "formare profesionala",
+                    "durata formarii profesionale",
+                ),
+            )
+        )
+
     def _is_salary_context(self, haystack: str) -> bool:
         return any(
             self._normalize_text(term) in haystack
@@ -714,6 +838,19 @@ class EvidencePackCompiler:
     ) -> tuple[str | None, int]:
         if not self._is_contract_modification_query(plan):
             return (None, 0)
+
+        if candidate.role_decision is not None and candidate.support_role == "direct_basis":
+            matched_ids = set(candidate.role_decision.matched_requirement_ids)
+            if "contract_modification_agreement_rule" in matched_ids:
+                return (
+                    "agreement_rule",
+                    110 + self._unit_specificity(candidate.unit),
+                )
+            if "contract_modification_salary_scope" in matched_ids:
+                return (
+                    "modification_scope",
+                    95 + self._unit_specificity(candidate.unit),
+                )
 
         haystack = self._haystack(candidate.ranked, candidate.unit)
         has_agreement = any(
@@ -763,6 +900,30 @@ class EvidencePackCompiler:
             reasons.append("high_rerank_score")
         return reasons
 
+    def _role_decision(
+        self,
+        *,
+        ranked: RankedCandidate,
+        unit: dict[str, Any],
+        query_frame: QueryFrame | None,
+    ) -> CandidateRoleDecision | None:
+        if not self._should_use_role_classifier(query_frame):
+            return None
+        return self.role_classifier.classify(
+            query_frame=query_frame,
+            unit_id=ranked.unit_id,
+            unit=unit,
+            ranked_score_breakdown=ranked.score_breakdown.model_dump(mode="json"),
+            existing_why_ranked=ranked.why_ranked,
+        )
+
+    def _should_use_role_classifier(self, query_frame: QueryFrame | None) -> bool:
+        return (
+            query_frame is not None
+            and query_frame.confidence >= 0.35
+            and "labor_contract_modification" in query_frame.intents
+        )
+
     def _debug_payload(
         self,
         *,
@@ -787,6 +948,9 @@ class EvidencePackCompiler:
                     "mmr_score": candidate.mmr_score,
                     "support_role": candidate.support_role,
                     "why_selected": self._dedupe(candidate.why_selected),
+                    "role_decision": candidate.role_decision.model_dump(mode="json")
+                    if candidate.role_decision is not None
+                    else None,
                 }
                 for candidate in selected
             ],
@@ -911,6 +1075,7 @@ class EvidencePackCompiler:
         stripped = "".join(
             char for char in normalized if unicodedata.category(char) != "Mn"
         )
+        stripped = re.sub(r"\badi[?\ufffd]ional(a?)\b", r"aditional\1", stripped)
         return " ".join(stripped.replace(".", " ").replace("-", "_").split())
 
     def _clamp(self, value: float) -> float:

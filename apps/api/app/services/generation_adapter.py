@@ -221,6 +221,18 @@ LABOR_CONTRACT_DISTRACTOR_TERMS = (
     "registrul salariatilor",
     "registrul general de evidenta",
     "munca nedeclarata",
+    "formare profesionala",
+    "drepturile si obligatiile partilor",
+    "durata formarii profesionale",
+    "semnatura electronica",
+    "delegarea",
+    "detasarea",
+    "locul muncii poate fi modificat unilateral",
+    "recuperarea contravalorii pagubei",
+    "nota de constatare",
+    "clauza de neconcurenta",
+    "munca temporara",
+    "acord scris pentru evidenta orelor",
 )
 
 
@@ -245,8 +257,9 @@ class GenerationAdapter:
         )
         if focused_contract_modification:
             focused = self._select_focused_answer_evidence(question, selected)
-            if focused:
-                selected = focused
+            if not focused:
+                return self._insufficient_evidence_draft(warnings=warnings)
+            selected = focused
             template_result = self._template_answer(
                 question=question,
                 selected=selected,
@@ -284,22 +297,7 @@ class GenerationAdapter:
                 return template_result
 
         if not selected:
-            return DraftAnswer(
-                short_answer=INSUFFICIENT_EVIDENCE_ANSWER,
-                detailed_answer=None,
-                citations=[],
-                used_evidence_unit_ids=[],
-                generation_mode=GENERATION_MODE_INSUFFICIENT_EVIDENCE,
-                focused_evidence_unit_ids=[],
-                confidence=0.0,
-                warnings=self._dedupe(
-                    [
-                        *warnings,
-                        GENERATION_INSUFFICIENT_EVIDENCE,
-                        GENERATION_UNVERIFIED_WARNING,
-                    ]
-                ),
-            )
+            return self._insufficient_evidence_draft(warnings=warnings)
 
         citations = [
             self._draft_citation(
@@ -312,22 +310,8 @@ class GenerationAdapter:
         ]
         citations = [citation for citation in citations if citation is not None]
         if not citations:
-            return DraftAnswer(
-                short_answer=INSUFFICIENT_EVIDENCE_ANSWER,
-                detailed_answer=None,
-                citations=[],
-                used_evidence_unit_ids=[],
-                generation_mode=GENERATION_MODE_INSUFFICIENT_EVIDENCE,
-                focused_evidence_unit_ids=[],
-                confidence=0.0,
-                warnings=self._dedupe(
-                    [
-                        *warnings,
-                        GENERATION_INSUFFICIENT_EVIDENCE,
-                        GENERATION_MISSING_CITABLE_RAW_TEXT,
-                        GENERATION_UNVERIFIED_WARNING,
-                    ]
-                ),
+            return self._insufficient_evidence_draft(
+                warnings=[*warnings, GENERATION_MISSING_CITABLE_RAW_TEXT],
             )
 
         if len(citations) < 2:
@@ -349,6 +333,24 @@ class GenerationAdapter:
             focused_evidence_unit_ids=[citation.unit_id for citation in citations],
             confidence=0.0,
             warnings=self._dedupe(warnings),
+        )
+
+    def _insufficient_evidence_draft(self, *, warnings: list[str]) -> DraftAnswer:
+        return DraftAnswer(
+            short_answer=INSUFFICIENT_EVIDENCE_ANSWER,
+            detailed_answer=None,
+            citations=[],
+            used_evidence_unit_ids=[],
+            generation_mode=GENERATION_MODE_INSUFFICIENT_EVIDENCE,
+            focused_evidence_unit_ids=[],
+            confidence=0.0,
+            warnings=self._dedupe(
+                [
+                    *warnings,
+                    GENERATION_INSUFFICIENT_EVIDENCE,
+                    GENERATION_UNVERIFIED_WARNING,
+                ]
+            ),
         )
 
     def _select_evidence(
@@ -754,7 +756,7 @@ class GenerationAdapter:
             if unit.support_role == "direct_basis"
             and self._is_contract_modification_basis(self._unit_haystack(unit))
         ]
-        return self._best_contract_unit(candidates)
+        return self._best_contract_basis_unit(candidates)
 
     def _salary_scope_unit(
         self,
@@ -792,6 +794,23 @@ class GenerationAdapter:
             units,
             key=lambda unit: (
                 self._focused_unit_score(unit),
+                self._label_specificity(self._label(unit)),
+                unit.rerank_score,
+                -unit.rank,
+                unit.id,
+            ),
+        )
+
+    def _best_contract_basis_unit(
+        self,
+        units: list[EvidenceUnit],
+    ) -> EvidenceUnit | None:
+        if not units:
+            return None
+        return max(
+            units,
+            key=lambda unit: (
+                0 if self._is_salary_scope(self._unit_haystack(unit)) else 1,
                 self._label_specificity(self._label(unit)),
                 unit.rerank_score,
                 -unit.rank,
@@ -1073,6 +1092,7 @@ class GenerationAdapter:
         stripped = "".join(
             char for char in normalized if unicodedata.category(char) != "Mn"
         )
+        stripped = re.sub(r"\badi[?\ufffd]ional(a?)\b", r"aditional\1", stripped)
         return " ".join(stripped.replace(".", " ").replace("-", "_").split())
 
     def _clean_metadata(self, value: str | None) -> str | None:

@@ -27,6 +27,7 @@ from .graph_expansion_policy import GraphExpansionPolicy
 from .legal_ranker import LegalRanker
 from .mock_evidence import MockEvidenceService
 from .query_frame import QueryFrameBuilder
+from .query_graph_enricher import QueryGraphEnricher
 from .query_understanding import QueryUnderstanding
 from .raw_retriever_client import RAW_RETRIEVAL_NOT_CONFIGURED, RawRetrieverClient
 
@@ -44,6 +45,7 @@ class QueryOrchestrator:
         citation_verifier: CitationVerifier | None = None,
         answer_repair: AnswerRepair | None = None,
         query_frame_builder: QueryFrameBuilder | None = None,
+        query_graph_enricher: QueryGraphEnricher | None = None,
     ) -> None:
         self.evidence_service = evidence_service or MockEvidenceService()
         self.query_understanding = query_understanding or QueryUnderstanding()
@@ -59,6 +61,7 @@ class QueryOrchestrator:
         self.citation_verifier = citation_verifier or CitationVerifier()
         self.answer_repair = answer_repair or AnswerRepair()
         self.query_frame_builder = query_frame_builder or QueryFrameBuilder()
+        self.query_graph_enricher = query_graph_enricher or QueryGraphEnricher()
 
     async def run(self, request: QueryRequest) -> QueryResponse:
         query_id = self._query_id(request)
@@ -89,6 +92,7 @@ class QueryOrchestrator:
             ranked_candidates=legal_ranker.ranked_candidates,
             graph_expansion=graph_expansion,
             plan=query_plan,
+            query_frame=query_frame,
             debug=request.debug,
         )
         draft_answer = self._generate_answer(
@@ -138,6 +142,16 @@ class QueryOrchestrator:
         graph = GraphPayload(
             nodes=compiled_evidence.graph_nodes,
             edges=compiled_evidence.graph_edges,
+        )
+        graph = self.query_graph_enricher.enrich(
+            graph=graph,
+            query_id=query_id,
+            question=request.question,
+            query_plan=query_plan,
+            query_frame=query_frame,
+            evidence_units=compiled_evidence.evidence_units,
+            citations=citations,
+            verifier=verifier,
         )
         debug = None
         if request.debug:

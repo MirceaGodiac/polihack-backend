@@ -159,6 +159,7 @@ async def test_evidence_pack_compiler_produces_flat_evidence_from_parser_fixture
             "selected_by_mmr",
             "priority_direct_legal_basis:agreement_rule",
             "priority_direct_legal_basis:modification_scope",
+            "priority_condition:act_additional",
         }.intersection(evidence.why_selected)
         assert evidence.score_breakdown
     evidence_payload = evidence_pack.evidence_units[0].model_dump(mode="json")

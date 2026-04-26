@@ -7,6 +7,7 @@ from apps.api.app.services.evidence_pack_compiler import (
 )
 from apps.api.app.services.graph_expansion_policy import GraphExpansionPolicy
 from apps.api.app.services.query_orchestrator import QueryOrchestrator
+from tests.helpers.live_like_demo import LIVE_LIKE_DEMO_QUERY, LiveLikeRawRetriever
 from tests.helpers.fixture_handoff03 import (
     DEMO_QUERY_WITH_DIACRITICS,
     FixtureGraphClient,
@@ -174,3 +175,62 @@ async def test_query_orchestrator_omits_generation_debug_when_debug_false():
     assert response.verifier.citations_checked == len(response.citations)
     assert response.verifier.claims_total > 0
     assert response.verifier.repair_applied is False
+
+
+@pytest.mark.anyio
+async def test_query_orchestrator_live_like_demo_uses_art_41_not_topical_distractors():
+    response = await QueryOrchestrator(
+        raw_retriever_client=LiveLikeRawRetriever(),
+        graph_expansion_policy=GraphExpansionPolicy(),
+        evidence_pack_compiler=EvidencePackCompiler(
+            target_evidence_units=7,
+            max_evidence_units=7,
+        ),
+    ).run(
+        QueryRequest(
+            question=LIVE_LIKE_DEMO_QUERY,
+            jurisdiction="RO",
+            date="current",
+            mode="strict_citations",
+            debug=True,
+        )
+    )
+
+    top3_ranked_ids = [
+        candidate["unit_id"]
+        for candidate in response.debug.legal_ranker["ranked_candidates"][:3]
+    ]
+    assert "ro.codul_muncii.art_41.alin_1" in top3_ranked_ids
+    assert "ro.codul_muncii.art_41.alin_3" in top3_ranked_ids
+
+    evidence_by_id = {unit.id: unit for unit in response.evidence_units}
+    assert evidence_by_id["ro.codul_muncii.art_41.alin_1"].support_role == "direct_basis"
+    assert evidence_by_id["ro.codul_muncii.art_41.alin_3"].support_role == "direct_basis"
+    for unit_id in {
+        "ro.codul_muncii.art_16.alin_1",
+        "ro.codul_muncii.art_196.alin_2",
+        "ro.codul_muncii.art_42.alin_1",
+        "ro.codul_muncii.art_254.alin_3",
+    }:
+        if unit_id in evidence_by_id:
+            assert evidence_by_id[unit_id].support_role != "direct_basis"
+
+    citation_unit_ids = {citation.legal_unit_id for citation in response.citations}
+    assert {
+        "ro.codul_muncii.art_41.alin_1",
+        "ro.codul_muncii.art_41.alin_3",
+    }.issubset(citation_unit_ids)
+    assert not citation_unit_ids.intersection(
+        {
+            "ro.codul_muncii.art_16.alin_1",
+            "ro.codul_muncii.art_196.alin_2",
+            "ro.codul_muncii.art_42.alin_1",
+            "ro.codul_muncii.art_254.alin_3",
+        }
+    )
+    assert (
+        response.debug.generation["generation_mode"]
+        == "deterministic_template_v1_labor_contract_modification"
+    )
+    assert "art. 41" in response.answer.short_answer
+    assert "art. 196" not in response.answer.short_answer

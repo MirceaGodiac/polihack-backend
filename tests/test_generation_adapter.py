@@ -9,6 +9,7 @@ from apps.api.app.services.generation_adapter import (
     GenerationAdapter,
 )
 from apps.api.app.services.query_frame import QueryFrame
+from tests.helpers.live_like_demo import LIVE_LIKE_DEMO_QUERY
 from tests.helpers.fixture_handoff03 import DEMO_QUERY, load_codul_muncii_units
 
 
@@ -138,7 +139,7 @@ def test_generation_uses_only_raw_text_for_citation_snippets():
     ]
 
     draft = GenerationAdapter().generate(
-        question="Poate angajatorul sa-mi scada salariul fara act aditional?",
+        question="Ce spune textul recuperat despre salariu?",
         evidence_units=evidence,
     )
 
@@ -412,3 +413,45 @@ def test_template_with_only_context_warns_no_direct_basis():
     assert draft.generation_mode == GENERATION_MODE_TEMPLATE_V1
     assert GENERATION_NO_DIRECT_BASIS in draft.warnings
     assert [citation.unit_id for citation in draft.citations] == ["fixture.context_only"]
+
+
+def test_labor_contract_modification_with_only_topical_distractors_refuses_extractively():
+    query_frame = QueryFrame(
+        domain="munca",
+        intents=["labor_contract_modification"],
+        meta_intents=["modification", "permission"],
+        targets=["salary"],
+        confidence=0.9,
+    )
+    evidence = [
+        evidence_unit(
+            "ro.codul_muncii.art_196.alin_2",
+            (
+                "Modalitatea concreta de formare profesionala, drepturile si "
+                "obligatiile partilor, durata formarii profesionale si alte "
+                "aspecte fac obiectul unor acte aditionale."
+            ),
+            article_number="196",
+            paragraph_number="2",
+        ),
+        evidence_unit(
+            "ro.codul_muncii.art_254.alin_3",
+            (
+                "Recuperarea contravalorii pagubei se poate realiza prin "
+                "acordul partilor, potrivit notei de constatare."
+            ),
+            article_number="254",
+            paragraph_number="3",
+        ),
+    ]
+
+    draft = GenerationAdapter().generate(
+        question=LIVE_LIKE_DEMO_QUERY,
+        evidence_units=evidence,
+        query_frame=query_frame,
+    )
+
+    assert draft.generation_mode == "deterministic_extractive_v1_insufficient_evidence"
+    assert GENERATION_INSUFFICIENT_EVIDENCE in draft.warnings
+    assert draft.citations == []
+    assert "art. 196" not in draft.short_answer
