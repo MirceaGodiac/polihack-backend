@@ -22,6 +22,61 @@ from apps.api.app.services.raw_retriever import (
 )
 from apps.api.app.services.query_frame import QueryFrameBuilder
 from apps.api.app.services.query_understanding import QueryUnderstanding
+from apps.api.app.services.retrieval_scoring import (
+    ScoreBreakdown,
+    normalize_rrf_scores,
+    weighted_retrieval_score,
+)
+
+
+def test_weighted_retrieval_score_uses_rrf_with_dense():
+    base = ScoreBreakdown(
+        bm25=0.5,
+        dense=0.5,
+        domain_match=1.0,
+        metadata_validity=1.0,
+        exact_citation_boost=0.0,
+    )
+    with_rrf = ScoreBreakdown(
+        bm25=0.5,
+        dense=0.5,
+        rrf=1.0,
+        domain_match=1.0,
+        metadata_validity=1.0,
+        exact_citation_boost=0.0,
+    )
+
+    assert weighted_retrieval_score(with_rrf, dense_available=True) == pytest.approx(
+        weighted_retrieval_score(base, dense_available=True) + 0.30
+    )
+    assert 0.0 <= weighted_retrieval_score(with_rrf, dense_available=True) <= 1.0
+
+
+def test_weighted_retrieval_score_uses_rrf_without_dense():
+    base = ScoreBreakdown(
+        bm25=0.5,
+        domain_match=1.0,
+        metadata_validity=1.0,
+        exact_citation_boost=0.0,
+    )
+    with_rrf = ScoreBreakdown(
+        bm25=0.5,
+        rrf=1.0,
+        domain_match=1.0,
+        metadata_validity=1.0,
+        exact_citation_boost=0.0,
+    )
+
+    assert weighted_retrieval_score(with_rrf, dense_available=False) == pytest.approx(
+        weighted_retrieval_score(base, dense_available=False) + 0.40
+    )
+    assert 0.0 <= weighted_retrieval_score(with_rrf, dense_available=False) <= 1.0
+
+
+def test_normalize_rrf_scores_scales_raw_values_to_unit_interval():
+    normalized = normalize_rrf_scores({"a": 0.032, "b": 0.016})
+
+    assert normalized == {"a": 1.0, "b": pytest.approx(0.5)}
 
 
 def test_endpoint_schema_valid_with_dependency_override():
@@ -315,6 +370,48 @@ async def test_intent_governing_rule_lookup_surfaces_live_like_art_41_units():
     assert "intent_governing_rule_lookup:labor_contract_modification" in by_id[
         "ro.codul_muncii.art_41.alin_1"
     ].why_retrieved
+
+
+@pytest.mark.anyio
+async def test_intent_governing_rule_lookup_includes_salary_target_parent_context():
+    question = "Poate angajatorul sa-mi scada salariul fara act aditional?"
+    query_frame = _query_frame_for(question)
+    units = _live_like_units_for_raw_retriever()
+    for unit in units:
+        if unit["id"] == "ro.codul_muncii.art_41.alin_3":
+            unit["raw_text"] = (
+                "Modificarea contractului individual de munca se refera la "
+                "oricare dintre urmatoarele elemente:"
+            )
+            unit["normalized_text"] = (
+                "modificarea contractului individual de munca se refera "
+                "urmatoarele elemente"
+            )
+
+    response = await RawRetriever(FallbackProbeStore(units=units)).retrieve(
+        _request(
+            question=question,
+            filters={"legal_domain": "munca", "status": "active"},
+            exact_citations=[],
+            query_frame=query_frame,
+            top_k=6,
+            debug=True,
+        )
+    )
+
+    ranking = response.debug["rankings"]["intent_governing_rule_lookup"]
+    child_index = ranking.index("ro.codul_muncii.art_41.alin_3.lit_e")
+    assert ranking[child_index + 1] == "ro.codul_muncii.art_41.alin_3"
+    assert response.debug["intent_governing_rule_parent_ids"] == [
+        "ro.codul_muncii.art_41.alin_3"
+    ]
+    by_id = {candidate.unit_id: candidate for candidate in response.candidates}
+    parent = by_id["ro.codul_muncii.art_41.alin_3"]
+    assert parent.score_breakdown["intent_governing_rule_parent"] == 1.0
+    assert (
+        "intent_governing_rule_parent_context:labor_contract_modification"
+        in parent.why_retrieved
+    )
 
 
 @pytest.mark.anyio
@@ -629,6 +726,58 @@ async def test_dense_retrieval_uses_store_when_query_embedding_is_present():
 
 
 @pytest.mark.anyio
+async def test_rrf_boosts_candidate_present_in_bm25_dense_and_exact():
+    response = await RawRetriever(MultiSignalStore()).retrieve(
+        _request(
+            query_embedding=[0.1, 0.2, 0.3],
+            top_k=2,
+            debug=True,
+        )
+    )
+
+    assert [candidate.unit_id for candidate in response.candidates] == [
+        "fixture.multi_signal",
+        "fixture.lexical_only",
+    ]
+    by_id = {candidate.unit_id: candidate for candidate in response.candidates}
+    assert by_id["fixture.multi_signal"].score_breakdown["rrf"] == 1.0
+    assert (
+        by_id["fixture.multi_signal"].score_breakdown["rrf"]
+        > by_id["fixture.lexical_only"].score_breakdown["rrf"]
+    )
+    assert (
+        by_id["fixture.multi_signal"].retrieval_score
+        > by_id["fixture.lexical_only"].retrieval_score
+    )
+    assert response.debug["rrf_scores"]["fixture.multi_signal"] == 1.0
+    assert response.debug["rrf_scores_raw"]["fixture.multi_signal"] < 1.0
+
+
+@pytest.mark.anyio
+async def test_rrf_fallback_without_dense_rewards_multiple_methods_over_lexical_only():
+    response = await RawRetriever(MultiSignalStore()).retrieve(
+        _request(
+            query_embedding=None,
+            top_k=2,
+            debug=True,
+        )
+    )
+
+    assert response.debug["dense_available"] is False
+    assert [candidate.unit_id for candidate in response.candidates] == [
+        "fixture.multi_signal",
+        "fixture.lexical_only",
+    ]
+    by_id = {candidate.unit_id: candidate for candidate in response.candidates}
+    assert by_id["fixture.lexical_only"].score_breakdown["bm25"] == 1.0
+    assert by_id["fixture.multi_signal"].score_breakdown["bm25"] < 1.0
+    assert (
+        by_id["fixture.multi_signal"].retrieval_score
+        > by_id["fixture.lexical_only"].retrieval_score
+    )
+
+
+@pytest.mark.anyio
 async def test_score_breakdown_has_required_fields_and_top_k_is_respected():
     response = await RawRetriever(FakeStore()).retrieve(
         _request(top_k=1, exact_citations=[])
@@ -643,7 +792,9 @@ async def test_score_breakdown_has_required_fields_and_top_k_is_respected():
         "metadata_validity",
         "exact_citation_boost",
         "rrf",
+        "intent_phrase_match",
     }.issubset(breakdown)
+    assert 0.0 <= breakdown["rrf"] <= 1.0
 
 
 @pytest.mark.anyio
@@ -791,6 +942,40 @@ class FakeStore:
         ][:limit]
 
 
+class MultiSignalStore:
+    def __init__(self):
+        self.units = _multi_signal_units()
+        self.dense_called = False
+
+    async def exact_citation_lookup(self, citations, *, filters, limit):
+        rows = []
+        for citation in citations:
+            for unit in _filtered_units_from(self.units, filters):
+                if (
+                    unit["law_id"] == citation.get("law_id")
+                    and unit["article_number"] == citation.get("article_number")
+                ):
+                    rows.append(dict(unit))
+        return rows[:limit]
+
+    async def lexical_search(self, question, *, filters, limit):
+        rows = []
+        for unit in _filtered_units_from(self.units, filters):
+            if unit["id"] == "fixture.lexical_only":
+                rows.append({**unit, "bm25_score": 1.0})
+            elif unit["id"] == "fixture.multi_signal":
+                rows.append({**unit, "bm25_score": 0.8})
+        return rows[:limit]
+
+    async def dense_search(self, query_embedding, *, filters, limit):
+        self.dense_called = True
+        return [
+            {**unit, "dense_score": 0.9}
+            for unit in _filtered_units_from(self.units, filters)
+            if unit["id"] == "fixture.multi_signal"
+        ][:limit]
+
+
 class FallbackProbeStore(PostgresRawRetrievalStore):
     def __init__(self, strict_rows=None, units=None):
         self.strict_rows = strict_rows or []
@@ -872,6 +1057,47 @@ def _filtered_units_from(units, filters):
             continue
         rows.append(unit)
     return rows
+
+
+def _multi_signal_units():
+    base = {
+        **_UNITS[0],
+        "source_id": "fixture",
+        "law_id": "ro.codul_muncii",
+        "law_title": "Codul muncii",
+        "status": "active",
+        "legal_domain": "munca",
+        "source_url": "https://legislatie.just.ro/test",
+        "parser_warnings": [],
+        "created_at": None,
+        "updated_at": None,
+    }
+    return [
+        {
+            **base,
+            "id": "fixture.lexical_only",
+            "canonical_id": "fixture.lexical_only",
+            "article_number": "160",
+            "paragraph_number": None,
+            "letter_number": None,
+            "point_number": None,
+            "raw_text": "Salariul si actul aditional sunt mentionate in contractul de munca.",
+            "normalized_text": "salariu act aditional contract munca",
+            "parent_id": None,
+        },
+        {
+            **base,
+            "id": "fixture.multi_signal",
+            "canonical_id": "fixture.multi_signal",
+            "article_number": "41",
+            "paragraph_number": "1",
+            "letter_number": None,
+            "point_number": None,
+            "raw_text": "Contractul individual de munca poate fi modificat numai prin acordul partilor.",
+            "normalized_text": "contract individual munca modificat acord parti act aditional",
+            "parent_id": None,
+        },
+    ]
 
 
 _UNITS = [

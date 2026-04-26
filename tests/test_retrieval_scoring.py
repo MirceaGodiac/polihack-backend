@@ -11,30 +11,34 @@ def test_weighted_retrieval_score_dense():
     s = ScoreBreakdown(
         bm25=1.0, 
         dense=1.0, 
+        rrf=1.0,
         domain_match=1.0, 
         metadata_validity=1.0, 
-        exact_citation_boost=1.0
+        exact_citation_boost=1.0,
+        intent_phrase_match=1.0,
     )
-    # 0.35 + 0.30 + 0.15 + 0.10 + 0.10 = 1.0
+    # 0.30 + 0.25 + 0.20 + 0.10 + 0.08 + 0.04 + 0.03 = 1.0
     assert weighted_retrieval_score(s, dense_available=True) == pytest.approx(1.0)
     
     s2 = ScoreBreakdown(bm25=0.5, dense=0.8)
-    # 0.35*0.5 + 0.30*0.8 = 0.175 + 0.24 = 0.415
-    assert weighted_retrieval_score(s2, dense_available=True) == pytest.approx(0.415)
+    # 0.25*0.5 + 0.20*0.8 = 0.125 + 0.16 = 0.285
+    assert weighted_retrieval_score(s2, dense_available=True) == pytest.approx(0.285)
 
 def test_weighted_retrieval_score_no_dense():
     s = ScoreBreakdown(
         bm25=1.0, 
+        rrf=1.0,
         domain_match=1.0, 
         metadata_validity=1.0, 
-        exact_citation_boost=1.0
+        exact_citation_boost=1.0,
+        intent_phrase_match=1.0,
     )
-    # 0.60 + 0.20 + 0.10 + 0.10 = 1.0
+    # 0.40 + 0.35 + 0.10 + 0.08 + 0.04 + 0.03 = 1.0
     assert weighted_retrieval_score(s, dense_available=False) == pytest.approx(1.0)
     
     s2 = ScoreBreakdown(bm25=0.7, domain_match=0.5)
-    # 0.60*0.7 + 0.20*0.5 = 0.42 + 0.10 = 0.52
-    assert weighted_retrieval_score(s2, dense_available=False) == pytest.approx(0.52)
+    # 0.35*0.7 + 0.08*0.5 = 0.245 + 0.04 = 0.285
+    assert weighted_retrieval_score(s2, dense_available=False) == pytest.approx(0.285)
 
 def test_reciprocal_rank_fusion():
     rankings = {

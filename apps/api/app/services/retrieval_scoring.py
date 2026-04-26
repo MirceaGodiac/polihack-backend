@@ -8,22 +8,32 @@ class ScoreBreakdown:
     domain_match: float = 0.0
     metadata_validity: float = 0.0
     exact_citation_boost: float = 0.0
+    intent_phrase_match: float = 0.0
 
 def weighted_retrieval_score(s: ScoreBreakdown, dense_available: bool = True) -> float:
     """
     Calculates the final hybrid score based on the project's weighted formula.
     """
     if dense_available:
-        return (0.35 * s.bm25 + 
-                0.30 * s.dense + 
-                0.15 * s.domain_match + 
-                0.10 * s.metadata_validity + 
-                0.10 * s.exact_citation_boost)
+        score = (
+            0.30 * _clamp01(s.rrf)
+            + 0.25 * _clamp01(s.bm25)
+            + 0.20 * _clamp01(s.dense)
+            + 0.10 * _clamp01(s.exact_citation_boost)
+            + 0.08 * _clamp01(s.domain_match)
+            + 0.04 * _clamp01(s.metadata_validity)
+            + 0.03 * _clamp01(s.intent_phrase_match)
+        )
     else:
-        return (0.60 * s.bm25 + 
-                0.20 * s.domain_match + 
-                0.10 * s.metadata_validity + 
-                0.10 * s.exact_citation_boost)
+        score = (
+            0.40 * _clamp01(s.rrf)
+            + 0.35 * _clamp01(s.bm25)
+            + 0.10 * _clamp01(s.exact_citation_boost)
+            + 0.08 * _clamp01(s.domain_match)
+            + 0.04 * _clamp01(s.metadata_validity)
+            + 0.03 * _clamp01(s.intent_phrase_match)
+        )
+    return _clamp01(score)
 
 def reciprocal_rank_fusion(rankings: dict[str, list[str]], k: int = 60) -> dict[str, float]:
     """
@@ -39,6 +49,26 @@ def reciprocal_rank_fusion(rankings: dict[str, list[str]], k: int = 60) -> dict[
             score = 1.0 / (k + rank)
             fused_scores[unit_id] = fused_scores.get(unit_id, 0.0) + score
     return fused_scores
+
+def normalize_rrf_scores(rrf_scores: dict[str, float]) -> dict[str, float]:
+    """
+    Max-normalizes raw RRF values into [0, 1] so they can participate in
+    weighted scoring instead of acting as a near-zero tie-breaker.
+    """
+    if not rrf_scores:
+        return {}
+    max_score = max(rrf_scores.values())
+    if max_score <= 0.0:
+        return {unit_id: 0.0 for unit_id in rrf_scores}
+    return {
+        unit_id: _clamp01(score / max_score)
+        for unit_id, score in rrf_scores.items()
+    }
+
+def _clamp01(value: float) -> float:
+    if value != value:
+        return 0.0
+    return max(0.0, min(1.0, value))
 
 def domain_match(query_domain: str | None, unit_domain: str) -> float:
     """

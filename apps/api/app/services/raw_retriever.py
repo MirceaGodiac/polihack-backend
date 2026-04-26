@@ -11,6 +11,8 @@ from typing import Any, Protocol
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from ingestion.normalizer import repair_romanian_mojibake
+
 from ..schemas.retrieval import (
     RawExactCitation,
     RawRetrievalRequest,
@@ -18,7 +20,12 @@ from ..schemas.retrieval import (
     RetrievalCandidate,
 )
 from .query_frame import LegalIntentRegistry, QueryFrameBuilder
-from .retrieval_scoring import ScoreBreakdown, reciprocal_rank_fusion, weighted_retrieval_score
+from .retrieval_scoring import (
+    ScoreBreakdown,
+    normalize_rrf_scores,
+    reciprocal_rank_fusion,
+    weighted_retrieval_score,
+)
 
 
 DEFAULT_METHOD_LIMIT_MULTIPLIER = 3
@@ -26,6 +33,7 @@ FTS_METHOD = "fts"
 EXACT_METHOD = "exact_citation"
 DENSE_METHOD = "dense_optional"
 INTENT_GOVERNING_RULE_METHOD = "intent_governing_rule_lookup"
+INTENT_GOVERNING_RULE_PARENT_METHOD = "intent_governing_rule_parent_context"
 
 
 class RawRetrievalStore(Protocol):
@@ -63,6 +71,14 @@ class RawRetrievalStore(Protocol):
         intent: str,
         filters: Mapping[str, Any],
         limit: int,
+    ) -> list[dict[str, Any]]:
+        ...
+
+    async def get_units_by_ids(
+        self,
+        unit_ids: Sequence[str],
+        *,
+        filters: Mapping[str, Any],
     ) -> list[dict[str, Any]]:
         ...
 
@@ -368,6 +384,45 @@ class PostgresRawRetrievalStore:
             )
         return [_unit_from_row(row) for row in result.mappings().all()]
 
+    async def get_units_by_ids(
+        self,
+        unit_ids: Sequence[str],
+        *,
+        filters: Mapping[str, Any],
+    ) -> list[dict[str, Any]]:
+        unit_ids = [unit_id for unit_id in _dedupe_terms(unit_ids) if unit_id]
+        if not unit_ids:
+            return []
+        available_columns = await self._get_unit_columns()
+        if "id" not in available_columns:
+            return []
+        clauses, params = _sql_filters(
+            filters,
+            alias="u",
+            available_columns=available_columns,
+        )
+        id_param_names: list[str] = []
+        for index, unit_id in enumerate(unit_ids):
+            param_name = f"unit_id_{index}"
+            id_param_names.append(f":{param_name}")
+            params[param_name] = unit_id
+        clauses.append(f"u.id::text IN ({', '.join(id_param_names)})")
+        select_columns = _unit_select_columns_sql(available_columns, alias="u")
+        order_by = _unit_order_by_sql(available_columns, alias="u")
+        async with self.session.begin_nested():
+            result = await self.session.execute(
+                text(
+                    f"""
+                    SELECT {select_columns}
+                    FROM legal_units u
+                    WHERE {' AND '.join(clauses)}
+                    ORDER BY {order_by}
+                    """
+                ),
+                params,
+            )
+        return [_unit_from_row(row) for row in result.mappings().all()]
+
     async def intent_governing_rule_lookup(
         self,
         *,
@@ -469,6 +524,14 @@ class EmptyRawRetrievalStore:
     ) -> list[dict[str, Any]]:
         return []
 
+    async def get_units_by_ids(
+        self,
+        unit_ids: Sequence[str],
+        *,
+        filters: Mapping[str, Any],
+    ) -> list[dict[str, Any]]:
+        return []
+
 
 @dataclass
 class _CandidateAccumulator:
@@ -476,6 +539,7 @@ class _CandidateAccumulator:
     bm25: float = 0.0
     dense: float = 0.0
     intent_governing_rule: float = 0.0
+    intent_governing_rule_parent: float = 0.0
     exact_citation_boost: float = 0.0
     methods: set[str] = field(default_factory=set)
     rrf: float = 0.0
@@ -605,6 +669,16 @@ class RawRetriever:
                 warning_code="intent_governing_rule_lookup_failed",
                 debug=request.debug,
             )
+            governing_rule_rows = await self._call_store(
+                self._include_intent_governing_rule_parent_rows(
+                    governing_rule_rows,
+                    intent=governing_rule_intent,
+                    filters=filters,
+                ),
+                warnings=warnings,
+                warning_code="intent_governing_rule_parent_lookup_failed",
+                debug=request.debug,
+            )
             rankings[INTENT_GOVERNING_RULE_METHOD] = [
                 row["id"] for row in governing_rule_rows
             ]
@@ -619,7 +693,14 @@ class RawRetriever:
                 accumulator.intent_governing_rule,
                 _clamp01(_float(row.get("intent_governing_rule_score"))),
             )
-            accumulator.methods.add(INTENT_GOVERNING_RULE_METHOD)
+            accumulator.intent_governing_rule_parent = max(
+                accumulator.intent_governing_rule_parent,
+                _clamp01(_float(row.get("intent_governing_rule_parent_score"))),
+            )
+            if row.get("intent_governing_rule_parent_context"):
+                accumulator.methods.add(INTENT_GOVERNING_RULE_PARENT_METHOD)
+            else:
+                accumulator.methods.add(INTENT_GOVERNING_RULE_METHOD)
 
         dense_rows: list[dict[str, Any]] = []
         if request.query_embedding:
@@ -651,7 +732,8 @@ class RawRetriever:
         ]
         if domain_rank:
             rankings["domain_filtered_search"] = domain_rank
-        rrf_scores = reciprocal_rank_fusion(rankings)
+        rrf_scores_raw = reciprocal_rank_fusion(rankings)
+        rrf_scores = normalize_rrf_scores(rrf_scores_raw)
         for unit_id, score in rrf_scores.items():
             if unit_id in candidates:
                 candidates[unit_id].rrf = score
@@ -698,6 +780,9 @@ class RawRetriever:
                 "query_frame_confidence": lexical_debug.get("query_frame_confidence"),
                 "registry_expanded_terms": lexical_debug.get("registry_expanded_terms"),
                 "intent_governing_rule_candidate_count": len(governing_rule_rows),
+                "intent_governing_rule_parent_ids": (
+                    _intent_governing_rule_parent_ids_from_rows(governing_rule_rows)
+                ),
                 "intent_governing_rule_terms": governing_rule_terms,
                 "decomposition_retrieval_queries": lexical_debug.get(
                     "decomposition_retrieval_queries"
@@ -717,6 +802,8 @@ class RawRetriever:
                 "dense_available": dense_available,
                 "rankings": rankings,
                 "rrf_scores": rrf_scores,
+                "rrf_scores_raw": rrf_scores_raw,
+                "rrf_normalization": "max",
                 "warnings": warnings,
             }
 
@@ -766,6 +853,73 @@ class RawRetriever:
             return []
         return await lookup(intent=intent, filters=filters, limit=limit)
 
+    async def _include_intent_governing_rule_parent_rows(
+        self,
+        rows: Sequence[Mapping[str, Any]],
+        *,
+        intent: str,
+        filters: Mapping[str, Any],
+    ) -> list[dict[str, Any]]:
+        rows = [dict(row) for row in rows]
+        parent_ids = _intent_governing_rule_target_parent_ids(rows, intent=intent)
+        existing_ids = {str(row.get("id") or "") for row in rows}
+        missing_parent_ids = [
+            parent_id for parent_id in parent_ids if parent_id not in existing_ids
+        ]
+        if not missing_parent_ids:
+            return rows
+
+        parent_rows = await self._get_units_by_ids(missing_parent_ids, filters=filters)
+        parents_by_id = {
+            str(row.get("id")): dict(row)
+            for row in parent_rows
+            if row.get("id") in missing_parent_ids
+        }
+        if not parents_by_id:
+            return rows
+
+        expanded: list[dict[str, Any]] = []
+        inserted_parent_ids: set[str] = set()
+        for row in rows:
+            expanded.append(row)
+            parent_id = _intent_governing_rule_target_parent_id(row, intent=intent)
+            if not parent_id or parent_id in inserted_parent_ids:
+                continue
+            parent_row = parents_by_id.get(parent_id)
+            if parent_row is None:
+                continue
+            expanded.append(
+                _intent_governing_rule_parent_context_row(
+                    parent_row,
+                    child_row=row,
+                    intent=intent,
+                )
+            )
+            inserted_parent_ids.add(parent_id)
+        return expanded
+
+    async def _get_units_by_ids(
+        self,
+        unit_ids: Sequence[str],
+        *,
+        filters: Mapping[str, Any],
+    ) -> list[dict[str, Any]]:
+        unit_ids = _dedupe_terms(unit_ids)
+        if not unit_ids:
+            return []
+        units = getattr(self.store, "units", None)
+        if units is not None and not hasattr(self.store, "session"):
+            return [
+                dict(unit)
+                for unit in units
+                if str(unit.get("id") or "") in unit_ids
+                and _unit_matches_filters(unit, filters)
+            ]
+        lookup = getattr(self.store, "get_units_by_ids", None)
+        if lookup is None:
+            return []
+        return await lookup(unit_ids, filters=filters)
+
     async def _call_store(
         self,
         store_call,
@@ -812,6 +966,11 @@ class RawRetriever:
                 domain_match=breakdown.domain_match,
                 metadata_validity=breakdown.metadata_validity,
             ),
+            _intent_governing_rule_parent_retrieval_score(
+                accumulator.intent_governing_rule_parent,
+                domain_match=breakdown.domain_match,
+                metadata_validity=breakdown.metadata_validity,
+            ),
         )
         return RetrievalCandidate(
             unit_id=unit["id"],
@@ -821,14 +980,19 @@ class RawRetriever:
             score_breakdown={
                 "bm25": round(breakdown.bm25, 6),
                 "dense": round(breakdown.dense, 6),
+                "rrf": round(breakdown.rrf, 6),
                 "domain_match": round(breakdown.domain_match, 6),
                 "metadata_validity": round(breakdown.metadata_validity, 6),
                 "exact_citation_boost": round(breakdown.exact_citation_boost, 6),
+                "intent_phrase_match": round(breakdown.intent_phrase_match, 6),
                 "intent_governing_rule": round(
                     accumulator.intent_governing_rule,
                     6,
                 ),
-                "rrf": round(breakdown.rrf, 6),
+                "intent_governing_rule_parent": round(
+                    accumulator.intent_governing_rule_parent,
+                    6,
+                ),
             },
             matched_terms=_matched_terms(question, unit, query_frame=query_frame),
             why_retrieved=_why_retrieved(accumulator.methods),
@@ -978,6 +1142,10 @@ def _unit_from_row(row: Mapping[str, Any]) -> dict[str, Any]:
     unit = {column: row.get(column) for column in _UNIT_COLUMNS}
     unit["legal_concepts"] = unit.get("legal_concepts") or []
     unit["hierarchy_path"] = unit.get("hierarchy_path") or []
+    unit["raw_text"] = repair_romanian_mojibake(_text_value(unit.get("raw_text")) or "") or ""
+    normalized_text = _text_value(unit.get("normalized_text"))
+    if normalized_text is not None:
+        unit["normalized_text"] = repair_romanian_mojibake(normalized_text)
     if "bm25_score" in row:
         unit["bm25_score"] = _float(row.get("bm25_score"))
     if "dense_score" in row:
@@ -989,6 +1157,22 @@ def _unit_from_row(row: Mapping[str, Any]) -> dict[str, Any]:
     if "intent_governing_rule_role" in row:
         unit["intent_governing_rule_role"] = _text_value(
             row.get("intent_governing_rule_role")
+        )
+    if "intent_governing_rule_parent_score" in row:
+        unit["intent_governing_rule_parent_score"] = _float(
+            row.get("intent_governing_rule_parent_score")
+        )
+    if "intent_governing_rule_parent_role" in row:
+        unit["intent_governing_rule_parent_role"] = _text_value(
+            row.get("intent_governing_rule_parent_role")
+        )
+    if "intent_governing_rule_parent_child_id" in row:
+        unit["intent_governing_rule_parent_child_id"] = _text_value(
+            row.get("intent_governing_rule_parent_child_id")
+        )
+    if "intent_governing_rule_parent_context" in row:
+        unit["intent_governing_rule_parent_context"] = bool(
+            row.get("intent_governing_rule_parent_context")
         )
     return unit
 
@@ -1910,6 +2094,67 @@ def _intent_governing_rule_rows_from_units(
     return rows[:limit]
 
 
+def _intent_governing_rule_target_parent_ids(
+    rows: Sequence[Mapping[str, Any]],
+    *,
+    intent: str,
+) -> list[str]:
+    return _dedupe_terms(
+        [
+            parent_id
+            for row in rows
+            if (
+                parent_id := _intent_governing_rule_target_parent_id(
+                    row,
+                    intent=intent,
+                )
+            )
+        ]
+    )
+
+
+def _intent_governing_rule_target_parent_id(
+    row: Mapping[str, Any],
+    *,
+    intent: str,
+) -> str | None:
+    if intent != "labor_contract_modification":
+        return None
+    if _text_value(row.get("intent_governing_rule_role")) != "target_element":
+        return None
+    if not (_text_value(row.get("letter_number")) or _text_value(row.get("point_number"))):
+        return None
+    parent_id = _text_value(row.get("parent_id"))
+    return parent_id or None
+
+
+def _intent_governing_rule_parent_context_row(
+    parent_row: Mapping[str, Any],
+    *,
+    child_row: Mapping[str, Any],
+    intent: str,
+) -> dict[str, Any]:
+    parent = dict(parent_row)
+    parent["intent_governing_rule_parent_score"] = 1.0
+    parent["intent_governing_rule_parent_role"] = "salary_scope_parent"
+    parent["intent_governing_rule_parent_context"] = True
+    parent["intent_governing_rule_parent_child_id"] = _text_value(child_row.get("id"))
+    parent["intent_governing_rule_parent_intent"] = intent
+    return parent
+
+
+def _intent_governing_rule_parent_ids_from_rows(
+    rows: Sequence[Mapping[str, Any]],
+) -> list[str]:
+    return _dedupe_terms(
+        [
+            _text_value(row.get("id"))
+            for row in rows
+            if row.get("intent_governing_rule_parent_context")
+        ]
+    )
+
+
 def _unit_matches_filters(
     unit: Mapping[str, Any],
     filters: Mapping[str, Any],
@@ -2018,6 +2263,22 @@ def _intent_governing_rule_retrieval_score(
     return _clamp01(
         0.40
         + 0.35 * governing_rule_score
+        + 0.15 * domain_match
+        + 0.10 * metadata_validity
+    )
+
+
+def _intent_governing_rule_parent_retrieval_score(
+    parent_score: float,
+    *,
+    domain_match: float,
+    metadata_validity: float,
+) -> float:
+    if parent_score <= 0.0:
+        return 0.0
+    return _clamp01(
+        0.45
+        + 0.30 * parent_score
         + 0.15 * domain_match
         + 0.10 * metadata_validity
     )
@@ -2149,6 +2410,8 @@ def _why_retrieved(methods: set[str]) -> str:
         labels.append("lexical match")
     if INTENT_GOVERNING_RULE_METHOD in methods:
         labels.append("intent_governing_rule_lookup:labor_contract_modification")
+    if INTENT_GOVERNING_RULE_PARENT_METHOD in methods:
+        labels.append("intent_governing_rule_parent_context:labor_contract_modification")
     if DENSE_METHOD in methods:
         labels.append("dense similarity")
     return " + ".join(labels) if labels else "domain filtered search"
