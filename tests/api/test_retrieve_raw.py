@@ -723,6 +723,27 @@ async def test_dense_retrieval_uses_store_when_query_embedding_is_present():
     assert response.candidates
     assert response.candidates[0].score_breakdown["dense"] > 0.0
     assert "dense similarity" in " ".join(candidate.why_retrieved or "" for candidate in response.candidates)
+    assert "dense_retrieval_skipped_no_query_embedding" not in response.warnings
+
+
+@pytest.mark.anyio
+async def test_postgres_dense_search_uses_asyncpg_safe_vector_cast():
+    session = CaptureSqlSession()
+    store = PostgresRawRetrievalStore(session)
+    store._unit_columns = set(_UNITS[0].keys())
+
+    await store.dense_search(
+        [0.1, 0.2],
+        filters={"legal_domain": "munca", "status": "active"},
+        limit=5,
+    )
+
+    sql = session.statements[-1]
+    assert ":embedding::vector" not in sql
+    assert "CAST(:embedding AS vector)" in sql
+    assert "e.embedding <=> CAST(:embedding AS vector)" in sql
+    assert "1.0 - (e.embedding <=> CAST(:embedding AS vector))" in sql
+    assert session.params[-1]["embedding"] == "[0.1,0.2]"
 
 
 @pytest.mark.anyio
@@ -909,6 +930,39 @@ def _live_like_units_for_raw_retriever():
             }
         )
     return units
+
+
+class CaptureSqlSession:
+    def __init__(self):
+        self.statements = []
+        self.params = []
+
+    def begin_nested(self):
+        return _NoopNestedTransaction()
+
+    async def execute(self, statement, params=None):
+        self.statements.append(str(statement))
+        self.params.append(dict(params or {}))
+        return _MappingRows([])
+
+
+class _NoopNestedTransaction:
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, exc_type, exc, traceback):
+        return None
+
+
+class _MappingRows:
+    def __init__(self, rows):
+        self.rows = rows
+
+    def mappings(self):
+        return self
+
+    def all(self):
+        return self.rows
 
 
 class FakeStore:

@@ -372,11 +372,11 @@ class PostgresRawRetrievalStore:
                     f"""
                     SELECT
                         {select_columns},
-                        greatest(0.0, least(1.0, 1.0 - (e.embedding <=> :embedding::vector))) AS dense_score
+                        greatest(0.0, least(1.0, 1.0 - (e.embedding <=> CAST(:embedding AS vector)))) AS dense_score
                     FROM legal_embeddings e
                     JOIN legal_units u ON u.id = e.legal_unit_id
                     WHERE {' AND '.join(clauses)}
-                    ORDER BY e.embedding <=> :embedding::vector, u.id
+                    ORDER BY e.embedding <=> CAST(:embedding AS vector), u.id
                     LIMIT :limit
                     """
                 ),
