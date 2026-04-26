@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.0.0",
+  "parser_version": "0.1.0",
+  "generated_at": "2026-04-26T09:08:30.462793+00:00",
+  "source_count": 1,
+  "units_count": 1916,
+  "edges_count": 1915,
+  "chunks_count": 1916,
+  "embeddings_input_count": 1916,
+  "reference_candidates_count": 787,
+  "contextual_retrieval_enabled": true,
+  "context_generation_method": "deterministic_v1",
+  "input_files": [
+    "https://legislatie.just.ro/Public/DetaliiDocumentAfis/269772"
+  ],
+  "sources": [
+    {
+      "law_id": "ro.archive_lege_penale",
+      "law_title": "COD PENAL (A) 17/07/2009",
+      "source_type": "url:legislatie.just.ro",
+      "source_url": "https://legislatie.just.ro/Public/DetaliiDocumentAfis/269772",
+      "source_id": null
+    }
+  ],
+  "files": {
+    "legal_units": "legal_units.json",
+    "legal_edges": "legal_edges.json",
+    "legal_chunks": "legal_chunks.json",
+    "embeddings_input": "embeddings_input.jsonl",
+    "corpus_manifest": "corpus_manifest.json",
+    "validation_report": "validation_report.json",
+    "reference_candidates": "reference_candidates.json"
+  },
+  "content_hash": "cd9217334765f57547bd8fbc3eda5b65dc9b865e41331d71f4cc9a207ffc950f",
+  "bundle_hash": "44941853f38d09ef6839c881d6b91f3a82d0c91aaf2c8a93b5fb919fb31d3105",
+  "warnings": [
+    "contextual_retrieval_context_derived_not_citable",
+    "embeddings_vectors_not_generated_in_p8",
+    "html_cleaner:removed_navigation_blocks",
+    "law_title_inferred_from_html_title",
+    "legal_concepts_empty_for_most_units_by_v1_policy",
+    "legal_domain_unknown",
+    "publication_date_unknown",
+    "reference_candidates_extracted_unresolved",
+    "reference_candidates_used_as_unresolved_context_hints",
+    "reference_resolution_deferred_to_later_phase",
+    "reference_resolution_rate_informational_in_v1",
+    "source_id_unknown",
+    "status_unknown",
+    "unknown_fields_left_null_by_policy"
+  ]
+}

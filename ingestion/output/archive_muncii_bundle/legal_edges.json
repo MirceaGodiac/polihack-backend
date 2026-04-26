@@ -1,0 +1,5426 @@
+[
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_1.ro.archive_lege_muncii.art_1.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_1",
+    "target_id": "ro.archive_lege_muncii.art_1.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_1.ro.archive_lege_muncii.art_1.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_1",
+    "target_id": "ro.archive_lege_muncii.art_1.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_100.alin_1.ro.archive_lege_muncii.art_100.alin_1.lit_a",
+    "source_id": "ro.archive_lege_muncii.art_100.alin_1",
+    "target_id": "ro.archive_lege_muncii.art_100.alin_1.lit_a",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_100.alin_1.ro.archive_lege_muncii.art_100.alin_1.lit_b",
+    "source_id": "ro.archive_lege_muncii.art_100.alin_1",
+    "target_id": "ro.archive_lege_muncii.art_100.alin_1.lit_b",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_100.alin_1.ro.archive_lege_muncii.art_100.alin_1.lit_c",
+    "source_id": "ro.archive_lege_muncii.art_100.alin_1",
+    "target_id": "ro.archive_lege_muncii.art_100.alin_1.lit_c",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_100.alin_1.ro.archive_lege_muncii.art_100.alin_1.lit_d",
+    "source_id": "ro.archive_lege_muncii.art_100.alin_1",
+    "target_id": "ro.archive_lege_muncii.art_100.alin_1.lit_d",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_100.alin_1.ro.archive_lege_muncii.art_100.alin_1.lit_e",
+    "source_id": "ro.archive_lege_muncii.art_100.alin_1",
+    "target_id": "ro.archive_lege_muncii.art_100.alin_1.lit_e",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_100.alin_1.ro.archive_lege_muncii.art_100.alin_1.lit_f",
+    "source_id": "ro.archive_lege_muncii.art_100.alin_1",
+    "target_id": "ro.archive_lege_muncii.art_100.alin_1.lit_f",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_100.ro.archive_lege_muncii.art_100.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_100",
+    "target_id": "ro.archive_lege_muncii.art_100.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_100.ro.archive_lege_muncii.art_100.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_100",
+    "target_id": "ro.archive_lege_muncii.art_100.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_101.ro.archive_lege_muncii.art_101.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_101",
+    "target_id": "ro.archive_lege_muncii.art_101.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_101.ro.archive_lege_muncii.art_101.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_101",
+    "target_id": "ro.archive_lege_muncii.art_101.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_102.ro.archive_lege_muncii.art_102.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_102",
+    "target_id": "ro.archive_lege_muncii.art_102.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_102.ro.archive_lege_muncii.art_102.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_102",
+    "target_id": "ro.archive_lege_muncii.art_102.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_103.ro.archive_lege_muncii.art_103.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_103",
+    "target_id": "ro.archive_lege_muncii.art_103.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_103.ro.archive_lege_muncii.art_103.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_103",
+    "target_id": "ro.archive_lege_muncii.art_103.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_105.ro.archive_lege_muncii.art_105.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_105",
+    "target_id": "ro.archive_lege_muncii.art_105.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_105.ro.archive_lege_muncii.art_105.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_105",
+    "target_id": "ro.archive_lege_muncii.art_105.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_107.ro.archive_lege_muncii.art_107.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_107",
+    "target_id": "ro.archive_lege_muncii.art_107.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_107.ro.archive_lege_muncii.art_107.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_107",
+    "target_id": "ro.archive_lege_muncii.art_107.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_108.ro.archive_lege_muncii.art_108.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_108",
+    "target_id": "ro.archive_lege_muncii.art_108.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_108.ro.archive_lege_muncii.art_108.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_108",
+    "target_id": "ro.archive_lege_muncii.art_108.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_108.ro.archive_lege_muncii.art_108.alin_3",
+    "source_id": "ro.archive_lege_muncii.art_108",
+    "target_id": "ro.archive_lege_muncii.art_108.alin_3",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_108.ro.archive_lege_muncii.art_108.alin_4",
+    "source_id": "ro.archive_lege_muncii.art_108",
+    "target_id": "ro.archive_lege_muncii.art_108.alin_4",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_109.ro.archive_lege_muncii.art_109.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_109",
+    "target_id": "ro.archive_lege_muncii.art_109.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_109.ro.archive_lege_muncii.art_109.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_109",
+    "target_id": "ro.archive_lege_muncii.art_109.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_109.ro.archive_lege_muncii.art_109.alin_3",
+    "source_id": "ro.archive_lege_muncii.art_109",
+    "target_id": "ro.archive_lege_muncii.art_109.alin_3",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_109.ro.archive_lege_muncii.art_109.alin_4",
+    "source_id": "ro.archive_lege_muncii.art_109",
+    "target_id": "ro.archive_lege_muncii.art_109.alin_4",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_109.ro.archive_lege_muncii.art_109.alin_5",
+    "source_id": "ro.archive_lege_muncii.art_109",
+    "target_id": "ro.archive_lege_muncii.art_109.alin_5",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_11.ro.archive_lege_muncii.art_11.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_11",
+    "target_id": "ro.archive_lege_muncii.art_11.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_11.ro.archive_lege_muncii.art_11.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_11",
+    "target_id": "ro.archive_lege_muncii.art_11.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_11.ro.archive_lege_muncii.art_11.alin_3",
+    "source_id": "ro.archive_lege_muncii.art_11",
+    "target_id": "ro.archive_lege_muncii.art_11.alin_3",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_11.ro.archive_lege_muncii.art_11.alin_4",
+    "source_id": "ro.archive_lege_muncii.art_11",
+    "target_id": "ro.archive_lege_muncii.art_11.alin_4",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_111.ro.archive_lege_muncii.art_111.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_111",
+    "target_id": "ro.archive_lege_muncii.art_111.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_111.ro.archive_lege_muncii.art_111.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_111",
+    "target_id": "ro.archive_lege_muncii.art_111.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_112.ro.archive_lege_muncii.art_112.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_112",
+    "target_id": "ro.archive_lege_muncii.art_112.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_112.ro.archive_lege_muncii.art_112.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_112",
+    "target_id": "ro.archive_lege_muncii.art_112.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_113.ro.archive_lege_muncii.art_113.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_113",
+    "target_id": "ro.archive_lege_muncii.art_113.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_113.ro.archive_lege_muncii.art_113.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_113",
+    "target_id": "ro.archive_lege_muncii.art_113.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_114.ro.archive_lege_muncii.art_114.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_114",
+    "target_id": "ro.archive_lege_muncii.art_114.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_114.ro.archive_lege_muncii.art_114.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_114",
+    "target_id": "ro.archive_lege_muncii.art_114.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_114.ro.archive_lege_muncii.art_114.alin_3",
+    "source_id": "ro.archive_lege_muncii.art_114",
+    "target_id": "ro.archive_lege_muncii.art_114.alin_3",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_117.ro.archive_lege_muncii.art_117.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_117",
+    "target_id": "ro.archive_lege_muncii.art_117.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_117.ro.archive_lege_muncii.art_117.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_117",
+    "target_id": "ro.archive_lege_muncii.art_117.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_117.ro.archive_lege_muncii.art_117.alin_3",
+    "source_id": "ro.archive_lege_muncii.art_117",
+    "target_id": "ro.archive_lege_muncii.art_117.alin_3",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_118.alin_1.ro.archive_lege_muncii.art_118.alin_1.lit_a",
+    "source_id": "ro.archive_lege_muncii.art_118.alin_1",
+    "target_id": "ro.archive_lege_muncii.art_118.alin_1.lit_a",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_118.alin_1.ro.archive_lege_muncii.art_118.alin_1.lit_b",
+    "source_id": "ro.archive_lege_muncii.art_118.alin_1",
+    "target_id": "ro.archive_lege_muncii.art_118.alin_1.lit_b",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_118.alin_1.ro.archive_lege_muncii.art_118.alin_1.lit_c",
+    "source_id": "ro.archive_lege_muncii.art_118.alin_1",
+    "target_id": "ro.archive_lege_muncii.art_118.alin_1.lit_c",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_118.alin_1.ro.archive_lege_muncii.art_118.alin_1.lit_d",
+    "source_id": "ro.archive_lege_muncii.art_118.alin_1",
+    "target_id": "ro.archive_lege_muncii.art_118.alin_1.lit_d",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_118.ro.archive_lege_muncii.art_118.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_118",
+    "target_id": "ro.archive_lege_muncii.art_118.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_118.ro.archive_lege_muncii.art_118.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_118",
+    "target_id": "ro.archive_lege_muncii.art_118.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_120.ro.archive_lege_muncii.art_120.lit_a",
+    "source_id": "ro.archive_lege_muncii.art_120",
+    "target_id": "ro.archive_lege_muncii.art_120.lit_a",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_120.ro.archive_lege_muncii.art_120.lit_b",
+    "source_id": "ro.archive_lege_muncii.art_120",
+    "target_id": "ro.archive_lege_muncii.art_120.lit_b",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_124.ro.archive_lege_muncii.art_124.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_124",
+    "target_id": "ro.archive_lege_muncii.art_124.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_124.ro.archive_lege_muncii.art_124.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_124",
+    "target_id": "ro.archive_lege_muncii.art_124.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_124.ro.archive_lege_muncii.art_124.alin_3",
+    "source_id": "ro.archive_lege_muncii.art_124",
+    "target_id": "ro.archive_lege_muncii.art_124.alin_3",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_127.ro.archive_lege_muncii.art_127.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_127",
+    "target_id": "ro.archive_lege_muncii.art_127.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_127.ro.archive_lege_muncii.art_127.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_127",
+    "target_id": "ro.archive_lege_muncii.art_127.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_13.ro.archive_lege_muncii.art_13.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_13",
+    "target_id": "ro.archive_lege_muncii.art_13.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_13.ro.archive_lege_muncii.art_13.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_13",
+    "target_id": "ro.archive_lege_muncii.art_13.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_13.ro.archive_lege_muncii.art_13.alin_3",
+    "source_id": "ro.archive_lege_muncii.art_13",
+    "target_id": "ro.archive_lege_muncii.art_13.alin_3",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_130.alin_1.ro.archive_lege_muncii.art_130.alin_1.lit_a",
+    "source_id": "ro.archive_lege_muncii.art_130.alin_1",
+    "target_id": "ro.archive_lege_muncii.art_130.alin_1.lit_a",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_130.alin_1.ro.archive_lege_muncii.art_130.alin_1.lit_b",
+    "source_id": "ro.archive_lege_muncii.art_130.alin_1",
+    "target_id": "ro.archive_lege_muncii.art_130.alin_1.lit_b",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_130.alin_1.ro.archive_lege_muncii.art_130.alin_1.lit_c",
+    "source_id": "ro.archive_lege_muncii.art_130.alin_1",
+    "target_id": "ro.archive_lege_muncii.art_130.alin_1.lit_c",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_130.alin_1.ro.archive_lege_muncii.art_130.alin_1.lit_d",
+    "source_id": "ro.archive_lege_muncii.art_130.alin_1",
+    "target_id": "ro.archive_lege_muncii.art_130.alin_1.lit_d",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_130.alin_1.ro.archive_lege_muncii.art_130.alin_1.lit_e",
+    "source_id": "ro.archive_lege_muncii.art_130.alin_1",
+    "target_id": "ro.archive_lege_muncii.art_130.alin_1.lit_e",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_130.alin_1.ro.archive_lege_muncii.art_130.alin_1.lit_f",
+    "source_id": "ro.archive_lege_muncii.art_130.alin_1",
+    "target_id": "ro.archive_lege_muncii.art_130.alin_1.lit_f",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_130.alin_1.ro.archive_lege_muncii.art_130.alin_1.lit_g",
+    "source_id": "ro.archive_lege_muncii.art_130.alin_1",
+    "target_id": "ro.archive_lege_muncii.art_130.alin_1.lit_g",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_130.alin_1.ro.archive_lege_muncii.art_130.alin_1.lit_h",
+    "source_id": "ro.archive_lege_muncii.art_130.alin_1",
+    "target_id": "ro.archive_lege_muncii.art_130.alin_1.lit_h",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_130.alin_1.ro.archive_lege_muncii.art_130.alin_1.lit_i",
+    "source_id": "ro.archive_lege_muncii.art_130.alin_1",
+    "target_id": "ro.archive_lege_muncii.art_130.alin_1.lit_i",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_130.alin_1.ro.archive_lege_muncii.art_130.alin_1.lit_j",
+    "source_id": "ro.archive_lege_muncii.art_130.alin_1",
+    "target_id": "ro.archive_lege_muncii.art_130.alin_1.lit_j",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_130.alin_1.ro.archive_lege_muncii.art_130.alin_1.lit_k",
+    "source_id": "ro.archive_lege_muncii.art_130.alin_1",
+    "target_id": "ro.archive_lege_muncii.art_130.alin_1.lit_k",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_130.alin_1.ro.archive_lege_muncii.art_130.alin_1.lit_l",
+    "source_id": "ro.archive_lege_muncii.art_130.alin_1",
+    "target_id": "ro.archive_lege_muncii.art_130.alin_1.lit_l",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_130.alin_2.ro.archive_lege_muncii.art_130.alin_2.lit_a",
+    "source_id": "ro.archive_lege_muncii.art_130.alin_2",
+    "target_id": "ro.archive_lege_muncii.art_130.alin_2.lit_a",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_130.alin_2.ro.archive_lege_muncii.art_130.alin_2.lit_b",
+    "source_id": "ro.archive_lege_muncii.art_130.alin_2",
+    "target_id": "ro.archive_lege_muncii.art_130.alin_2.lit_b",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_130.ro.archive_lege_muncii.art_130.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_130",
+    "target_id": "ro.archive_lege_muncii.art_130.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_130.ro.archive_lege_muncii.art_130.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_130",
+    "target_id": "ro.archive_lege_muncii.art_130.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_131.ro.archive_lege_muncii.art_131.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_131",
+    "target_id": "ro.archive_lege_muncii.art_131.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_131.ro.archive_lege_muncii.art_131.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_131",
+    "target_id": "ro.archive_lege_muncii.art_131.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_132.ro.archive_lege_muncii.art_132.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_132",
+    "target_id": "ro.archive_lege_muncii.art_132.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_132.ro.archive_lege_muncii.art_132.alin_3",
+    "source_id": "ro.archive_lege_muncii.art_132",
+    "target_id": "ro.archive_lege_muncii.art_132.alin_3",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_133.ro.archive_lege_muncii.art_133.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_133",
+    "target_id": "ro.archive_lege_muncii.art_133.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_133.ro.archive_lege_muncii.art_133.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_133",
+    "target_id": "ro.archive_lege_muncii.art_133.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_134.ro.archive_lege_muncii.art_134.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_134",
+    "target_id": "ro.archive_lege_muncii.art_134.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_134.ro.archive_lege_muncii.art_134.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_134",
+    "target_id": "ro.archive_lege_muncii.art_134.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_136.ro.archive_lege_muncii.art_136.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_136",
+    "target_id": "ro.archive_lege_muncii.art_136.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_136.ro.archive_lege_muncii.art_136.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_136",
+    "target_id": "ro.archive_lege_muncii.art_136.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_136.ro.archive_lege_muncii.art_136.alin_3",
+    "source_id": "ro.archive_lege_muncii.art_136",
+    "target_id": "ro.archive_lege_muncii.art_136.alin_3",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_137.ro.archive_lege_muncii.art_137.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_137",
+    "target_id": "ro.archive_lege_muncii.art_137.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_137.ro.archive_lege_muncii.art_137.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_137",
+    "target_id": "ro.archive_lege_muncii.art_137.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_137.ro.archive_lege_muncii.art_137.alin_3",
+    "source_id": "ro.archive_lege_muncii.art_137",
+    "target_id": "ro.archive_lege_muncii.art_137.alin_3",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_138.ro.archive_lege_muncii.art_138.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_138",
+    "target_id": "ro.archive_lege_muncii.art_138.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_138.ro.archive_lege_muncii.art_138.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_138",
+    "target_id": "ro.archive_lege_muncii.art_138.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_139.ro.archive_lege_muncii.art_139.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_139",
+    "target_id": "ro.archive_lege_muncii.art_139.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_139.ro.archive_lege_muncii.art_139.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_139",
+    "target_id": "ro.archive_lege_muncii.art_139.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_140.ro.archive_lege_muncii.art_140.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_140",
+    "target_id": "ro.archive_lege_muncii.art_140.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_140.ro.archive_lege_muncii.art_140.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_140",
+    "target_id": "ro.archive_lege_muncii.art_140.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_141.ro.archive_lege_muncii.art_141.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_141",
+    "target_id": "ro.archive_lege_muncii.art_141.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_141.ro.archive_lege_muncii.art_141.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_141",
+    "target_id": "ro.archive_lege_muncii.art_141.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_142.ro.archive_lege_muncii.art_142.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_142",
+    "target_id": "ro.archive_lege_muncii.art_142.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_142.ro.archive_lege_muncii.art_142.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_142",
+    "target_id": "ro.archive_lege_muncii.art_142.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_143.ro.archive_lege_muncii.art_143.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_143",
+    "target_id": "ro.archive_lege_muncii.art_143.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_143.ro.archive_lege_muncii.art_143.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_143",
+    "target_id": "ro.archive_lege_muncii.art_143.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_143.ro.archive_lege_muncii.art_143.alin_3",
+    "source_id": "ro.archive_lege_muncii.art_143",
+    "target_id": "ro.archive_lege_muncii.art_143.alin_3",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_144.ro.archive_lege_muncii.art_144.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_144",
+    "target_id": "ro.archive_lege_muncii.art_144.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_144.ro.archive_lege_muncii.art_144.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_144",
+    "target_id": "ro.archive_lege_muncii.art_144.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_145.alin_1.ro.archive_lege_muncii.art_145.alin_1.lit_a",
+    "source_id": "ro.archive_lege_muncii.art_145.alin_1",
+    "target_id": "ro.archive_lege_muncii.art_145.alin_1.lit_a",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_145.alin_1.ro.archive_lege_muncii.art_145.alin_1.lit_b",
+    "source_id": "ro.archive_lege_muncii.art_145.alin_1",
+    "target_id": "ro.archive_lege_muncii.art_145.alin_1.lit_b",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_145.alin_1.ro.archive_lege_muncii.art_145.alin_1.lit_c",
+    "source_id": "ro.archive_lege_muncii.art_145.alin_1",
+    "target_id": "ro.archive_lege_muncii.art_145.alin_1.lit_c",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_145.alin_1.ro.archive_lege_muncii.art_145.alin_1.lit_d",
+    "source_id": "ro.archive_lege_muncii.art_145.alin_1",
+    "target_id": "ro.archive_lege_muncii.art_145.alin_1.lit_d",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_145.alin_1.ro.archive_lege_muncii.art_145.alin_1.lit_e",
+    "source_id": "ro.archive_lege_muncii.art_145.alin_1",
+    "target_id": "ro.archive_lege_muncii.art_145.alin_1.lit_e",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_145.alin_2.ro.archive_lege_muncii.art_145.alin_2.lit_a",
+    "source_id": "ro.archive_lege_muncii.art_145.alin_2",
+    "target_id": "ro.archive_lege_muncii.art_145.alin_2.lit_a",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_145.alin_2.ro.archive_lege_muncii.art_145.alin_2.lit_b",
+    "source_id": "ro.archive_lege_muncii.art_145.alin_2",
+    "target_id": "ro.archive_lege_muncii.art_145.alin_2.lit_b",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_145.alin_2.ro.archive_lege_muncii.art_145.alin_2.lit_c",
+    "source_id": "ro.archive_lege_muncii.art_145.alin_2",
+    "target_id": "ro.archive_lege_muncii.art_145.alin_2.lit_c",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_145.ro.archive_lege_muncii.art_145.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_145",
+    "target_id": "ro.archive_lege_muncii.art_145.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_145.ro.archive_lege_muncii.art_145.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_145",
+    "target_id": "ro.archive_lege_muncii.art_145.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_148.ro.archive_lege_muncii.art_148.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_148",
+    "target_id": "ro.archive_lege_muncii.art_148.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_148.ro.archive_lege_muncii.art_148.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_148",
+    "target_id": "ro.archive_lege_muncii.art_148.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_151.ro.archive_lege_muncii.art_151.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_151",
+    "target_id": "ro.archive_lege_muncii.art_151.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_151.ro.archive_lege_muncii.art_151.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_151",
+    "target_id": "ro.archive_lege_muncii.art_151.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_152.ro.archive_lege_muncii.art_152.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_152",
+    "target_id": "ro.archive_lege_muncii.art_152.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_152.ro.archive_lege_muncii.art_152.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_152",
+    "target_id": "ro.archive_lege_muncii.art_152.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_153.ro.archive_lege_muncii.art_153.lit_a",
+    "source_id": "ro.archive_lege_muncii.art_153",
+    "target_id": "ro.archive_lege_muncii.art_153.lit_a",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_153.ro.archive_lege_muncii.art_153.lit_b",
+    "source_id": "ro.archive_lege_muncii.art_153",
+    "target_id": "ro.archive_lege_muncii.art_153.lit_b",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_153.ro.archive_lege_muncii.art_153.lit_c",
+    "source_id": "ro.archive_lege_muncii.art_153",
+    "target_id": "ro.archive_lege_muncii.art_153.lit_c",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_153.ro.archive_lege_muncii.art_153.lit_d",
+    "source_id": "ro.archive_lege_muncii.art_153",
+    "target_id": "ro.archive_lege_muncii.art_153.lit_d",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_155.ro.archive_lege_muncii.art_155.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_155",
+    "target_id": "ro.archive_lege_muncii.art_155.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_155.ro.archive_lege_muncii.art_155.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_155",
+    "target_id": "ro.archive_lege_muncii.art_155.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_156.ro.archive_lege_muncii.art_156.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_156",
+    "target_id": "ro.archive_lege_muncii.art_156.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_156.ro.archive_lege_muncii.art_156.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_156",
+    "target_id": "ro.archive_lege_muncii.art_156.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_156.ro.archive_lege_muncii.art_156.alin_3",
+    "source_id": "ro.archive_lege_muncii.art_156",
+    "target_id": "ro.archive_lege_muncii.art_156.alin_3",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_159.ro.archive_lege_muncii.art_159.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_159",
+    "target_id": "ro.archive_lege_muncii.art_159.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_159.ro.archive_lege_muncii.art_159.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_159",
+    "target_id": "ro.archive_lege_muncii.art_159.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_159.ro.archive_lege_muncii.art_159.alin_3",
+    "source_id": "ro.archive_lege_muncii.art_159",
+    "target_id": "ro.archive_lege_muncii.art_159.alin_3",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_159.ro.archive_lege_muncii.art_159.alin_4",
+    "source_id": "ro.archive_lege_muncii.art_159",
+    "target_id": "ro.archive_lege_muncii.art_159.alin_4",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_159.ro.archive_lege_muncii.art_159.alin_5",
+    "source_id": "ro.archive_lege_muncii.art_159",
+    "target_id": "ro.archive_lege_muncii.art_159.alin_5",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_16.ro.archive_lege_muncii.art_16.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_16",
+    "target_id": "ro.archive_lege_muncii.art_16.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_16.ro.archive_lege_muncii.art_16.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_16",
+    "target_id": "ro.archive_lege_muncii.art_16.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_160.ro.archive_lege_muncii.art_160.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_160",
+    "target_id": "ro.archive_lege_muncii.art_160.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_160.ro.archive_lege_muncii.art_160.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_160",
+    "target_id": "ro.archive_lege_muncii.art_160.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_161.ro.archive_lege_muncii.art_161.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_161",
+    "target_id": "ro.archive_lege_muncii.art_161.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_161.ro.archive_lege_muncii.art_161.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_161",
+    "target_id": "ro.archive_lege_muncii.art_161.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_171.ro.archive_lege_muncii.art_171.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_171",
+    "target_id": "ro.archive_lege_muncii.art_171.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_171.ro.archive_lege_muncii.art_171.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_171",
+    "target_id": "ro.archive_lege_muncii.art_171.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_171.ro.archive_lege_muncii.art_171.alin_3",
+    "source_id": "ro.archive_lege_muncii.art_171",
+    "target_id": "ro.archive_lege_muncii.art_171.alin_3",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_172.ro.archive_lege_muncii.art_172.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_172",
+    "target_id": "ro.archive_lege_muncii.art_172.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_172.ro.archive_lege_muncii.art_172.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_172",
+    "target_id": "ro.archive_lege_muncii.art_172.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_172.ro.archive_lege_muncii.art_172.alin_3",
+    "source_id": "ro.archive_lege_muncii.art_172",
+    "target_id": "ro.archive_lege_muncii.art_172.alin_3",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_183.ro.archive_lege_muncii.art_183.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_183",
+    "target_id": "ro.archive_lege_muncii.art_183.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_183.ro.archive_lege_muncii.art_183.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_183",
+    "target_id": "ro.archive_lege_muncii.art_183.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_183.ro.archive_lege_muncii.art_183.alin_3",
+    "source_id": "ro.archive_lege_muncii.art_183",
+    "target_id": "ro.archive_lege_muncii.art_183.alin_3",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_19.ro.archive_lege_muncii.art_19.lit_a",
+    "source_id": "ro.archive_lege_muncii.art_19",
+    "target_id": "ro.archive_lege_muncii.art_19.lit_a",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_19.ro.archive_lege_muncii.art_19.lit_b",
+    "source_id": "ro.archive_lege_muncii.art_19",
+    "target_id": "ro.archive_lege_muncii.art_19.lit_b",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_19.ro.archive_lege_muncii.art_19.lit_c",
+    "source_id": "ro.archive_lege_muncii.art_19",
+    "target_id": "ro.archive_lege_muncii.art_19.lit_c",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_19.ro.archive_lege_muncii.art_19.lit_d",
+    "source_id": "ro.archive_lege_muncii.art_19",
+    "target_id": "ro.archive_lege_muncii.art_19.lit_d",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_19.ro.archive_lege_muncii.art_19.lit_e",
+    "source_id": "ro.archive_lege_muncii.art_19",
+    "target_id": "ro.archive_lege_muncii.art_19.lit_e",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_19.ro.archive_lege_muncii.art_19.lit_f",
+    "source_id": "ro.archive_lege_muncii.art_19",
+    "target_id": "ro.archive_lege_muncii.art_19.lit_f",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_19.ro.archive_lege_muncii.art_19.lit_g",
+    "source_id": "ro.archive_lege_muncii.art_19",
+    "target_id": "ro.archive_lege_muncii.art_19.lit_g",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_19.ro.archive_lege_muncii.art_19.lit_h",
+    "source_id": "ro.archive_lege_muncii.art_19",
+    "target_id": "ro.archive_lege_muncii.art_19.lit_h",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_19.ro.archive_lege_muncii.art_19.lit_i",
+    "source_id": "ro.archive_lege_muncii.art_19",
+    "target_id": "ro.archive_lege_muncii.art_19.lit_i",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_19.ro.archive_lege_muncii.art_19.lit_j",
+    "source_id": "ro.archive_lege_muncii.art_19",
+    "target_id": "ro.archive_lege_muncii.art_19.lit_j",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_19.ro.archive_lege_muncii.art_19.lit_k",
+    "source_id": "ro.archive_lege_muncii.art_19",
+    "target_id": "ro.archive_lege_muncii.art_19.lit_k",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_19.ro.archive_lege_muncii.art_19.lit_l",
+    "source_id": "ro.archive_lege_muncii.art_19",
+    "target_id": "ro.archive_lege_muncii.art_19.lit_l",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_20.alin_2.ro.archive_lege_muncii.art_20.alin_2.lit_a",
+    "source_id": "ro.archive_lege_muncii.art_20.alin_2",
+    "target_id": "ro.archive_lege_muncii.art_20.alin_2.lit_a",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_20.alin_2.ro.archive_lege_muncii.art_20.alin_2.lit_b",
+    "source_id": "ro.archive_lege_muncii.art_20.alin_2",
+    "target_id": "ro.archive_lege_muncii.art_20.alin_2.lit_b",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_20.alin_2.ro.archive_lege_muncii.art_20.alin_2.lit_c",
+    "source_id": "ro.archive_lege_muncii.art_20.alin_2",
+    "target_id": "ro.archive_lege_muncii.art_20.alin_2.lit_c",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_20.alin_2.ro.archive_lege_muncii.art_20.alin_2.lit_d",
+    "source_id": "ro.archive_lege_muncii.art_20.alin_2",
+    "target_id": "ro.archive_lege_muncii.art_20.alin_2.lit_d",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_20.alin_2.ro.archive_lege_muncii.art_20.alin_2.lit_e",
+    "source_id": "ro.archive_lege_muncii.art_20.alin_2",
+    "target_id": "ro.archive_lege_muncii.art_20.alin_2.lit_e",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_20.alin_2.ro.archive_lege_muncii.art_20.alin_2.lit_f",
+    "source_id": "ro.archive_lege_muncii.art_20.alin_2",
+    "target_id": "ro.archive_lege_muncii.art_20.alin_2.lit_f",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_20.alin_2.ro.archive_lege_muncii.art_20.alin_2.lit_g",
+    "source_id": "ro.archive_lege_muncii.art_20.alin_2",
+    "target_id": "ro.archive_lege_muncii.art_20.alin_2.lit_g",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_20.alin_2.ro.archive_lege_muncii.art_20.alin_2.lit_h",
+    "source_id": "ro.archive_lege_muncii.art_20.alin_2",
+    "target_id": "ro.archive_lege_muncii.art_20.alin_2.lit_h",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_20.alin_2.ro.archive_lege_muncii.art_20.alin_2.lit_i",
+    "source_id": "ro.archive_lege_muncii.art_20.alin_2",
+    "target_id": "ro.archive_lege_muncii.art_20.alin_2.lit_i",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_20.alin_2.ro.archive_lege_muncii.art_20.alin_2.lit_j",
+    "source_id": "ro.archive_lege_muncii.art_20.alin_2",
+    "target_id": "ro.archive_lege_muncii.art_20.alin_2.lit_j",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_20.ro.archive_lege_muncii.art_20.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_20",
+    "target_id": "ro.archive_lege_muncii.art_20.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_20.ro.archive_lege_muncii.art_20.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_20",
+    "target_id": "ro.archive_lege_muncii.art_20.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_20.ro.archive_lege_muncii.art_20.alin_3",
+    "source_id": "ro.archive_lege_muncii.art_20",
+    "target_id": "ro.archive_lege_muncii.art_20.alin_3",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_21.ro.archive_lege_muncii.art_21.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_21",
+    "target_id": "ro.archive_lege_muncii.art_21.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_21.ro.archive_lege_muncii.art_21.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_21",
+    "target_id": "ro.archive_lege_muncii.art_21.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_21.ro.archive_lege_muncii.art_21.alin_3",
+    "source_id": "ro.archive_lege_muncii.art_21",
+    "target_id": "ro.archive_lege_muncii.art_21.alin_3",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_22.ro.archive_lege_muncii.art_22.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_22",
+    "target_id": "ro.archive_lege_muncii.art_22.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_22.ro.archive_lege_muncii.art_22.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_22",
+    "target_id": "ro.archive_lege_muncii.art_22.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_23.ro.archive_lege_muncii.art_23.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_23",
+    "target_id": "ro.archive_lege_muncii.art_23.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_23.ro.archive_lege_muncii.art_23.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_23",
+    "target_id": "ro.archive_lege_muncii.art_23.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_26.ro.archive_lege_muncii.art_26.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_26",
+    "target_id": "ro.archive_lege_muncii.art_26.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_26.ro.archive_lege_muncii.art_26.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_26",
+    "target_id": "ro.archive_lege_muncii.art_26.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_30.ro.archive_lege_muncii.art_30.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_30",
+    "target_id": "ro.archive_lege_muncii.art_30.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_30.ro.archive_lege_muncii.art_30.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_30",
+    "target_id": "ro.archive_lege_muncii.art_30.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_30.ro.archive_lege_muncii.art_30.alin_3",
+    "source_id": "ro.archive_lege_muncii.art_30",
+    "target_id": "ro.archive_lege_muncii.art_30.alin_3",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_31.ro.archive_lege_muncii.art_31.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_31",
+    "target_id": "ro.archive_lege_muncii.art_31.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_31.ro.archive_lege_muncii.art_31.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_31",
+    "target_id": "ro.archive_lege_muncii.art_31.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_31.ro.archive_lege_muncii.art_31.alin_3",
+    "source_id": "ro.archive_lege_muncii.art_31",
+    "target_id": "ro.archive_lege_muncii.art_31.alin_3",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_32.ro.archive_lege_muncii.art_32.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_32",
+    "target_id": "ro.archive_lege_muncii.art_32.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_32.ro.archive_lege_muncii.art_32.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_32",
+    "target_id": "ro.archive_lege_muncii.art_32.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_32.ro.archive_lege_muncii.art_32.alin_3",
+    "source_id": "ro.archive_lege_muncii.art_32",
+    "target_id": "ro.archive_lege_muncii.art_32.alin_3",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_33.ro.archive_lege_muncii.art_33.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_33",
+    "target_id": "ro.archive_lege_muncii.art_33.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_33.ro.archive_lege_muncii.art_33.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_33",
+    "target_id": "ro.archive_lege_muncii.art_33.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_34.ro.archive_lege_muncii.art_34.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_34",
+    "target_id": "ro.archive_lege_muncii.art_34.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_34.ro.archive_lege_muncii.art_34.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_34",
+    "target_id": "ro.archive_lege_muncii.art_34.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_35.ro.archive_lege_muncii.art_35.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_35",
+    "target_id": "ro.archive_lege_muncii.art_35.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_35.ro.archive_lege_muncii.art_35.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_35",
+    "target_id": "ro.archive_lege_muncii.art_35.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_36.ro.archive_lege_muncii.art_36.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_36",
+    "target_id": "ro.archive_lege_muncii.art_36.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_36.ro.archive_lege_muncii.art_36.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_36",
+    "target_id": "ro.archive_lege_muncii.art_36.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_36.ro.archive_lege_muncii.art_36.alin_3",
+    "source_id": "ro.archive_lege_muncii.art_36",
+    "target_id": "ro.archive_lege_muncii.art_36.alin_3",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_38.ro.archive_lege_muncii.art_38.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_38",
+    "target_id": "ro.archive_lege_muncii.art_38.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_38.ro.archive_lege_muncii.art_38.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_38",
+    "target_id": "ro.archive_lege_muncii.art_38.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_40.ro.archive_lege_muncii.art_40.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_40",
+    "target_id": "ro.archive_lege_muncii.art_40.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_40.ro.archive_lege_muncii.art_40.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_40",
+    "target_id": "ro.archive_lege_muncii.art_40.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_40.ro.archive_lege_muncii.art_40.alin_3",
+    "source_id": "ro.archive_lege_muncii.art_40",
+    "target_id": "ro.archive_lege_muncii.art_40.alin_3",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_46.ro.archive_lege_muncii.art_46.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_46",
+    "target_id": "ro.archive_lege_muncii.art_46.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_46.ro.archive_lege_muncii.art_46.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_46",
+    "target_id": "ro.archive_lege_muncii.art_46.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_47.ro.archive_lege_muncii.art_47.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_47",
+    "target_id": "ro.archive_lege_muncii.art_47.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_47.ro.archive_lege_muncii.art_47.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_47",
+    "target_id": "ro.archive_lege_muncii.art_47.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_49.ro.archive_lege_muncii.art_49.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_49",
+    "target_id": "ro.archive_lege_muncii.art_49.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_49.ro.archive_lege_muncii.art_49.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_49",
+    "target_id": "ro.archive_lege_muncii.art_49.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_5.ro.archive_lege_muncii.art_5.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_5",
+    "target_id": "ro.archive_lege_muncii.art_5.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_5.ro.archive_lege_muncii.art_5.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_5",
+    "target_id": "ro.archive_lege_muncii.art_5.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_51.ro.archive_lege_muncii.art_51.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_51",
+    "target_id": "ro.archive_lege_muncii.art_51.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_51.ro.archive_lege_muncii.art_51.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_51",
+    "target_id": "ro.archive_lege_muncii.art_51.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_54.ro.archive_lege_muncii.art_54.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_54",
+    "target_id": "ro.archive_lege_muncii.art_54.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_54.ro.archive_lege_muncii.art_54.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_54",
+    "target_id": "ro.archive_lege_muncii.art_54.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_56.ro.archive_lege_muncii.art_56.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_56",
+    "target_id": "ro.archive_lege_muncii.art_56.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_56.ro.archive_lege_muncii.art_56.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_56",
+    "target_id": "ro.archive_lege_muncii.art_56.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_58.ro.archive_lege_muncii.art_58.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_58",
+    "target_id": "ro.archive_lege_muncii.art_58.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_58.ro.archive_lege_muncii.art_58.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_58",
+    "target_id": "ro.archive_lege_muncii.art_58.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_59.ro.archive_lege_muncii.art_59.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_59",
+    "target_id": "ro.archive_lege_muncii.art_59.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_59.ro.archive_lege_muncii.art_59.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_59",
+    "target_id": "ro.archive_lege_muncii.art_59.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_61.ro.archive_lege_muncii.art_61.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_61",
+    "target_id": "ro.archive_lege_muncii.art_61.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_61.ro.archive_lege_muncii.art_61.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_61",
+    "target_id": "ro.archive_lege_muncii.art_61.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_62.ro.archive_lege_muncii.art_62.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_62",
+    "target_id": "ro.archive_lege_muncii.art_62.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_62.ro.archive_lege_muncii.art_62.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_62",
+    "target_id": "ro.archive_lege_muncii.art_62.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_63.ro.archive_lege_muncii.art_63.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_63",
+    "target_id": "ro.archive_lege_muncii.art_63.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_64.alin_1.ro.archive_lege_muncii.art_64.alin_1.lit_a",
+    "source_id": "ro.archive_lege_muncii.art_64.alin_1",
+    "target_id": "ro.archive_lege_muncii.art_64.alin_1.lit_a",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_64.alin_1.ro.archive_lege_muncii.art_64.alin_1.lit_b",
+    "source_id": "ro.archive_lege_muncii.art_64.alin_1",
+    "target_id": "ro.archive_lege_muncii.art_64.alin_1.lit_b",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_64.ro.archive_lege_muncii.art_64.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_64",
+    "target_id": "ro.archive_lege_muncii.art_64.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_64.ro.archive_lege_muncii.art_64.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_64",
+    "target_id": "ro.archive_lege_muncii.art_64.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_66.ro.archive_lege_muncii.art_66.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_66",
+    "target_id": "ro.archive_lege_muncii.art_66.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_66.ro.archive_lege_muncii.art_66.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_66",
+    "target_id": "ro.archive_lege_muncii.art_66.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_66.ro.archive_lege_muncii.art_66.alin_3",
+    "source_id": "ro.archive_lege_muncii.art_66",
+    "target_id": "ro.archive_lege_muncii.art_66.alin_3",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_67.ro.archive_lege_muncii.art_67.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_67",
+    "target_id": "ro.archive_lege_muncii.art_67.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_67.ro.archive_lege_muncii.art_67.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_67",
+    "target_id": "ro.archive_lege_muncii.art_67.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_70.ro.archive_lege_muncii.art_70.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_70",
+    "target_id": "ro.archive_lege_muncii.art_70.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_70.ro.archive_lege_muncii.art_70.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_70",
+    "target_id": "ro.archive_lege_muncii.art_70.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_72.ro.archive_lege_muncii.art_72.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_72",
+    "target_id": "ro.archive_lege_muncii.art_72.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_72.ro.archive_lege_muncii.art_72.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_72",
+    "target_id": "ro.archive_lege_muncii.art_72.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_75.ro.archive_lege_muncii.art_75.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_75",
+    "target_id": "ro.archive_lege_muncii.art_75.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_75.ro.archive_lege_muncii.art_75.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_75",
+    "target_id": "ro.archive_lege_muncii.art_75.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_8.ro.archive_lege_muncii.art_8.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_8",
+    "target_id": "ro.archive_lege_muncii.art_8.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_8.ro.archive_lege_muncii.art_8.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_8",
+    "target_id": "ro.archive_lege_muncii.art_8.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_81.ro.archive_lege_muncii.art_81.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_81",
+    "target_id": "ro.archive_lege_muncii.art_81.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_81.ro.archive_lege_muncii.art_81.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_81",
+    "target_id": "ro.archive_lege_muncii.art_81.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_82.ro.archive_lege_muncii.art_82.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_82",
+    "target_id": "ro.archive_lege_muncii.art_82.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_82.ro.archive_lege_muncii.art_82.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_82",
+    "target_id": "ro.archive_lege_muncii.art_82.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_84.ro.archive_lege_muncii.art_84.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_84",
+    "target_id": "ro.archive_lege_muncii.art_84.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_84.ro.archive_lege_muncii.art_84.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_84",
+    "target_id": "ro.archive_lege_muncii.art_84.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_85.ro.archive_lege_muncii.art_85.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_85",
+    "target_id": "ro.archive_lege_muncii.art_85.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_85.ro.archive_lege_muncii.art_85.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_85",
+    "target_id": "ro.archive_lege_muncii.art_85.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_87.ro.archive_lege_muncii.art_87.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_87",
+    "target_id": "ro.archive_lege_muncii.art_87.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_87.ro.archive_lege_muncii.art_87.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_87",
+    "target_id": "ro.archive_lege_muncii.art_87.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_87.ro.archive_lege_muncii.art_87.alin_3",
+    "source_id": "ro.archive_lege_muncii.art_87",
+    "target_id": "ro.archive_lege_muncii.art_87.alin_3",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_9.ro.archive_lege_muncii.art_9.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_9",
+    "target_id": "ro.archive_lege_muncii.art_9.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_9.ro.archive_lege_muncii.art_9.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_9",
+    "target_id": "ro.archive_lege_muncii.art_9.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_9.ro.archive_lege_muncii.art_9.alin_3",
+    "source_id": "ro.archive_lege_muncii.art_9",
+    "target_id": "ro.archive_lege_muncii.art_9.alin_3",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_9.ro.archive_lege_muncii.art_9.alin_4",
+    "source_id": "ro.archive_lege_muncii.art_9",
+    "target_id": "ro.archive_lege_muncii.art_9.alin_4",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_9.ro.archive_lege_muncii.art_9.alin_5",
+    "source_id": "ro.archive_lege_muncii.art_9",
+    "target_id": "ro.archive_lege_muncii.art_9.alin_5",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_9.ro.archive_lege_muncii.art_9.alin_6",
+    "source_id": "ro.archive_lege_muncii.art_9",
+    "target_id": "ro.archive_lege_muncii.art_9.alin_6",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_91.ro.archive_lege_muncii.art_91.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_91",
+    "target_id": "ro.archive_lege_muncii.art_91.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_91.ro.archive_lege_muncii.art_91.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_91",
+    "target_id": "ro.archive_lege_muncii.art_91.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_93.ro.archive_lege_muncii.art_93.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_93",
+    "target_id": "ro.archive_lege_muncii.art_93.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_93.ro.archive_lege_muncii.art_93.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_93",
+    "target_id": "ro.archive_lege_muncii.art_93.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_94.ro.archive_lege_muncii.art_94.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_94",
+    "target_id": "ro.archive_lege_muncii.art_94.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_94.ro.archive_lege_muncii.art_94.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_94",
+    "target_id": "ro.archive_lege_muncii.art_94.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_98.ro.archive_lege_muncii.art_98.alin_1",
+    "source_id": "ro.archive_lege_muncii.art_98",
+    "target_id": "ro.archive_lege_muncii.art_98.alin_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_98.ro.archive_lege_muncii.art_98.alin_2",
+    "source_id": "ro.archive_lege_muncii.art_98",
+    "target_id": "ro.archive_lege_muncii.art_98.alin_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_99.ro.archive_lege_muncii.art_99.lit_a",
+    "source_id": "ro.archive_lege_muncii.art_99",
+    "target_id": "ro.archive_lege_muncii.art_99.lit_a",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_99.ro.archive_lege_muncii.art_99.lit_b",
+    "source_id": "ro.archive_lege_muncii.art_99",
+    "target_id": "ro.archive_lege_muncii.art_99.lit_b",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_99.ro.archive_lege_muncii.art_99.lit_c",
+    "source_id": "ro.archive_lege_muncii.art_99",
+    "target_id": "ro.archive_lege_muncii.art_99.lit_c",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.art_99.ro.archive_lege_muncii.art_99.lit_d",
+    "source_id": "ro.archive_lege_muncii.art_99",
+    "target_id": "ro.archive_lege_muncii.art_99.lit_d",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_1",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_1",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_10",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_10",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_100",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_100",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_101",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_101",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_102",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_102",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_103",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_103",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_104",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_104",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_105",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_105",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_106",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_106",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_107",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_107",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_108",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_108",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_109",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_109",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_11",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_11",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_110",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_110",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_111",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_111",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_112",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_112",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_113",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_113",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_114",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_114",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_115",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_115",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_116",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_116",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_117",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_117",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_118",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_118",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_119",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_119",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_12",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_12",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_120",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_120",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_121",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_121",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_122",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_122",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_123",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_123",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_124",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_124",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_125",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_125",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_127",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_127",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_128",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_128",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_129",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_129",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_13",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_13",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_130",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_130",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_131",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_131",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_132",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_132",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_133",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_133",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_134",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_134",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_135",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_135",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_136",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_136",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_137",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_137",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_138",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_138",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_139",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_139",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_14",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_14",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_140",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_140",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_141",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_141",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_142",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_142",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_143",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_143",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_144",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_144",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_145",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_145",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_146",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_146",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_147",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_147",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_148",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_148",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_149",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_149",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_15",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_15",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_150",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_150",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_151",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_151",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_152",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_152",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_153",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_153",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_154",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_154",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_155",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_155",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_156",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_156",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_157",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_157",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_158",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_158",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_159",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_159",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_16",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_16",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_160",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_160",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_161",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_161",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_162",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_162",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_163",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_163",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_164",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_164",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_165",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_165",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_17",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_17",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_171",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_171",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_172",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_172",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_173",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_173",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_174",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_174",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_18",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_18",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_180",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_180",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_181",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_181",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_183",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_183",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_184",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_184",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_185",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_185",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_186",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_186",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_187",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_187",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_188",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_188",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_189",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_189",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_19",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_19",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_190",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_190",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_191",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_191",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_2",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_2",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_20",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_20",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_21",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_21",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_22",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_22",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_23",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_23",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_24",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_24",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_25",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_25",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_26",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_26",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_27",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_27",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_28",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_28",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_29",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_29",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_3",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_3",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_30",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_30",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_31",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_31",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_32",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_32",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_33",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_33",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_34",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_34",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_35",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_35",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_36",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_36",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_37",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_37",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_38",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_38",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_39",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_39",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_4",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_4",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_40",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_40",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_41",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_41",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_42",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_42",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_43",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_43",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_44",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_44",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_45",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_45",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_46",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_46",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_47",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_47",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_48",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_48",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_49",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_49",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_5",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_5",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_50",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_50",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_51",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_51",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_52",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_52",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_53",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_53",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_54",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_54",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_55",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_55",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_56",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_56",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_57",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_57",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_58",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_58",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_59",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_59",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_6",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_6",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_60",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_60",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_61",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_61",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_62",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_62",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_63",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_63",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_64",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_64",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_65",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_65",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_66",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_66",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_67",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_67",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_68",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_68",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_69",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_69",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_7",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_7",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_70",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_70",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_71",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_71",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_72",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_72",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_73",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_73",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_74",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_74",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_75",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_75",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_76",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_76",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_8",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_8",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_81",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_81",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_82",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_82",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_83",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_83",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_84",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_84",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_85",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_85",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_86",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_86",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_87",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_87",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_88",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_88",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_89",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_89",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_9",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_9",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_90",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_90",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_91",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_91",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_92",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_92",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_93",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_93",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_94",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_94",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_95",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_95",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_96",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_96",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_97",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_97",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_98",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_98",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  },
+  {
+    "id": "edge.contains.ro.archive_lege_muncii.ro.archive_lege_muncii.art_99",
+    "source_id": "ro.archive_lege_muncii",
+    "target_id": "ro.archive_lege_muncii.art_99",
+    "type": "contains",
+    "weight": 1.0,
+    "confidence": 1.0,
+    "metadata": {
+      "source": "canonical_bundle_export",
+      "parser_version": "0.1.0"
+    }
+  }
+]

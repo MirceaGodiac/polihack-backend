@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.0.0",
+  "parser_version": "0.1.0",
+  "generated_at": "2026-04-26T09:04:24.697102+00:00",
+  "source_count": 1,
+  "units_count": 4782,
+  "edges_count": 4781,
+  "chunks_count": 4782,
+  "embeddings_input_count": 4782,
+  "reference_candidates_count": 3303,
+  "contextual_retrieval_enabled": true,
+  "context_generation_method": "deterministic_v1",
+  "input_files": [
+    "https://legislatie.just.ro/Public/DetaliiDocument/252054"
+  ],
+  "sources": [
+    {
+      "law_id": "ro.archive_lege_fiscale",
+      "law_title": "COD FISCAL (A) 08/09/2015",
+      "source_type": "url:legislatie.just.ro",
+      "source_url": "https://legislatie.just.ro/Public/DetaliiDocument/252054",
+      "source_id": null
+    }
+  ],
+  "files": {
+    "legal_units": "legal_units.json",
+    "legal_edges": "legal_edges.json",
+    "legal_chunks": "legal_chunks.json",
+    "embeddings_input": "embeddings_input.jsonl",
+    "corpus_manifest": "corpus_manifest.json",
+    "validation_report": "validation_report.json",
+    "reference_candidates": "reference_candidates.json"
+  },
+  "content_hash": "fb8cb683f3b62a59869a0fbf16f1eccf3176a586344c58b167bed8b2a6f0c99f",
+  "bundle_hash": "1ce1707e8e0651b1a61c7d90813c83fa88e2edf5c5a88678bc258af9cb9d95d5",
+  "warnings": [
+    "contextual_retrieval_context_derived_not_citable",
+    "embeddings_vectors_not_generated_in_p8",
+    "html_cleaner:removed_navigation_blocks",
+    "law_title_inferred_from_html_title",
+    "legal_concepts_empty_for_most_units_by_v1_policy",
+    "legal_domain_unknown",
+    "publication_date_unknown",
+    "reference_candidates_extracted_unresolved",
+    "reference_candidates_used_as_unresolved_context_hints",
+    "reference_resolution_deferred_to_later_phase",
+    "reference_resolution_rate_informational_in_v1",
+    "source_id_unknown",
+    "status_unknown",
+    "unknown_fields_left_null_by_policy"
+  ]
+}

@@ -1,0 +1,2093 @@
+[
+  {
+    "source_unit_id": "ro.archive_lege_muncii",
+    "raw_reference": "CODUL MUNCII",
+    "reference_type": "code",
+    "target_law_hint": "ro.codul_muncii",
+    "target_article": null,
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "code_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_1",
+    "raw_reference": "Legea nr. 130/1996",
+    "reference_type": "law",
+    "target_law_hint": "ro.lege_130_1996",
+    "target_article": null,
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "act_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_1.alin_1",
+    "raw_reference": "art. 150 alin. 1",
+    "reference_type": "compound",
+    "target_law_hint": "same_act",
+    "target_article": "150",
+    "target_paragraph": "1",
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "compound_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_1.alin_2",
+    "raw_reference": "art. 122",
+    "reference_type": "article",
+    "target_law_hint": "same_act",
+    "target_article": "122",
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "article_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_1.alin_2",
+    "raw_reference": "art. 18 alin. 1 lit. k)",
+    "reference_type": "compound",
+    "target_law_hint": "same_act",
+    "target_article": "18",
+    "target_paragraph": "1",
+    "target_letter": "k",
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "compound_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_10",
+    "raw_reference": "art. 1 pct. 4",
+    "reference_type": "compound",
+    "target_law_hint": "same_act",
+    "target_article": "1",
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": "4",
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "compound_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_11",
+    "raw_reference": "Legea nr. 54/1991",
+    "reference_type": "law",
+    "target_law_hint": "ro.lege_54_1991",
+    "target_article": null,
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "act_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_111.alin_2",
+    "raw_reference": "art. 102",
+    "reference_type": "article",
+    "target_law_hint": "same_act",
+    "target_article": "102",
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "article_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_112.alin_2",
+    "raw_reference": "art. 10 alin. 1",
+    "reference_type": "compound",
+    "target_law_hint": "same_act",
+    "target_article": "10",
+    "target_paragraph": "1",
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "compound_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_112.alin_2",
+    "raw_reference": "art. 10 alin. 2)",
+    "reference_type": "compound",
+    "target_law_hint": "same_act",
+    "target_article": "10",
+    "target_paragraph": "2",
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "compound_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_113.alin_2",
+    "raw_reference": "Legea nr. 31/1991",
+    "reference_type": "law",
+    "target_law_hint": "ro.lege_31_1991",
+    "target_article": null,
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "act_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_114.alin_3",
+    "raw_reference": "art. 113",
+    "reference_type": "article",
+    "target_law_hint": "same_act",
+    "target_article": "113",
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "article_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_114.alin_3",
+    "raw_reference": "art. 40 alin. 1",
+    "reference_type": "compound",
+    "target_law_hint": "same_act",
+    "target_article": "40",
+    "target_paragraph": "1",
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "compound_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_117.alin_1",
+    "raw_reference": "art. 54",
+    "reference_type": "article",
+    "target_law_hint": "same_act",
+    "target_article": "54",
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "article_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_124.alin_3",
+    "raw_reference": "Legea nr. 75/1996",
+    "reference_type": "law",
+    "target_law_hint": "ro.lege_75_1996",
+    "target_article": null,
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "act_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_124.alin_3",
+    "raw_reference": "art. 1",
+    "reference_type": "article",
+    "target_law_hint": "same_act",
+    "target_article": "1",
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "article_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_124.alin_3",
+    "raw_reference": "art. 3",
+    "reference_type": "article",
+    "target_law_hint": "same_act",
+    "target_article": "3",
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "article_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_124.alin_3",
+    "raw_reference": "art. 4",
+    "reference_type": "article",
+    "target_law_hint": "same_act",
+    "target_article": "4",
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "article_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_124.alin_3",
+    "raw_reference": "art. 5",
+    "reference_type": "article",
+    "target_law_hint": "same_act",
+    "target_article": "5",
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "article_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_124.alin_3",
+    "raw_reference": "art. 52",
+    "reference_type": "article",
+    "target_law_hint": "same_act",
+    "target_article": "52",
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "article_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_124.alin_3",
+    "raw_reference": "art. 53",
+    "reference_type": "article",
+    "target_law_hint": "same_act",
+    "target_article": "53",
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "article_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_125",
+    "raw_reference": "Legea nr. 6/1992",
+    "reference_type": "law",
+    "target_law_hint": "ro.lege_6_1992",
+    "target_article": null,
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "act_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_127.alin_2",
+    "raw_reference": "Legea nr. 6/1992",
+    "reference_type": "law",
+    "target_law_hint": "ro.lege_6_1992",
+    "target_article": null,
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "act_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_13",
+    "raw_reference": "art. 3",
+    "reference_type": "article",
+    "target_law_hint": "same_act",
+    "target_article": "3",
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "article_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_13.alin_1",
+    "raw_reference": "art. 1 pct. 5",
+    "reference_type": "compound",
+    "target_law_hint": "same_act",
+    "target_article": "1",
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": "5",
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "compound_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_13.alin_2",
+    "raw_reference": "Alin. 2",
+    "reference_type": "paragraph",
+    "target_law_hint": "same_act",
+    "target_article": null,
+    "target_paragraph": "2",
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "unresolved_needs_context",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "paragraph_reference_without_article"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_130.alin_2",
+    "raw_reference": "Codul muncii",
+    "reference_type": "code",
+    "target_law_hint": "ro.codul_muncii",
+    "target_article": null,
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "code_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_130.alin_2",
+    "raw_reference": "Legea nr. 1/1999",
+    "reference_type": "law",
+    "target_law_hint": "ro.lege_1_1999",
+    "target_article": null,
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "act_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_130.alin_2",
+    "raw_reference": "Legea nr. 312/2001",
+    "reference_type": "law",
+    "target_law_hint": "ro.lege_312_2001",
+    "target_article": null,
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "act_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_130.alin_2",
+    "raw_reference": "art. 130 alin. 1",
+    "reference_type": "compound",
+    "target_law_hint": "ro.codul_muncii",
+    "target_article": "130",
+    "target_paragraph": "1",
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "compound_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_130.alin_2.lit_b",
+    "raw_reference": "art. 74 alin. 1)",
+    "reference_type": "compound",
+    "target_law_hint": "same_act",
+    "target_article": "74",
+    "target_paragraph": "1",
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "compound_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_131.alin_1",
+    "raw_reference": "art. 130 alin. 1",
+    "reference_type": "compound",
+    "target_law_hint": "same_act",
+    "target_article": "130",
+    "target_paragraph": "1",
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "compound_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_131.alin_2",
+    "raw_reference": "Codul muncii",
+    "reference_type": "code",
+    "target_law_hint": "ro.codul_muncii",
+    "target_article": null,
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "code_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_131.alin_2",
+    "raw_reference": "art. 74 alin. 2)",
+    "reference_type": "compound",
+    "target_law_hint": "same_act",
+    "target_article": "74",
+    "target_paragraph": "2",
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "compound_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_131.alin_2",
+    "raw_reference": "art. 74 alin. 3",
+    "reference_type": "compound",
+    "target_law_hint": "same_act",
+    "target_article": "74",
+    "target_paragraph": "3",
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "compound_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_131.alin_2",
+    "raw_reference": "art. 74 alin. 4",
+    "reference_type": "compound",
+    "target_law_hint": "same_act",
+    "target_article": "74",
+    "target_paragraph": "4",
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "compound_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_132.alin_3",
+    "raw_reference": "Legea nr. 104/1992",
+    "reference_type": "law",
+    "target_law_hint": "ro.lege_104_1992",
+    "target_article": null,
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "act_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_132.alin_3",
+    "raw_reference": "art. 132 alin. 1",
+    "reference_type": "compound",
+    "target_law_hint": "same_act",
+    "target_article": "132",
+    "target_paragraph": "1",
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "compound_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_133.alin_1",
+    "raw_reference": "art. 130 alin. 1",
+    "reference_type": "compound",
+    "target_law_hint": "same_act",
+    "target_article": "130",
+    "target_paragraph": "1",
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "compound_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_133.alin_2",
+    "raw_reference": "art. 46 alin. 3)",
+    "reference_type": "compound",
+    "target_law_hint": "same_act",
+    "target_article": "46",
+    "target_paragraph": "3",
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "compound_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_134.alin_2",
+    "raw_reference": "art. 134 alin. (2)",
+    "reference_type": "compound",
+    "target_law_hint": "same_act",
+    "target_article": "134",
+    "target_paragraph": "2",
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "compound_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_136.alin_3",
+    "raw_reference": "Codul muncii",
+    "reference_type": "code",
+    "target_law_hint": "ro.codul_muncii",
+    "target_article": null,
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "code_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_136.alin_3",
+    "raw_reference": "art. 111 alin. 1",
+    "reference_type": "compound",
+    "target_law_hint": "ro.codul_muncii",
+    "target_article": "111",
+    "target_paragraph": "1",
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "compound_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_136.alin_3",
+    "raw_reference": "art. 134 alin. 1",
+    "reference_type": "compound",
+    "target_law_hint": "same_act",
+    "target_article": "134",
+    "target_paragraph": "1",
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "compound_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_136.alin_3",
+    "raw_reference": "art. 136 alin. 2",
+    "reference_type": "compound",
+    "target_law_hint": "same_act",
+    "target_article": "136",
+    "target_paragraph": "2",
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "compound_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_136.alin_3",
+    "raw_reference": "art. 16 alin. 1",
+    "reference_type": "compound",
+    "target_law_hint": "same_act",
+    "target_article": "16",
+    "target_paragraph": "1",
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "compound_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_136.alin_3",
+    "raw_reference": "art. 38 alin. 1",
+    "reference_type": "compound",
+    "target_law_hint": "same_act",
+    "target_article": "38",
+    "target_paragraph": "1",
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "compound_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_137.alin_3",
+    "raw_reference": "Legea nr. 1/1991",
+    "reference_type": "law",
+    "target_law_hint": "ro.lege_1_1991",
+    "target_article": null,
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "act_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_137.alin_3",
+    "raw_reference": "Legea nr. 19/2000",
+    "reference_type": "law",
+    "target_law_hint": "ro.lege_19_2000",
+    "target_article": null,
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "act_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_137.alin_3",
+    "raw_reference": "Legea nr. 3/1977",
+    "reference_type": "law",
+    "target_law_hint": "ro.lege_3_1977",
+    "target_article": null,
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "act_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_137.alin_3",
+    "raw_reference": "Legea nr. 44/1994",
+    "reference_type": "law",
+    "target_law_hint": "ro.lege_44_1994",
+    "target_article": null,
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "act_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_145.alin_2.lit_c",
+    "raw_reference": "Legea nr. 145/1997",
+    "reference_type": "law",
+    "target_law_hint": "ro.lege_145_1997",
+    "target_article": null,
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "act_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_145.alin_2.lit_c",
+    "raw_reference": "Legea nr. 19/2000",
+    "reference_type": "law",
+    "target_law_hint": "ro.lege_19_2000",
+    "target_article": null,
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "act_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_146",
+    "raw_reference": "art. 130 alin. 1",
+    "reference_type": "compound",
+    "target_law_hint": "same_act",
+    "target_article": "130",
+    "target_paragraph": "1",
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "compound_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_15",
+    "raw_reference": "Codul muncii",
+    "reference_type": "code",
+    "target_law_hint": "ro.codul_muncii",
+    "target_article": null,
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "code_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_15",
+    "raw_reference": "art. 184",
+    "reference_type": "article",
+    "target_law_hint": "ro.codul_muncii",
+    "target_article": "184",
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "article_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_150",
+    "raw_reference": "Legea nr. 19/2000",
+    "reference_type": "law",
+    "target_law_hint": "ro.lege_19_2000",
+    "target_article": null,
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "act_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_155.alin_2",
+    "raw_reference": "Legea nr. 19/2000",
+    "reference_type": "law",
+    "target_law_hint": "ro.lege_19_2000",
+    "target_article": null,
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "act_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_159.alin_5",
+    "raw_reference": "Codul muncii",
+    "reference_type": "code",
+    "target_law_hint": "ro.codul_muncii",
+    "target_article": null,
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "code_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_159.alin_5",
+    "raw_reference": "Legea nr. 854/1995",
+    "reference_type": "law",
+    "target_law_hint": "ro.lege_854_1995",
+    "target_article": null,
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "act_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_159.alin_5",
+    "raw_reference": "art. 159 alin. 4",
+    "reference_type": "compound",
+    "target_law_hint": "ro.codul_muncii",
+    "target_article": "159",
+    "target_paragraph": "4",
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "compound_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_159.alin_5",
+    "raw_reference": "art. 4 alin. 1 lit. g)",
+    "reference_type": "compound",
+    "target_law_hint": "ro.codul_muncii",
+    "target_article": "4",
+    "target_paragraph": "1",
+    "target_letter": "g",
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "compound_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_161.alin_2",
+    "raw_reference": "art. 112 alin. 2",
+    "reference_type": "compound",
+    "target_law_hint": "same_act",
+    "target_article": "112",
+    "target_paragraph": "2",
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "compound_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_161.alin_2",
+    "raw_reference": "art. 118",
+    "reference_type": "article",
+    "target_law_hint": "same_act",
+    "target_article": "118",
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "article_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_163",
+    "raw_reference": "Legea nr. 6/1992",
+    "reference_type": "law",
+    "target_law_hint": "ro.lege_6_1992",
+    "target_article": null,
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "act_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_164",
+    "raw_reference": "Art. 164",
+    "reference_type": "article",
+    "target_law_hint": "same_act",
+    "target_article": "164",
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "article_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_164",
+    "raw_reference": "art. 9",
+    "reference_type": "article",
+    "target_law_hint": "same_act",
+    "target_article": "9",
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "article_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_164",
+    "raw_reference": "pct. 6",
+    "reference_type": "point",
+    "target_law_hint": "same_act",
+    "target_article": null,
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": "6",
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "unresolved_needs_context",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "point_reference_without_article"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_171.alin_3",
+    "raw_reference": "Art. 171 alin. 3",
+    "reference_type": "compound",
+    "target_law_hint": "same_act",
+    "target_article": "171",
+    "target_paragraph": "3",
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "compound_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_172.alin_3",
+    "raw_reference": "Alin. 3",
+    "reference_type": "paragraph",
+    "target_law_hint": "ro.lege_104_1992",
+    "target_article": null,
+    "target_paragraph": "3",
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "unresolved_needs_context",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "paragraph_reference_without_article"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_172.alin_3",
+    "raw_reference": "Legea nr. 104/1992",
+    "reference_type": "law",
+    "target_law_hint": "ro.lege_104_1992",
+    "target_article": null,
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "act_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_172.alin_3",
+    "raw_reference": "art. 172",
+    "reference_type": "article",
+    "target_law_hint": "ro.lege_104_1992",
+    "target_article": "172",
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "article_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_172.alin_3",
+    "raw_reference": "pct. 1",
+    "reference_type": "point",
+    "target_law_hint": "ro.lege_104_1992",
+    "target_article": null,
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": "1",
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "unresolved_needs_context",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "point_reference_without_article"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_173",
+    "raw_reference": "Art. 173",
+    "reference_type": "article",
+    "target_law_hint": "ro.lege_104_1992",
+    "target_article": "173",
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "article_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_173",
+    "raw_reference": "Legea nr. 104/1992",
+    "reference_type": "law",
+    "target_law_hint": "ro.lege_104_1992",
+    "target_article": null,
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "act_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_173",
+    "raw_reference": "pct. 2",
+    "reference_type": "point",
+    "target_law_hint": "ro.lege_104_1992",
+    "target_article": null,
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": "2",
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "unresolved_needs_context",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "point_reference_without_article"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_174",
+    "raw_reference": "Legea nr. 168/1999",
+    "reference_type": "law",
+    "target_law_hint": "ro.lege_168_1999",
+    "target_article": null,
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "act_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_174",
+    "raw_reference": "art. 91",
+    "reference_type": "article",
+    "target_law_hint": "ro.lege_168_1999",
+    "target_article": "91",
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "article_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_181",
+    "raw_reference": "Legea nr. 108/1999",
+    "reference_type": "law",
+    "target_law_hint": "ro.lege_108_1999",
+    "target_article": null,
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "act_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_183.alin_3",
+    "raw_reference": "Legea nr. 25/1969",
+    "reference_type": "law",
+    "target_law_hint": "ro.lege_25_1969",
+    "target_article": null,
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "act_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_184",
+    "raw_reference": "Legea nr. 109/1996",
+    "reference_type": "law",
+    "target_law_hint": "ro.lege_109_1996",
+    "target_article": null,
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "act_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_184",
+    "raw_reference": "prezentul cod",
+    "reference_type": "same_act",
+    "target_law_hint": "same_act",
+    "target_article": null,
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "unresolved_needs_context",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "same_act_reference_requires_context"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_185",
+    "raw_reference": "Legea nr. 60/1995",
+    "reference_type": "law",
+    "target_law_hint": "ro.lege_60_1995",
+    "target_article": null,
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "act_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_19.lit_c",
+    "raw_reference": "art. 19",
+    "reference_type": "article",
+    "target_law_hint": "same_act",
+    "target_article": "19",
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "article_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_191",
+    "raw_reference": "Codul muncii",
+    "reference_type": "code",
+    "target_law_hint": "ro.codul_muncii",
+    "target_article": null,
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "code_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_191",
+    "raw_reference": "Prezentul cod",
+    "reference_type": "same_act",
+    "target_law_hint": "same_act",
+    "target_article": null,
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "unresolved_needs_context",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "same_act_reference_requires_context"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_2",
+    "raw_reference": "art. 1 pct. 1",
+    "reference_type": "compound",
+    "target_law_hint": "same_act",
+    "target_article": "1",
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": "1",
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "compound_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_21",
+    "raw_reference": "Legea nr. 13/1991",
+    "reference_type": "law",
+    "target_law_hint": "ro.lege_13_1991",
+    "target_article": null,
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "act_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_21",
+    "raw_reference": "Legea nr. 130/1996",
+    "reference_type": "law",
+    "target_law_hint": "ro.lege_130_1996",
+    "target_article": null,
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "act_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_21",
+    "raw_reference": "art. 81",
+    "reference_type": "article",
+    "target_law_hint": "same_act",
+    "target_article": "81",
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "article_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_22.alin_1",
+    "raw_reference": "prezentul cod",
+    "reference_type": "same_act",
+    "target_law_hint": "same_act",
+    "target_article": null,
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "unresolved_needs_context",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "same_act_reference_requires_context"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_3",
+    "raw_reference": "Legea nr. 130/1999",
+    "reference_type": "law",
+    "target_law_hint": "ro.lege_130_1999",
+    "target_article": null,
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "act_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_33",
+    "raw_reference": "Legea nr. 151/1999",
+    "reference_type": "law",
+    "target_law_hint": "ro.lege_151_1999",
+    "target_article": null,
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "act_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_33",
+    "raw_reference": "Legea nr. 84/1995",
+    "reference_type": "law",
+    "target_law_hint": "ro.lege_84_1995",
+    "target_article": null,
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "act_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_33",
+    "raw_reference": "alin. 3",
+    "reference_type": "paragraph",
+    "target_law_hint": "ro.lege_84_1995",
+    "target_article": null,
+    "target_paragraph": "3",
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "unresolved_needs_context",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "paragraph_reference_without_article"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_37",
+    "raw_reference": "Legea nr. 54/1991",
+    "reference_type": "law",
+    "target_law_hint": "ro.lege_54_1991",
+    "target_article": null,
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "act_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_37",
+    "raw_reference": "alin. 1",
+    "reference_type": "paragraph",
+    "target_law_hint": "ro.lege_54_1991",
+    "target_article": null,
+    "target_paragraph": "1",
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "unresolved_needs_context",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "paragraph_reference_without_article"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_38.alin_2",
+    "raw_reference": "prezentul cod",
+    "reference_type": "same_act",
+    "target_law_hint": "same_act",
+    "target_article": null,
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "unresolved_needs_context",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "same_act_reference_requires_context"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_46.alin_2",
+    "raw_reference": "Legea nr. 128/1997",
+    "reference_type": "law",
+    "target_law_hint": "ro.lege_128_1997",
+    "target_article": null,
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "act_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_46.alin_2",
+    "raw_reference": "art. 95",
+    "reference_type": "article",
+    "target_law_hint": "ro.lege_128_1997",
+    "target_article": "95",
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "article_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_58",
+    "raw_reference": "Legea nr. 188/1999",
+    "reference_type": "law",
+    "target_law_hint": "ro.lege_188_1999",
+    "target_article": null,
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "act_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_63.alin_1",
+    "raw_reference": "Codul muncii",
+    "reference_type": "code",
+    "target_law_hint": "ro.codul_muncii",
+    "target_article": null,
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "code_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_63.alin_1",
+    "raw_reference": "art. 1",
+    "reference_type": "article",
+    "target_law_hint": "same_act",
+    "target_article": "1",
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "article_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_63.alin_1",
+    "raw_reference": "art. 63 alin. 1",
+    "reference_type": "compound",
+    "target_law_hint": "ro.codul_muncii",
+    "target_article": "63",
+    "target_paragraph": "1",
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "compound_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_64.alin_2",
+    "raw_reference": "Legea nr. 130/1999",
+    "reference_type": "law",
+    "target_law_hint": "ro.lege_130_1999",
+    "target_article": null,
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "act_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_64.alin_2",
+    "raw_reference": "art. 1",
+    "reference_type": "article",
+    "target_law_hint": "same_act",
+    "target_article": "1",
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "article_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_64.alin_2",
+    "raw_reference": "art. 69",
+    "reference_type": "article",
+    "target_law_hint": "same_act",
+    "target_article": "69",
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "article_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_67.alin_2",
+    "raw_reference": "art. 67",
+    "reference_type": "article",
+    "target_law_hint": "same_act",
+    "target_article": "67",
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "article_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_69",
+    "raw_reference": "art. 38 alin. 1)",
+    "reference_type": "compound",
+    "target_law_hint": "same_act",
+    "target_article": "38",
+    "target_paragraph": "1",
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "compound_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_7",
+    "raw_reference": "art. 1 pct. 3",
+    "reference_type": "compound",
+    "target_law_hint": "same_act",
+    "target_article": "1",
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": "3",
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "compound_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_7",
+    "raw_reference": "art. 45 alin. 4",
+    "reference_type": "compound",
+    "target_law_hint": "same_act",
+    "target_article": "45",
+    "target_paragraph": "4",
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "compound_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_72.alin_2",
+    "raw_reference": "Legea nr. 30/1990",
+    "reference_type": "law",
+    "target_law_hint": "ro.lege_30_1990",
+    "target_article": null,
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "act_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_72.alin_2",
+    "raw_reference": "Legea nr. 36/1995",
+    "reference_type": "law",
+    "target_law_hint": "ro.lege_36_1995",
+    "target_article": null,
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "act_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_72.alin_2",
+    "raw_reference": "Legea nr. 51/1995",
+    "reference_type": "law",
+    "target_law_hint": "ro.lege_51_1995",
+    "target_article": null,
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "act_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_72.alin_2",
+    "raw_reference": "Legea nr. 92/1992",
+    "reference_type": "law",
+    "target_law_hint": "ro.lege_92_1992",
+    "target_article": null,
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "act_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_72.alin_2",
+    "raw_reference": "art. 4 alin. 3)",
+    "reference_type": "compound",
+    "target_law_hint": "ro.lege_30_1990",
+    "target_article": "4",
+    "target_paragraph": "3",
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "compound_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_72.alin_2",
+    "raw_reference": "art. 71",
+    "reference_type": "article",
+    "target_law_hint": "same_act",
+    "target_article": "71",
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "article_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_73",
+    "raw_reference": "art. 64",
+    "reference_type": "article",
+    "target_law_hint": "same_act",
+    "target_article": "64",
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "article_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_74",
+    "raw_reference": "Art. 73",
+    "reference_type": "article",
+    "target_law_hint": "same_act",
+    "target_article": "73",
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "article_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_74",
+    "raw_reference": "art. 73",
+    "reference_type": "article",
+    "target_law_hint": "same_act",
+    "target_article": "73",
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "article_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_76",
+    "raw_reference": "Art. 76",
+    "reference_type": "article",
+    "target_law_hint": "same_act",
+    "target_article": "76",
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "article_reference_candidate_only"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_9",
+    "raw_reference": "alin. 2",
+    "reference_type": "paragraph",
+    "target_law_hint": "same_act",
+    "target_article": null,
+    "target_paragraph": "2",
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "unresolved_needs_context",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "paragraph_reference_without_article"
+    ]
+  },
+  {
+    "source_unit_id": "ro.archive_lege_muncii.art_98.alin_1",
+    "raw_reference": "art. 135",
+    "reference_type": "article",
+    "target_law_hint": "same_act",
+    "target_article": "135",
+    "target_paragraph": null,
+    "target_letter": null,
+    "target_point": null,
+    "target_thesis": null,
+    "resolved_target_id": null,
+    "resolution_status": "candidate_only",
+    "resolution_confidence": 0.0,
+    "resolver_notes": [
+      "article_reference_candidate_only"
+    ]
+  }
+]
