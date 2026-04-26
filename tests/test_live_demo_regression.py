@@ -152,6 +152,7 @@ async def test_live_like_demo_flow_cites_art_41_not_topical_distractors():
 
     citation_unit_ids = {citation.legal_unit_id for citation in response.citations}
     assert REQUIRED_ART_41_UNITS.issubset(citation_unit_ids)
+    assert all(unit_id.startswith("ro.codul_muncii.art_41") for unit_id in citation_unit_ids)
     assert not citation_unit_ids.intersection(FORBIDDEN_LIVE_LIKE_DISTRACTORS)
     assert (
         response.debug.generation["generation_mode"]

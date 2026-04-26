@@ -253,6 +253,7 @@ def test_post_api_query_demo_uses_raw_retriever_client_internal_candidates():
         "ro.codul_muncii.art_41.alin_1",
         "ro.codul_muncii.art_41.alin_3",
     }.issubset(citation_unit_ids)
+    assert all(unit_id.startswith("ro.codul_muncii.art_41") for unit_id in citation_unit_ids)
     assert "ro.codul_muncii.art_264.lit_a" in evidence_ids
     assert "ro.codul_muncii.art_264.lit_a" not in citation_unit_ids
     retrieval_debug = payload["debug"]["retrieval"]
