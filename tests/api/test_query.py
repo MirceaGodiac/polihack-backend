@@ -3,8 +3,9 @@ from fastapi.testclient import TestClient
 
 import apps.api.app.routes.query as query_route
 from apps.api.app.main import app
-from apps.api.app.schemas import QueryRequest, RawRetrievalResponse, RetrievalCandidate
+from apps.api.app.schemas import EvidenceUnit, QueryRequest, RawRetrievalResponse, RetrievalCandidate
 from apps.api.app.services.query_orchestrator import QueryOrchestrator
+from apps.api.app.services.generation_adapter import GenerationAdapter
 from apps.api.app.services.raw_retriever_client import RawRetrieverClient
 
 
@@ -202,6 +203,13 @@ def test_post_api_query_demo_uses_raw_retriever_client_internal_candidates():
             "ro.codul_muncii.art_41.alin_3.lit_e",
         }
     )
+    assert {
+        "ro.codul_muncii.art_41.alin_1",
+        "ro.codul_muncii.art_41.alin_3",
+    }.issubset(evidence_ids)
+    evidence_by_id = {unit["id"]: unit for unit in payload["evidence_units"]}
+    assert evidence_by_id["ro.codul_muncii.art_41.alin_1"]["support_role"] == "direct_basis"
+    assert evidence_by_id["ro.codul_muncii.art_41.alin_3"]["support_role"] == "direct_basis"
     assert payload["evidence_units"]
     first = payload["evidence_units"][0]
     assert first["raw_text"]
@@ -219,9 +227,28 @@ def test_post_api_query_demo_uses_raw_retriever_client_internal_candidates():
     }.issubset(first["score_breakdown"])
     assert "raw_retrieval_not_configured" not in payload["warnings"]
     assert "raw_retrieval_unavailable" not in payload["warnings"]
+    assert "legal_ranker_no_candidates" not in payload["warnings"]
+    assert "evidence_pack_no_ranked_candidates" not in payload["warnings"]
+    assert "answer_refused_insufficient_evidence" not in payload["warnings"]
+    assert "art. 41" in payload["answer"]["short_answer"]
+    assert "art. 264" not in payload["answer"]["short_answer"]
+    normalized_answer = payload["answer"]["short_answer"].casefold()
+    assert "acordul partilor" in normalized_answer
+    assert "remuneratie restanta" not in normalized_answer
+    assert "persoane angajate ilegal" not in normalized_answer
+    citation_unit_ids = {
+        citation["legal_unit_id"] for citation in payload["citations"]
+    }
+    assert citation_unit_ids.issubset(evidence_ids)
+    assert {
+        "ro.codul_muncii.art_41.alin_1",
+        "ro.codul_muncii.art_41.alin_3",
+    }.issubset(citation_unit_ids)
+    assert "ro.codul_muncii.art_264.lit_a" in evidence_ids
+    assert "ro.codul_muncii.art_264.lit_a" not in citation_unit_ids
     retrieval_debug = payload["debug"]["retrieval"]
     assert retrieval_debug["backend"] == "internal"
-    assert retrieval_debug["response_summary"]["candidate_count"] >= 5
+    assert retrieval_debug["response_summary"]["candidate_count"] >= 6
     assert retrieval_debug["request_payload"]["filters"] == {
         "legal_domain": "munca",
         "status": "active",
@@ -331,6 +358,19 @@ def _art41_units():
     return [
         {
             **base,
+            "id": "ro.codul_muncii.art_264.lit_a",
+            "hierarchy_path": ["Codul muncii", "Art. 264", "Lit. a)"],
+            "article_number": "264",
+            "paragraph_number": None,
+            "letter_number": "a",
+            "point_number": None,
+            "parent_id": "ro.codul_muncii.art_264",
+            "raw_text": "a) remuneratie restanta pentru persoane angajate ilegal, inclusiv salariul si alte drepturi salariale;",
+            "normalized_text": "remuneratie restanta persoane angajate ilegal salariu drepturi salariale",
+            "type": "alineat",
+        },
+        {
+            **base,
             "id": "ro.codul_muncii.art_41.alin_1",
             "hierarchy_path": ["Codul muncii", "Art. 41", "Alin. (1)"],
             "article_number": "41",
@@ -397,6 +437,44 @@ def _art41_units():
     ]
 
 
+def _evidence_unit(
+    unit_id: str,
+    *,
+    raw_text: str,
+    support_role: str,
+    rank: int,
+    rerank_score: float,
+    retrieval_score: float,
+) -> EvidenceUnit:
+    return EvidenceUnit(
+        id=unit_id,
+        law_id="ro.codul_muncii",
+        law_title="Codul muncii",
+        status="active",
+        hierarchy_path=["Codul muncii", unit_id],
+        article_number="41",
+        paragraph_number=None,
+        letter_number=None,
+        point_number=None,
+        raw_text=raw_text,
+        normalized_text=raw_text,
+        legal_domain="munca",
+        legal_concepts=["contract", "salariu"],
+        source_url="https://legislatie.just.ro/test",
+        parent_id=None,
+        evidence_id=f"evidence:{unit_id}",
+        excerpt=raw_text,
+        rank=rank,
+        relevance_score=rerank_score,
+        retrieval_method="fixture",
+        retrieval_score=retrieval_score,
+        rerank_score=rerank_score,
+        support_role=support_role,
+        why_selected=["fixture"],
+        score_breakdown={},
+    )
+
+
 @pytest.mark.anyio
 async def test_query_orchestrator_populates_evidence_units_with_fake_candidates():
     orchestrator = QueryOrchestrator(raw_retriever_client=FakeRawRetrieverClient())
@@ -411,7 +489,10 @@ async def test_query_orchestrator_populates_evidence_units_with_fake_candidates(
     assert evidence.retrieval_score == 0.78
     assert evidence.rerank_score is not None
     assert evidence.support_role in {"direct_basis", "condition"}
-    assert "selected_by_mmr" in evidence.why_selected
+    assert {
+        "selected_by_mmr",
+        "priority_direct_legal_basis:agreement_rule",
+    }.intersection(evidence.why_selected)
     assert evidence.score_breakdown
     evidence_payload = response.model_dump(mode="json")["evidence_units"][0]
     assert "legal_unit" not in evidence_payload
@@ -426,17 +507,65 @@ async def test_query_orchestrator_populates_evidence_units_with_fake_candidates(
     assert response.debug.retrieval_mode == "raw_retriever_client:FakeRawRetrieverClient"
     assert response.debug.evidence_pack["selected_evidence_count"] == 1
     assert response.debug.generation["evidence_unit_count_used"] == 1
-    assert response.citations == []
-    assert response.answer.refusal_reason == "unsupported_claims"
+    assert len(response.citations) == 1
+    assert response.citations[0].legal_unit_id == "ro.codul_muncii.art_41"
+    assert response.answer.refusal_reason is None
     assert response.answer.confidence == 0.0
     assert response.verifier.citations_checked == 1
     assert response.verifier.claims_total > 0
-    assert response.verifier.verifier_passed is False
-    assert response.verifier.repair_applied is True
-    assert "answer_refused_unsupported_claims" in response.warnings
+    assert response.verifier.verifier_passed is True
+    assert response.verifier.repair_applied is False
+    assert "answer_repaired_unsupported_claims_removed" not in response.warnings
+    assert "answer_refused_unsupported_claims" not in response.warnings
     assert response.debug.verifier["claim_extraction"]["claims_total"] > 0
-    assert response.debug.answer_repair["repair_action"] == "refused_unsupported_claims"
-    assert response.debug.answer_repair["removed_citation_ids"] == ["citation:1"]
+    assert response.debug.answer_repair["repair_action"] == "none"
+    assert response.debug.answer_repair["removed_citation_ids"] == []
+
+
+def test_generation_adapter_scores_focused_contract_modification_over_distractor():
+    adapter = GenerationAdapter()
+    distractor = _evidence_unit(
+        "ro.codul_muncii.art_264.lit_a",
+        raw_text="orice remuneratie restanta datorata persoanelor angajate ilegal, inclusiv salariul;",
+        support_role="context",
+        rank=1,
+        rerank_score=0.95,
+        retrieval_score=0.95,
+    )
+    agreement_rule = _evidence_unit(
+        "ro.codul_muncii.art_41.alin_1",
+        raw_text="Contractul individual de munca poate fi modificat numai prin acordul partilor.",
+        support_role="direct_basis",
+        rank=2,
+        rerank_score=0.80,
+        retrieval_score=0.80,
+    )
+    modification_scope = _evidence_unit(
+        "ro.codul_muncii.art_41.alin_3",
+        raw_text="Modificarea contractului individual de munca se refera la elementele contractului, inclusiv salariul.",
+        support_role="direct_basis",
+        rank=3,
+        rerank_score=0.75,
+        retrieval_score=0.75,
+    )
+
+    distractor_score = adapter._score_labor_contract_modification_answer_evidence(distractor)
+    agreement_score = adapter._score_labor_contract_modification_answer_evidence(agreement_rule)
+    scope_score = adapter._score_labor_contract_modification_answer_evidence(modification_scope)
+    assert agreement_score["answer_score"] > distractor_score["answer_score"]
+    assert scope_score["answer_score"] > distractor_score["answer_score"]
+    assert agreement_score["core_issue"] >= 0.70
+    assert scope_score["core_issue"] >= 0.70
+    assert distractor_score["distractor"] > 0
+
+    focused = adapter._select_focused_answer_evidence(
+        VALID_QUERY["question"],
+        [distractor, agreement_rule, modification_scope],
+    )
+    focused_ids = {unit.id for unit in focused}
+    assert agreement_rule.id in focused_ids
+    assert modification_scope.id in focused_ids
+    assert distractor.id not in focused_ids
 
 
 def test_handoff04_graph_endpoints_are_not_registered():

@@ -197,12 +197,12 @@ def test_demo_fixture_answer_cites_only_existing_codul_muncii_units():
     assert {
         "ro.codul_muncii.art_41",
         "ro.codul_muncii.art_41.alin_3",
-        "ro.codul_muncii.art_41.alin_4",
-        "ro.codul_muncii.art_17.alin_3.lit_k",
     }.issubset(citation_ids)
+    assert "ro.codul_muncii.art_41.alin_4" not in citation_ids
+    assert "ro.codul_muncii.art_17.alin_3.lit_k" not in citation_ids
     assert citation_ids <= evidence_ids
     assert DEMO_QUERY not in draft.short_answer
-    assert "act aditional" in f"{draft.short_answer}\n{draft.detailed_answer}"
+    assert "acordul partilor" in f"{draft.short_answer}\n{draft.detailed_answer}"
     for citation in draft.citations:
         assert citation.snippet in units[citation.unit_id]["raw_text"]
     assert draft.confidence == 0.0

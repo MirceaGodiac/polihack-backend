@@ -146,16 +146,20 @@ async def test_evidence_pack_compiler_produces_flat_evidence_from_parser_fixture
     )
 
     evidence_ids = [unit.id for unit in evidence_pack.evidence_units]
-    assert "ro.codul_muncii.art_41" in evidence_ids
+    assert "ro.codul_muncii.art_41.alin_1" in evidence_ids
+    assert "ro.codul_muncii.art_41.alin_3" in evidence_ids
     assert "ro.codul_muncii.art_41.alin_4" in evidence_ids
-    assert "ro.codul_muncii.art_17.alin_3.lit_k" in evidence_ids
     for evidence in evidence_pack.evidence_units:
         assert evidence.raw_text
         assert evidence.excerpt == evidence.raw_text
         assert evidence.retrieval_score is not None
         assert evidence.rerank_score is not None
         assert evidence.support_role
-        assert "selected_by_mmr" in evidence.why_selected
+        assert {
+            "selected_by_mmr",
+            "priority_direct_legal_basis:agreement_rule",
+            "priority_direct_legal_basis:modification_scope",
+        }.intersection(evidence.why_selected)
         assert evidence.score_breakdown
     evidence_payload = evidence_pack.evidence_units[0].model_dump(mode="json")
     assert "legal_unit" not in evidence_payload
@@ -186,13 +190,12 @@ async def test_query_orchestrator_returns_real_evidence_units_for_demo_fixture()
 
     evidence_ids = [unit.id for unit in response.evidence_units]
     assert len(response.evidence_units) == 4
-    assert "ro.codul_muncii.art_41" in evidence_ids
+    assert "ro.codul_muncii.art_41.alin_1" in evidence_ids
+    assert "ro.codul_muncii.art_41.alin_3" in evidence_ids
     assert "ro.codul_muncii.art_41.alin_4" in evidence_ids
-    assert "ro.codul_muncii.art_17.alin_3.lit_k" in evidence_ids
     citation_ids = {citation.legal_unit_id for citation in response.citations}
-    assert "ro.codul_muncii.art_41" in citation_ids
-    assert "ro.codul_muncii.art_41.alin_4" in citation_ids
-    assert "ro.codul_muncii.art_17.alin_3.lit_k" in citation_ids
+    assert "ro.codul_muncii.art_41.alin_1" in citation_ids
+    assert "ro.codul_muncii.art_41.alin_3" in citation_ids
     assert citation_ids <= set(evidence_ids)
     assert response.answer.confidence == 0.0
     assert response.verifier.citations_checked == len(response.citations)

@@ -88,8 +88,15 @@ async def test_query_orchestrator_generates_grounded_draft_with_debug():
     assert response.evidence_units
     assert response.citations
     assert citation_ids <= evidence_ids
-    assert "ro.codul_muncii.art_41.alin_4" in citation_ids
+    assert "ro.codul_muncii.art_41.alin_1" in citation_ids
     assert "ro.codul_muncii.art_41.alin_3" in citation_ids
+    assert "art. 41" in response.answer.short_answer
+    assert "art. 264" not in response.answer.short_answer
+    assert all("art_264" not in citation_id for citation_id in citation_ids)
+    normalized_answer = response.answer.short_answer.casefold()
+    assert "acordul partilor" in normalized_answer
+    assert "remuneratie restanta" not in normalized_answer
+    assert "persoane angajate ilegal" not in normalized_answer
     for citation in response.citations:
         evidence = next(
             unit
@@ -109,7 +116,7 @@ async def test_query_orchestrator_generates_grounded_draft_with_debug():
     assert "CitationVerifier has not run yet" not in warnings
     assert "generation_unverified_citation_verifier_not_run" not in warnings
     assert "nu a fost verificat final de CitationVerifier" not in response.answer.short_answer
-    assert "CitationVerifier V1" in response.answer.short_answer
+    assert "CitationVerifier V1" not in response.answer.short_answer
     assert response.debug.generation["generation_mode"] == "deterministic_extractive_v1"
     assert response.debug.generation["evidence_unit_count_used"] == len(response.citations)
     assert set(response.debug.generation["citation_unit_ids"]) == citation_ids

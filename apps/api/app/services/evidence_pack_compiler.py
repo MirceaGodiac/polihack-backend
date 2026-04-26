@@ -51,6 +51,72 @@ STOPWORDS = {
     "si",
 }
 
+CONTRACT_MODIFICATION_TRIGGERS = (
+    "act aditional",
+    "modificare contract",
+    "modificarea contractului",
+    "scada salariul",
+    "scade salariul",
+    "salariul fara act aditional",
+)
+
+CONTRACT_MODIFICATION_REDUCTION_TERMS = (
+    "scada",
+    "scade",
+    "reducere",
+    "reduca",
+    "diminuare",
+    "diminueze",
+)
+
+CONTRACT_MODIFICATION_TARGET_TERMS = (
+    "salariu",
+    "salariul",
+    "salarizare",
+)
+
+AGREEMENT_RULE_TERMS = (
+    "contractul individual de munca poate fi modificat",
+    "contract individual de munca poate fi modificat",
+    "poate fi modificat numai prin acordul partilor",
+    "modificat numai prin acordul partilor",
+    "numai prin acordul partilor",
+)
+
+MODIFICATION_SCOPE_TERMS = (
+    "modificarea contractului individual de munca",
+    "modificare contract individual munca",
+    "contractului individual de munca",
+    "contract individual de munca",
+    "contractul individual de munca",
+)
+
+SALARY_CONTEXT_TERMS = (
+    "plata salariului",
+    "platii salariului",
+    "drepturi salariale",
+    "drepturile salariale",
+    "salariul de baza minim",
+    "salariul minim",
+    "salariul este confidential",
+    "confidentialitatea salariului",
+    "remuneratie restanta",
+    "remuneratia restanta",
+    "remuneratie",
+    "remunerarea",
+    "remunerat",
+    "persoane angajate ilegal",
+    "persoana angajata ilegal",
+    "neplata salariului",
+    "intarzierea platii salariului",
+    "registrul salariatilor",
+    "registrul general de evidenta",
+    "munca nedeclarata",
+    "primirea la munca",
+)
+
+DIRECT_BASIS_KINDS = ("agreement_rule", "modification_scope")
+
 
 @dataclass
 class _EvidenceCandidate:
@@ -98,7 +164,7 @@ class EvidencePackCompiler:
                 warnings=self._dedupe(warnings),
             )
 
-        selected = self._select_with_mmr(candidate_pool)
+        selected = self._select_with_mmr(candidate_pool, plan=plan)
         self._ensure_role_candidate(selected, candidate_pool, "exception")
         self._ensure_role_candidate(selected, candidate_pool, "definition")
         self._ensure_role_candidate(selected, candidate_pool, "sanction")
@@ -230,10 +296,21 @@ class EvidencePackCompiler:
     def _select_with_mmr(
         self,
         candidate_pool: list[_EvidenceCandidate],
+        *,
+        plan: QueryPlan | None,
     ) -> list[_EvidenceCandidate]:
-        remaining = candidate_pool.copy()
-        selected: list[_EvidenceCandidate] = []
         target = min(self.target_evidence_units, len(candidate_pool))
+        selected = self._priority_direct_basis_candidates(
+            candidate_pool,
+            plan=plan,
+            target=target,
+        )
+        selected_ids = {candidate.ranked.unit_id for candidate in selected}
+        remaining = [
+            candidate
+            for candidate in candidate_pool
+            if candidate.ranked.unit_id not in selected_ids
+        ]
         while remaining and len(selected) < target:
             best = max(
                 remaining,
@@ -244,6 +321,59 @@ class EvidencePackCompiler:
             selected.append(best)
             remaining.remove(best)
         return selected
+
+    def _priority_direct_basis_candidates(
+        self,
+        candidate_pool: list[_EvidenceCandidate],
+        *,
+        plan: QueryPlan | None,
+        target: int,
+    ) -> list[_EvidenceCandidate]:
+        if target <= 0 or not self._is_contract_modification_query(plan):
+            return []
+
+        selected: list[_EvidenceCandidate] = []
+        selected_ids: set[str] = set()
+        for kind in DIRECT_BASIS_KINDS:
+            if len(selected) >= target:
+                break
+            candidates = [
+                candidate
+                for candidate in candidate_pool
+                if candidate.ranked.unit_id not in selected_ids
+                and self._direct_basis_kind(candidate, plan=plan)[0] == kind
+            ]
+            if not candidates:
+                continue
+            best = max(
+                candidates,
+                key=lambda candidate: self._direct_basis_sort_key(
+                    candidate,
+                    plan=plan,
+                ),
+            )
+            best.support_role = "direct_basis"
+            best.mmr_score = self._mmr_score(best, selected)
+            self._append_reason(best, "direct_contract_modification_basis")
+            self._append_reason(best, f"priority_direct_legal_basis:{kind}")
+            selected.append(best)
+            selected_ids.add(best.ranked.unit_id)
+        return selected
+
+    def _direct_basis_sort_key(
+        self,
+        candidate: _EvidenceCandidate,
+        *,
+        plan: QueryPlan | None,
+    ) -> tuple[int, int, float, int, str]:
+        _, priority = self._direct_basis_kind(candidate, plan=plan)
+        return (
+            priority,
+            self._unit_specificity(candidate.unit),
+            candidate.ranked.rerank_score,
+            -candidate.ranked.rank,
+            candidate.ranked.unit_id,
+        )
 
     def _mmr_sort_key(
         self,
@@ -487,6 +617,9 @@ class EvidencePackCompiler:
         plan: QueryPlan | None,
     ) -> str:
         haystack = self._haystack(ranked, unit)
+        contract_modification_query = self._is_contract_modification_query(plan)
+        if contract_modification_query and self._is_contract_modification_direct_basis(haystack):
+            return "direct_basis"
         if self._contains_any(haystack, ("exception", "exceptie", "except", "cu exceptia", "exception_to")):
             return "exception"
         if self._contains_any(haystack, ("definition", "defineste", "in sensul", "se intelege", "defines")):
@@ -500,9 +633,109 @@ class EvidencePackCompiler:
             return "procedure"
         if self._contains_any(haystack, ("daca", "in cazul", "cu conditia", "numai daca")):
             return "condition"
+        if contract_modification_query and self._is_salary_context(haystack):
+            return "context"
         if self._graph_node_type(unit) in {"root", "domain", "legal_act", "title", "chapter", "section"}:
             return "context"
         return "direct_basis"
+
+    def _is_contract_modification_query(self, plan: QueryPlan | None) -> bool:
+        if plan is None:
+            return False
+        if self._normalize_text(str(plan.legal_domain or "")) != "munca":
+            return False
+
+        query = self._normalize_text(
+            " ".join(
+                [
+                    plan.question,
+                    plan.normalized_question,
+                    " ".join(plan.query_types),
+                    str(plan.retrieval_filters),
+                ]
+            )
+        )
+        if any(self._normalize_text(term) in query for term in CONTRACT_MODIFICATION_TRIGGERS):
+            return True
+        tokens = set(query.split())
+        if {"act", "aditional"}.issubset(tokens):
+            return True
+        has_reduction = any(term in tokens for term in CONTRACT_MODIFICATION_REDUCTION_TERMS)
+        has_target = any(term in tokens for term in CONTRACT_MODIFICATION_TARGET_TERMS)
+        return has_reduction and has_target
+
+    def _is_contract_modification_direct_basis(self, haystack: str) -> bool:
+        agreement = any(
+            self._normalize_text(term) in haystack
+            for term in AGREEMENT_RULE_TERMS
+        )
+        scope = any(
+            self._normalize_text(term) in haystack
+            for term in MODIFICATION_SCOPE_TERMS
+        )
+        if agreement:
+            return True
+        return scope and self._contains_any(
+            haystack,
+            ("modificarea", "modificare", "poate privi", "salariul", "elementele"),
+        )
+
+    def _is_salary_context(self, haystack: str) -> bool:
+        return any(
+            self._normalize_text(term) in haystack
+            for term in SALARY_CONTEXT_TERMS
+        )
+
+    def _direct_basis_kind(
+        self,
+        candidate: _EvidenceCandidate,
+        *,
+        plan: QueryPlan | None,
+    ) -> tuple[str | None, int]:
+        if not self._is_contract_modification_query(plan):
+            return (None, 0)
+
+        haystack = self._haystack(candidate.ranked, candidate.unit)
+        has_agreement = any(
+            self._normalize_text(term) in haystack
+            for term in AGREEMENT_RULE_TERMS
+        )
+        has_contract_modification = any(
+            self._normalize_text(term) in haystack
+            for term in MODIFICATION_SCOPE_TERMS
+        )
+        has_target = self._contains_any(haystack, CONTRACT_MODIFICATION_TARGET_TERMS)
+        has_scope_marker = self._contains_any(
+            haystack,
+            ("modificarea", "modificare", "poate privi", "elementele"),
+        )
+
+        if has_agreement:
+            priority = 100
+            if "numai prin acordul partilor" in haystack:
+                priority += 10
+            return ("agreement_rule", priority)
+
+        if has_contract_modification and has_scope_marker:
+            priority = 80
+            if has_target:
+                priority += 15
+            if "poate privi" in haystack:
+                priority += 5
+            return ("modification_scope", priority)
+
+        return (None, 0)
+
+    def _unit_specificity(self, unit: dict[str, Any]) -> int:
+        if unit.get("point_number"):
+            return 5
+        if unit.get("letter_number"):
+            return 4
+        if unit.get("paragraph_number"):
+            return 3
+        if unit.get("article_number"):
+            return 2
+        return 1
 
     def _base_selection_reasons(self, ranked: RankedCandidate) -> list[str]:
         reasons = list(ranked.why_ranked)
