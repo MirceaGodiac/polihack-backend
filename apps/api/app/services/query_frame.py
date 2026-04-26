@@ -506,6 +506,7 @@ class QueryFrameBuilder:
 
     def build(self, *, question: str, plan: QueryPlan) -> QueryFrame:
         matched_intents = self.registry.matching_intents(question=question, plan=plan)
+        matched_intents = self._ordered_intents(question, plan, matched_intents)
         domain = self._resolved_domain(plan, matched_intents)
         generic_labor = (
             not matched_intents
@@ -575,6 +576,20 @@ class QueryFrameBuilder:
         if len(intent_domains) == 1:
             return next(iter(intent_domains))
         return None
+
+    def _ordered_intents(
+        self,
+        question: str,
+        plan: QueryPlan,
+        intents: list[LegalIntent],
+    ) -> list[LegalIntent]:
+        return sorted(
+            intents,
+            key=lambda intent: (
+                not self._intent_has_trigger(intent, question, plan),
+                intent.id,
+            ),
+        )
 
     def _ambiguity_flags(
         self,

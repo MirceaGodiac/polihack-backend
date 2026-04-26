@@ -6,6 +6,7 @@ from apps.api.app.services.raw_retriever_client import (
     RAW_RETRIEVAL_UNAVAILABLE,
     RawRetrieverClient,
 )
+from apps.api.app.services.query_frame import QueryFrameBuilder
 from apps.api.app.services.query_understanding import QueryUnderstanding
 
 
@@ -18,6 +19,11 @@ def build_plan(question: str):
         debug=True,
     )
     return QueryUnderstanding().build_plan(request)
+
+
+def build_frame(question: str):
+    plan = build_plan(question)
+    return QueryFrameBuilder().build(question=question, plan=plan)
 
 
 @pytest.mark.anyio
@@ -52,6 +58,25 @@ async def test_request_payload_includes_required_fields():
     assert payload["exact_citations"] == []
     assert payload["top_k"] == 25
     assert payload["debug"] is True
+
+
+@pytest.mark.anyio
+async def test_request_payload_includes_query_frame_when_provided():
+    question = "Poate angajatorul sa-mi scada salariul fara act aditional?"
+    plan = build_plan(question)
+    query_frame = build_frame(question)
+
+    response = await RawRetrieverClient(base_url=None, use_internal=False).retrieve(
+        plan,
+        query_frame=query_frame,
+        top_k=25,
+        debug=True,
+    )
+
+    payload = response.debug["request_payload"]
+    assert payload["query_frame"]["domain"] == "munca"
+    assert "labor_contract_modification" in payload["query_frame"]["intents"]
+    assert "salary" in payload["query_frame"]["targets"]
 
 
 @pytest.mark.anyio

@@ -1,3 +1,4 @@
+import inspect
 from uuid import NAMESPACE_URL, uuid5
 
 from ..schemas import (
@@ -66,9 +67,9 @@ class QueryOrchestrator:
             question=request.question,
             plan=query_plan,
         )
-        raw_retrieval = await self.raw_retriever_client.retrieve(
-            query_plan,
-            top_k=50,
+        raw_retrieval = await self._retrieve_raw(
+            query_plan=query_plan,
+            query_frame=query_frame,
             debug=request.debug,
         )
         graph_expansion = await self.graph_expansion_policy.expand(
@@ -336,6 +337,18 @@ class QueryOrchestrator:
         if RAW_RETRIEVAL_NOT_CONFIGURED in raw_retrieval.warnings:
             return "fallback_unconfigured"
         return f"raw_retriever_client:{self.raw_retriever_client.__class__.__name__}"
+
+    async def _retrieve_raw(self, *, query_plan, query_frame, debug: bool):
+        retrieve = self.raw_retriever_client.retrieve
+        parameters = inspect.signature(retrieve).parameters
+        if "query_frame" in parameters:
+            return await retrieve(
+                query_plan,
+                query_frame=query_frame,
+                top_k=50,
+                debug=debug,
+            )
+        return await retrieve(query_plan, top_k=50, debug=debug)
 
     def _query_id(self, request: QueryRequest) -> str:
         stable_input = "|".join(
