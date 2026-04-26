@@ -24,6 +24,7 @@ class RankerFeatureBreakdown(BaseModel):
     context_only_penalty: float = Field(default=0.0, ge=0.0, le=1.0)
     query_frame_confidence: float = Field(default=0.0, ge=0.0, le=1.0)
     support_role_hint_score: float = Field(default=0.0, ge=0.0, le=1.0)
+    intent_governing_rule_parent: float = Field(default=0.0, ge=0.0, le=1.0)
     gate_domain_mismatch: float = Field(default=0.0, ge=0.0, le=1.0)
     gate_low_core_issue: float = Field(default=0.0, ge=0.0, le=1.0)
     gate_distractor: float = Field(default=0.0, ge=0.0, le=1.0)

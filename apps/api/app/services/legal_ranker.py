@@ -469,6 +469,9 @@ class LegalRanker:
             "context_only_penalty": context_only_penalty,
             "query_frame_confidence": query_frame.confidence,
             "support_role_hint_score": support_role_hint_score,
+            "intent_governing_rule_parent": self._clamp(
+                float(bundle.score_breakdown.get("intent_governing_rule_parent", 0.0))
+            ),
             "parent_relevance": self._parent_relevance(unit),
             "is_exception": is_exception,
             "is_definition": self._indicator(

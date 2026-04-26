@@ -25,7 +25,11 @@ from ingestion.legal_ids import (
     make_parent_unit_id,
     make_unit_id,
 )
-from ingestion.normalizer import normalize_legal_text
+from ingestion.normalizer import (
+    contains_romanian_mojibake,
+    normalize_legal_text,
+    repair_romanian_mojibake,
+)
 from ingestion.reference_extractor import extract_references_from_units
 
 
@@ -136,6 +140,8 @@ def build_parsed_legal_unit(
     resolved_act_type = act_type if act_type is not None else parsed_act_type
     resolved_act_number = act_number if act_number is not None else parsed_act_number
 
+    repaired_raw_text = repair_romanian_mojibake(raw_text) or ""
+
     return ParsedLegalUnit(
         id=make_unit_id(resolved_law_id, path),
         canonical_id=make_canonical_id(resolved_law_id, path),
@@ -154,8 +160,8 @@ def build_parsed_legal_unit(
         paragraph_number=_level_value(path, "alineat"),
         letter_number=_level_value(path, "litera"),
         point_number=_level_value(path, "punct"),
-        raw_text=raw_text,
-        normalized_text=normalize_legal_text(raw_text),
+        raw_text=repaired_raw_text,
+        normalized_text=normalize_legal_text(repaired_raw_text),
         legal_domain=resolved_domain,
         legal_concepts=legal_concepts or [],
         source_url=source_url,
@@ -434,6 +440,14 @@ def build_canonical_validation_report(
         sum(1 for unit in legal_units if str(unit.get("raw_text") or "").strip()),
         units_count,
     )
+    raw_text_mojibake_free_rate = _safe_rate(
+        sum(
+            1
+            for unit in legal_units
+            if not contains_romanian_mojibake(str(unit.get("raw_text") or ""))
+        ),
+        units_count,
+    )
     stable_id_rate = _safe_rate(
         sum(1 for unit in legal_units if _is_stable_legal_unit_id(str(unit.get("id", "")))),
         units_count,
@@ -496,6 +510,7 @@ def build_canonical_validation_report(
     quality_metrics = {
         "unit_completeness": unit_completeness,
         "raw_text_non_empty_rate": raw_text_non_empty_rate,
+        "raw_text_mojibake_free_rate": raw_text_mojibake_free_rate,
         "stable_id_rate": stable_id_rate,
         "hierarchy_integrity": hierarchy_integrity,
         "edge_endpoint_integrity": edge_endpoint_integrity,
@@ -838,6 +853,8 @@ def _canonical_blocking_errors(
         errors.add("unstable_legal_unit_id")
     if _empty_citable_units(legal_units):
         errors.add("empty_raw_text_for_citable_unit")
+    if _citable_units_with_mojibake(legal_units):
+        errors.add("raw_text_contains_romanian_mojibake")
     if quality_metrics["hierarchy_integrity"] < validation_config["hierarchy_integrity_min"]:
         errors.add("hierarchy_integrity_below_threshold")
     if quality_metrics["edge_endpoint_integrity"] < validation_config["edge_endpoint_integrity_min"]:
@@ -904,6 +921,15 @@ def _empty_citable_units(legal_units: list[dict[str, Any]]) -> list[str]:
     ]
 
 
+def _citable_units_with_mojibake(legal_units: list[dict[str, Any]]) -> list[str]:
+    return [
+        str(unit.get("id"))
+        for unit in legal_units
+        if _is_citable_unit(unit)
+        and contains_romanian_mojibake(str(unit.get("raw_text") or ""))
+    ]
+
+
 def _is_citable_unit(unit: Mapping[str, Any]) -> bool:
     unit_id = str(unit.get("id") or "")
     return bool(
@@ -954,6 +980,8 @@ def _demo_path_passed(
     for unit_id in required_ids:
         unit = units_by_id[unit_id]
         if not str(unit.get("raw_text") or "").strip():
+            return False
+        if contains_romanian_mojibake(str(unit.get("raw_text") or "")):
             return False
         if unit.get("legal_domain") != "munca":
             return False
@@ -1030,6 +1058,11 @@ def _canonical_bundle_warnings(
         warnings.add("reference_candidates_not_implemented_or_not_all_resolved")
     if any(unit.get("legal_domain") == "unknown" for unit in legal_units):
         warnings.add("legal_domain_unknown")
+    if any(
+        contains_romanian_mojibake(str(unit.get("raw_text") or ""))
+        for unit in legal_units
+    ):
+        warnings.add("raw_text_contains_romanian_mojibake")
     if any(navigation_residue_count(str(unit.get("raw_text") or "")) for unit in legal_units):
         warnings.add("text_cleanliness_possible_navigation_residue")
     if is_local_fixture and source_url_coverage < 1.0:

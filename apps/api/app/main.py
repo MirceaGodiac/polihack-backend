@@ -1,7 +1,31 @@
+import asyncio
 from contextlib import asynccontextmanager
+from typing import Callable
+import sys
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
+
+def _configure_windows_event_loop_policy(
+    *,
+    platform: str | None = None,
+    set_policy: Callable[[asyncio.AbstractEventLoopPolicy], None] | None = None,
+) -> bool:
+    platform_name = platform if platform is not None else sys.platform
+    if not platform_name.startswith("win"):
+        return False
+
+    policy_cls = getattr(asyncio, "WindowsSelectorEventLoopPolicy", None)
+    if policy_cls is None:
+        return False
+
+    setter = set_policy or asyncio.set_event_loop_policy
+    setter(policy_cls())
+    return True
+
+
+_configure_windows_event_loop_policy()
 
 from .db import dispose_engine
 from .routes.health import health, router as health_router

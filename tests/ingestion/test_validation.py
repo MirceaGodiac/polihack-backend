@@ -257,6 +257,20 @@ class TestCanonicalValidationReport:
         assert report["import_blocking_passed"] is False
         assert "empty_raw_text_for_citable_unit" in report["blocking_errors"]
 
+    def test_mojibake_in_citable_raw_text_blocks_import(self):
+        units, edges = valid_canonical_units_and_edges()
+        units[1] = {
+            **units[1],
+            "raw_text": "Contractul individual de muncÄ poate fi modificat.",
+            "normalized_text": "Contractul individual de muncÄ poate fi modificat.",
+        }
+
+        report = canonical_report(units, edges)
+
+        assert report["import_blocking_passed"] is False
+        assert "raw_text_contains_romanian_mojibake" in report["blocking_errors"]
+        assert "raw_text_contains_romanian_mojibake" in report["warnings"]
+
     def test_missing_demo_art_41_marks_demo_path_failed_without_import_block(self):
         units = [
             canonical_unit("ro.codul_muncii", raw_text="Codul muncii"),

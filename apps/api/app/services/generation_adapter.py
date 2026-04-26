@@ -96,9 +96,9 @@ GENERATION_TEMPLATES = {
         required_roles={"direct_basis"},
         allowed_roles={"direct_basis", "condition", "definition", "context"},
         opening=(
-            "Pe baza unitatilor recuperate, regula relevanta priveste "
-            "modificarea raportului/actului juridic indicat in textele citate. "
-            "Textul legal recuperat trebuie citit impreuna cu unitatile citate"
+            "Pe baza unităților recuperate, regula relevantă privește "
+            "modificarea raportului/actului juridic indicat în textele citate. "
+            "Textul legal recuperat trebuie citit împreună cu unitățile citate"
         ),
     ),
     "obligation": GenerationTemplate(
@@ -107,9 +107,9 @@ GENERATION_TEMPLATES = {
         required_roles={"direct_basis"},
         allowed_roles={"direct_basis", "condition", "procedure", "definition", "context"},
         opening=(
-            "Pe baza unitatilor recuperate, exista o obligatie sau un set de "
-            "conditii indicate de textele citate. Raspunsul este limitat la "
-            "obligatia sustinuta de EvidencePack"
+            "Pe baza unităților recuperate, există o obligație sau un set de "
+            "condiții indicate de textele citate. Răspunsul este limitat la "
+            "obligația susținută de EvidencePack"
         ),
     ),
     "prohibition": GenerationTemplate(
@@ -118,8 +118,8 @@ GENERATION_TEMPLATES = {
         required_roles={"direct_basis"},
         allowed_roles={"direct_basis", "condition", "definition", "context"},
         opening=(
-            "Pe baza unitatilor recuperate, textele citate indica o interdictie "
-            "sau limita relevanta. Raspunsul este limitat la textele citate"
+            "Pe baza unităților recuperate, textele citate indică o interdicție "
+            "sau limită relevantă. Răspunsul este limitat la textele citate"
         ),
     ),
     "permission": GenerationTemplate(
@@ -128,8 +128,8 @@ GENERATION_TEMPLATES = {
         required_roles={"direct_basis"},
         allowed_roles={"direct_basis", "condition", "definition", "context"},
         opening=(
-            "Pe baza unitatilor recuperate, textele citate indica daca actiunea "
-            "intrebata este permisa sau conditionata. Raspunsul este limitat "
+            "Pe baza unităților recuperate, textele citate indică dacă acțiunea "
+            "întrebată este permisă sau condiționată. Răspunsul este limitat "
             "la EvidencePack"
         ),
     ),
@@ -139,9 +139,9 @@ GENERATION_TEMPLATES = {
         required_roles=set(),
         allowed_roles={"direct_basis", "procedure", "condition", "definition", "context"},
         opening=(
-            "Pe baza unitatilor recuperate, textele citate indica o "
-            "procedura/termen/pasi relevanti. Nu completez pasi care nu apar "
-            "in EvidencePack"
+            "Pe baza unităților recuperate, textele citate indică o "
+            "procedură/termen/pași relevanți. Nu completez pași care nu apar "
+            "în EvidencePack"
         ),
     ),
     "sanction": GenerationTemplate(
@@ -150,9 +150,9 @@ GENERATION_TEMPLATES = {
         required_roles=set(),
         allowed_roles={"sanction", "direct_basis", "condition"},
         opening=(
-            "Pe baza unitatilor recuperate, textele citate indica o sanctiune "
-            "sau consecinta juridica. Raspunsul este limitat la sanctiunea "
-            "recuperata"
+            "Pe baza unităților recuperate, textele citate indică o sancțiune "
+            "sau consecință juridică. Răspunsul este limitat la sancțiunea "
+            "recuperată"
         ),
     ),
     "definition": GenerationTemplate(
@@ -160,7 +160,7 @@ GENERATION_TEMPLATES = {
         template_id="meta_intent:definition",
         required_roles=set(),
         allowed_roles={"definition", "direct_basis", "context"},
-        opening="Textul recuperat defineste sau explica termenul relevant astfel",
+        opening="Textul recuperat definește sau explică termenul relevant astfel",
     ),
     "exception": GenerationTemplate(
         meta_intent="exception",
@@ -168,8 +168,8 @@ GENERATION_TEMPLATES = {
         required_roles=set(),
         allowed_roles={"exception", "direct_basis", "condition"},
         opening=(
-            "Textele recuperate indica o posibila exceptie/limitare. "
-            "Aplicarea ei depinde de conditiile din unitatile citate"
+            "Textele recuperate indică o posibilă excepție/limitare. "
+            "Aplicarea ei depinde de condițiile din unitățile citate"
         ),
     ),
     "limitation_period": GenerationTemplate(
@@ -178,8 +178,8 @@ GENERATION_TEMPLATES = {
         required_roles=set(),
         allowed_roles={"direct_basis", "condition", "procedure", "context"},
         opening=(
-            "Textele recuperate indica un termen/prescriptie/limitare "
-            "temporala. Nu extrapolez dincolo de unitatile citate"
+            "Textele recuperate indică un termen/prescripție/limitare "
+            "temporală. Nu extrapolez dincolo de unitățile citate"
         ),
     ),
     "validity_condition": GenerationTemplate(
@@ -188,8 +188,8 @@ GENERATION_TEMPLATES = {
         required_roles={"direct_basis"},
         allowed_roles={"direct_basis", "condition", "definition", "context"},
         opening=(
-            "Pe baza unitatilor recuperate, textele citate indica o conditie "
-            "de validitate sau aplicare. Raspunsul este limitat la EvidencePack"
+            "Pe baza unităților recuperate, textele citate indică o condiție "
+            "de validitate sau aplicare. Răspunsul este limitat la EvidencePack"
         ),
     ),
 }
@@ -669,7 +669,7 @@ class GenerationAdapter:
         )
 
         basis = self._contract_modification_basis_unit([unit for unit, _ in eligible])
-        scope = self._salary_scope_unit([unit for unit, _ in eligible])
+        scope = self._salary_scope_unit(evidence_units)
         if basis is None or scope is None:
             return []
 
@@ -765,10 +765,27 @@ class GenerationAdapter:
         candidates = [
             unit
             for unit in evidence_units
-            if unit.support_role == "direct_basis"
+            if self._is_salary_scope_support_role(unit)
             and self._is_salary_scope(self._unit_haystack(unit))
         ]
+        if not candidates:
+            candidates = [
+                unit
+                for unit in evidence_units
+                if self._is_salary_scope_support_role(unit)
+                and self._is_contract_modification_scope_parent(
+                    self._unit_haystack(unit)
+                )
+                and any(
+                    self._is_salary_element(candidate, scope_unit=unit)
+                    for candidate in evidence_units
+                    if candidate.id != unit.id
+                )
+            ]
         return self._best_contract_unit(candidates)
+
+    def _is_salary_scope_support_role(self, unit: EvidenceUnit) -> bool:
+        return unit.support_role in {"direct_basis", "condition"}
 
     def _salary_element_unit(
         self,
@@ -861,6 +878,23 @@ class GenerationAdapter:
         )
         return has_contract_scope and has_scope_marker
 
+    def _is_contract_modification_scope_parent(self, text: str) -> bool:
+        normalized = self._normalize_text(text)
+        has_contract_scope = self._has_contract_modification_scope(normalized)
+        has_scope_marker = any(
+            marker in normalized
+            for marker in (
+                "elemente",
+                "elementele",
+                "poate privi",
+                "se refera",
+                "urmatoarele elemente",
+                "modificarea",
+                "modificare",
+            )
+        )
+        return has_contract_scope and has_scope_marker
+
     def _has_contract_modification_scope(self, normalized: str) -> bool:
         return (
             "modificarea contractului individual de munca" in normalized
@@ -946,17 +980,15 @@ class GenerationAdapter:
             else ""
         )
         return (
-            "Pe baza unitatilor recuperate din Codul muncii, contractul "
-            "individual de munca poate fi modificat, ca regula, numai prin "
-            "acordul partilor "
+            "Contractul individual de muncă poate fi modificat, ca regulă, "
+            "numai prin acordul părților "
             f"[{basis_citation.label}; evidence:{basis_citation.unit_id}]. "
-            "Modificarea contractului individual de munca vizeaza elementele "
-            "contractului, iar salariul trebuie verificat in elementele "
-            "enumerate de textul legal recuperat "
+            "Modificarea contractului individual de muncă poate privi "
+            "elementele contractului, inclusiv salariul "
             f"[{scope_citation.label}; evidence:{scope_citation.unit_id}"
             f"{salary_citation_text}]. "
-            "Exceptiile sau situatiile speciale se analizeaza separat pe "
-            "baza unitatilor recuperate "
+            "Excepțiile sau situațiile speciale se analizează separat pe "
+            "baza unităților recuperate "
             f"[{basis_citation.label}; evidence:{basis_citation.unit_id}; "
             f"{scope_citation.label}; evidence:{scope_citation.unit_id}]."
         )
@@ -968,9 +1000,9 @@ class GenerationAdapter:
     ) -> str:
         units_by_id = {unit.id: unit for unit in selected}
         lines = [
-            "Raspuns draft, extractive-first, bazat numai pe EvidenceUnit.raw_text.",
+            "Răspuns draft, extractive-first, bazat numai pe EvidenceUnit.raw_text.",
             "",
-            "Baza legala recuperata:",
+            "Baza legală recuperată:",
         ]
         for citation in citations:
             lines.append(
@@ -983,7 +1015,7 @@ class GenerationAdapter:
             if units_by_id[citation.unit_id].support_role in {"condition", "exception"}
         ]
         if condition_lines:
-            lines.extend(["", "Conditii sau limite recuperate:"])
+            lines.extend(["", "Condiții sau limite recuperate:"])
             for citation in condition_lines:
                 lines.append(
                     f"- {citation.snippet} [{citation.label}; evidence:{citation.unit_id}]"
@@ -1004,7 +1036,7 @@ class GenerationAdapter:
         lines.extend(
             [
                 "",
-                "Status: draft generat peste EvidencePack; CitationVerifier real nu a rulat inca.",
+                "Status: draft generat peste EvidencePack; CitationVerifier real nu a rulat încă.",
             ]
         )
         return "\n".join(lines)

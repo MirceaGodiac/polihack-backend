@@ -29,10 +29,7 @@ class QueryResponseStore:
 
         cited_unit_ids = self._cited_unit_ids(response)
         highlighted_node_ids = self._highlighted_node_ids(response, cited_unit_ids)
-        highlighted_edge_ids = self._highlighted_edge_ids(
-            response,
-            highlighted_node_ids,
-        )
+        highlighted_edge_ids = self._highlighted_edge_ids(response)
         reasoning_path = self._reasoning_path(
             response,
             cited_unit_ids,
@@ -78,16 +75,21 @@ class QueryResponseStore:
                 node.type == "query"
                 or node.legal_unit_id in cited_unit_id_set
                 or node.metadata.get("is_cited") is True
+                or (
+                    node.type == "cited_claim"
+                    and node.metadata.get("status")
+                    in {"supported", "strongly_supported"}
+                )
             ):
                 highlighted_node_ids.append(node.id)
         return highlighted_node_ids
 
-    def _highlighted_edge_ids(
-        self,
-        response: QueryResponse,
-        highlighted_node_ids: list[str],
-    ) -> list[str]:
-        highlighted_node_id_set = set(highlighted_node_ids)
+    def _highlighted_edge_ids(self, response: QueryResponse) -> list[str]:
+        cited_node_ids = {
+            node.id
+            for node in response.graph.nodes
+            if node.metadata.get("is_cited") is True
+        }
         highlighted_edge_ids: list[str] = []
         for edge in response.graph.edges:
             if edge.type in {"cited_in_answer", "supports_claim"}:
@@ -95,8 +97,7 @@ class QueryResponseStore:
                 continue
             if (
                 edge.type == "retrieved_for_query"
-                and edge.source in highlighted_node_id_set
-                and edge.target in highlighted_node_id_set
+                and edge.target in cited_node_ids
             ):
                 highlighted_edge_ids.append(edge.id)
         return highlighted_edge_ids
@@ -114,11 +115,17 @@ class QueryResponseStore:
             return []
 
         cited_unit_id_set = set(cited_unit_ids)
+        cited_claim_node_ids = [
+            node.id
+            for node in response.graph.nodes
+            if node.type == "cited_claim"
+            and node.metadata.get("status") in {"supported", "strongly_supported"}
+        ]
         cited_node_ids = [
             node.id
             for node in response.graph.nodes
             if node.legal_unit_id in cited_unit_id_set
         ]
-        if not cited_node_ids:
+        if not cited_claim_node_ids and not cited_node_ids:
             return []
-        return [query_node_id, *cited_node_ids]
+        return [query_node_id, *cited_claim_node_ids, *cited_node_ids]

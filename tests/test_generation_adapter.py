@@ -23,6 +23,7 @@ def evidence_unit(
     article_number: str | None = "41",
     paragraph_number: str | None = None,
     letter_number: str | None = None,
+    parent_id: str | None = None,
 ) -> EvidenceUnit:
     return EvidenceUnit(
         id=unit_id,
@@ -38,6 +39,7 @@ def evidence_unit(
         legal_domain="munca",
         legal_concepts=[],
         source_url="https://legislatie.just.ro/test",
+        parent_id=parent_id,
         evidence_id=f"evidence:{unit_id}",
         excerpt="retrieval-only excerpt should not appear",
         rank=rank,
@@ -207,7 +209,9 @@ def test_demo_fixture_answer_cites_only_existing_codul_muncii_units():
     assert "ro.codul_muncii.art_17.alin_3.lit_k" not in citation_ids
     assert citation_ids <= evidence_ids
     assert DEMO_QUERY not in draft.short_answer
-    assert "acordul partilor" in f"{draft.short_answer}\n{draft.detailed_answer}"
+    rendered = f"{draft.short_answer}\n{draft.detailed_answer}"
+    assert "părților" in rendered
+    assert "partilor" not in rendered
     for citation in draft.citations:
         assert citation.snippet in units[citation.unit_id]["raw_text"]
     assert draft.confidence == 0.0
@@ -270,6 +274,108 @@ def test_demo_labor_contract_modification_template_keeps_focused_citations():
     assert set(draft.used_evidence_unit_ids) == set(citation_ids)
     assert "Codul muncii, art. 41 alin. (1)" in draft.short_answer
     assert "evidence:ro.codul_muncii.art_41.alin_1" in draft.short_answer
+    assert "muncă" in draft.short_answer
+    assert "regulă" in draft.short_answer
+    assert "părților" in draft.short_answer
+    assert "Excepțiile" in draft.short_answer
+    assert "partilor" not in draft.short_answer
+    assert "Exceptiile" not in draft.short_answer
+
+
+def test_labor_contract_modification_template_accepts_condition_salary_scope():
+    evidence = [
+        evidence_unit(
+            "ro.codul_muncii.art_41.alin_1",
+            "Contractul individual de munca poate fi modificat numai prin acordul partilor.",
+            rank=1,
+            support_role="direct_basis",
+            paragraph_number="1",
+        ),
+        evidence_unit(
+            "ro.codul_muncii.art_41.alin_3",
+            (
+                "Modificarea contractului individual de munca poate privi "
+                "durata contractului, locul muncii, felul muncii si salariul."
+            ),
+            rank=2,
+            support_role="condition",
+            paragraph_number="3",
+        ),
+    ]
+    query_frame = QueryFrame(
+        domain="munca",
+        intents=["labor_contract_modification"],
+        meta_intents=["modification", "permission"],
+        targets=["salary"],
+        confidence=0.9,
+    )
+
+    draft = GenerationAdapter().generate(
+        question=LIVE_LIKE_DEMO_QUERY,
+        evidence_units=evidence,
+        query_frame=query_frame,
+    )
+
+    citation_ids = [citation.unit_id for citation in draft.citations]
+    assert draft.generation_mode == GENERATION_MODE_TEMPLATE_LABOR_CONTRACT_MODIFICATION
+    assert citation_ids == [
+        "ro.codul_muncii.art_41.alin_1",
+        "ro.codul_muncii.art_41.alin_3",
+    ]
+    assert draft.used_evidence_unit_ids == citation_ids
+    assert "muncă" in draft.short_answer
+    assert "părților" in draft.short_answer
+
+
+def test_labor_contract_modification_template_uses_parent_scope_with_salary_child():
+    evidence = [
+        evidence_unit(
+            "ro.codul_muncii.art_41.alin_1",
+            "Contractul individual de munca poate fi modificat numai prin acordul partilor.",
+            rank=1,
+            support_role="direct_basis",
+            paragraph_number="1",
+        ),
+        evidence_unit(
+            "ro.codul_muncii.art_41.alin_3",
+            (
+                "Modificarea contractului individual de munca se refera la "
+                "oricare dintre urmatoarele elemente:"
+            ),
+            rank=2,
+            support_role="condition",
+            paragraph_number="3",
+        ),
+        evidence_unit(
+            "ro.codul_muncii.art_41.alin_3.lit_e",
+            "e) salariul.",
+            rank=3,
+            support_role="condition",
+            paragraph_number="3",
+            letter_number="e",
+            parent_id="ro.codul_muncii.art_41.alin_3",
+        ),
+    ]
+    query_frame = QueryFrame(
+        domain="munca",
+        intents=["labor_contract_modification"],
+        meta_intents=["modification", "permission"],
+        targets=["salary"],
+        confidence=0.9,
+    )
+
+    draft = GenerationAdapter().generate(
+        question=LIVE_LIKE_DEMO_QUERY,
+        evidence_units=evidence,
+        query_frame=query_frame,
+    )
+
+    citation_ids = [citation.unit_id for citation in draft.citations]
+    assert draft.generation_mode == GENERATION_MODE_TEMPLATE_LABOR_CONTRACT_MODIFICATION
+    assert "ro.codul_muncii.art_41.alin_1" in citation_ids
+    assert "ro.codul_muncii.art_41.alin_3" in citation_ids
+    assert "ro.codul_muncii.art_41.alin_3.lit_e" in citation_ids
+    assert set(draft.used_evidence_unit_ids) == set(citation_ids)
 
 
 def test_generic_obligation_template_uses_only_cited_direct_basis():
@@ -325,7 +431,7 @@ def test_generic_procedure_template_stays_prudent_about_missing_steps():
 
     assert draft.generation_mode == GENERATION_MODE_TEMPLATE_V1
     assert draft.meta_intent_used == "procedure"
-    assert "Nu completez pasi care nu apar in EvidencePack" in draft.short_answer
+    assert "Nu completez pași care nu apar în EvidencePack" in draft.short_answer
     assert [citation.unit_id for citation in draft.citations] == ["fixture.procedure"]
 
 

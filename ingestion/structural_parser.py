@@ -1,6 +1,7 @@
 import json
 from .parser_rules import RULES
 from .legal_ids import make_unit_id
+from .normalizer import repair_romanian_mojibake
 
 class StructuralParser:
     def __init__(self, corpus_id: str):
@@ -20,7 +21,7 @@ class StructuralParser:
 
     def parse(self, lines: list):
         for line in lines:
-            line = line.strip()
+            line = repair_romanian_mojibake(line.strip()) or ""
             if not line:
                 continue
 

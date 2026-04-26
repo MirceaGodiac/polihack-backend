@@ -14,10 +14,12 @@ from ..config import settings
 def _to_async_url(url: str) -> str:
     if url.startswith("postgresql+asyncpg://"):
         return url
+    if url.startswith("postgresql+psycopg://"):
+        return "postgresql+asyncpg://" + url[len("postgresql+psycopg://"):]
     if url.startswith("postgresql://"):
-        return "postgresql+asyncpg://" + url[len("postgresql://") :]
+        return "postgresql+asyncpg://" + url[len("postgresql://"):]
     if url.startswith("postgres://"):
-        return "postgresql+asyncpg://" + url[len("postgres://") :]
+        return "postgresql+asyncpg://" + url[len("postgres://"):]
     return url
 
 

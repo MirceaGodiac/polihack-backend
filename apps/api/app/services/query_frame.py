@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import re
 import unicodedata
+from typing import Literal
 
 from pydantic import BaseModel, Field
 
@@ -17,6 +18,10 @@ class QueryFrame(BaseModel):
     qualifiers: list[str] = Field(default_factory=list)
     surface_phrases: list[str] = Field(default_factory=list)
     normalized_terms: list[str] = Field(default_factory=list)
+    retrieval_queries: list[str] = Field(default_factory=list)
+    required_evidence_concepts: list[str] = Field(default_factory=list)
+    decomposition_source: Literal["deterministic", "llm", "merged"] = "deterministic"
+    llm_confidence: float | None = None
     confidence: float = Field(default=0.0, ge=0.0, le=1.0)
     ambiguity_flags: list[str] = Field(default_factory=list)
     requires_clarification: bool = False
@@ -109,8 +114,8 @@ class LegalIntentRegistry:
                 core_phrases=[
                     "contractul individual de munca poate fi modificat numai prin acordul partilor",
                     "modificarea contractului individual de munca",
+                    "elementele contractului",
                     "poate fi modificat numai prin acordul partilor",
-                    "acordul partilor",
                 ],
                 target_concepts=["salary"],
                 target_terms=[
@@ -150,6 +155,18 @@ class LegalIntentRegistry:
                     "salariul este confidential",
                     "confidentialitatea salariului",
                     "registrul general de evidenta",
+                    "formare profesionala",
+                    "drepturile si obligatiile partilor",
+                    "durata formarii profesionale",
+                    "semnatura electronica",
+                    "delegarea",
+                    "detasarea",
+                    "locul muncii poate fi modificat unilateral",
+                    "recuperarea contravalorii pagubei",
+                    "nota de constatare",
+                    "clauza de neconcurenta",
+                    "munca temporara",
+                    "acord scris pentru evidenta orelor",
                 ],
             ),
             LegalIntent(
@@ -850,6 +867,7 @@ def normalize_legal_text(text: str) -> str:
     stripped = "".join(
         char for char in normalized if unicodedata.category(char) != "Mn"
     )
+    stripped = re.sub(r"\badi[?\ufffd]ional(a?)\b", r"aditional\1", stripped)
     return " ".join(stripped.replace(".", " ").replace("-", "_").split())
 
 

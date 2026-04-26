@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import json
 from pathlib import Path
@@ -12,9 +12,7 @@ LEGAL_UNITS_PATH = FIXTURE_DIR / "codul_muncii_legal_units.json"
 LEGAL_EDGES_PATH = FIXTURE_DIR / "codul_muncii_legal_edges.json"
 
 DEMO_QUERY = "Poate angajatorul sa-mi scada salariul fara act aditional?"
-DEMO_QUERY_WITH_DIACRITICS = (
-    "Poate angajatorul să-mi scadă salariul fără act adițional?"
-)
+DEMO_QUERY_WITH_DIACRITICS = "Poate angajatorul să-mi scadă salariul fără act adițional?"
 
 DEMO_UNIT_IDS = [
     "ro.codul_muncii.art_41.alin_4",
@@ -227,3 +225,4 @@ class FixtureGraphClient:
             "distance": 1,
             "edge": edge,
         }
+

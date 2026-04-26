@@ -200,6 +200,17 @@ class CandidateRoleClassifier:
             self._match_requirement(requirement, haystack)
             for requirement in issue_frame.required_evidence
         ]
+        requirement_matches = self._apply_labor_contract_parent_scope_match(
+            requirement_matches,
+            haystack=haystack,
+            unit=unit,
+            score_breakdown=ranked_score_breakdown,
+            why_ranked=existing_why_ranked,
+        )
+        requirement_matches = self._apply_salary_target_atomic_match(
+            requirement_matches,
+            unit=unit,
+        )
         matches_by_id = {
             match.requirement_id: match for match in requirement_matches
         }
@@ -231,12 +242,18 @@ class CandidateRoleClassifier:
         agreement = matches_by_id["contract_modification_agreement_rule"]
         salary_scope = matches_by_id["contract_modification_salary_scope"]
         salary_target = matches_by_id["salary_target_element"]
+        salary_scope_parent_context = self._is_salary_scope_parent_context(
+            haystack=haystack,
+            unit=unit,
+            score_breakdown=ranked_score_breakdown,
+            why_ranked=existing_why_ranked,
+        )
 
         if agreement.matched and agreement.score >= 0.70:
             support_role = "direct_basis"
             confidence = agreement.score
         elif salary_scope.matched and salary_scope.score >= 0.70:
-            support_role = "direct_basis"
+            support_role = "condition" if salary_scope_parent_context else "direct_basis"
             confidence = salary_scope.score
         elif salary_target.matched:
             support_role = "condition"
@@ -258,6 +275,156 @@ class CandidateRoleClassifier:
             disqualified_requirement_ids=self._dedupe(disqualified_requirement_ids),
             why_role=self._dedupe(why_role),
         )
+
+    def _apply_labor_contract_parent_scope_match(
+        self,
+        matches: list[EvidenceRequirementMatch],
+        *,
+        haystack: str,
+        unit: dict[str, Any],
+        score_breakdown: dict[str, Any],
+        why_ranked: list[str],
+    ) -> list[EvidenceRequirementMatch]:
+        if not self._is_salary_scope_parent_context(
+            haystack=haystack,
+            unit=unit,
+            score_breakdown=score_breakdown,
+            why_ranked=why_ranked,
+        ):
+            return matches
+
+        updated: list[EvidenceRequirementMatch] = []
+        for match in matches:
+            if (
+                match.requirement_id != "contract_modification_salary_scope"
+                or match.matched
+            ):
+                updated.append(match)
+                continue
+            updated.append(
+                match.model_copy(
+                    update={
+                        "matched": True,
+                        "score": max(match.score, 0.75),
+                        "positive_hits": self._dedupe(
+                            [
+                                *match.positive_hits,
+                                "modificarea contractului individual de munca",
+                                "intent_governing_rule_parent_context",
+                            ]
+                        ),
+                        "missing_groups": [],
+                    }
+                )
+            )
+        return updated
+
+    def _apply_salary_target_atomic_match(
+        self,
+        matches: list[EvidenceRequirementMatch],
+        *,
+        unit: dict[str, Any],
+    ) -> list[EvidenceRequirementMatch]:
+        updated: list[EvidenceRequirementMatch] = []
+        for match in matches:
+            if (
+                match.requirement_id != "salary_target_element"
+                or not match.matched
+                or self._is_atomic_salary_target(unit)
+            ):
+                updated.append(match)
+                continue
+            updated.append(
+                match.model_copy(
+                    update={
+                        "matched": False,
+                        "score": min(match.score, 0.35),
+                        "positive_hits": [],
+                        "missing_groups": [["atomic_salary_child"]],
+                    }
+                )
+            )
+        return updated
+
+    def _is_salary_scope_parent_context(
+        self,
+        *,
+        haystack: str,
+        unit: dict[str, Any],
+        score_breakdown: dict[str, Any],
+        why_ranked: list[str],
+    ) -> bool:
+        if not self._is_contract_modification_scope_parent(haystack):
+            return False
+        if self._has_salary_target(haystack):
+            return False
+        if bool(unit.get("intent_governing_rule_parent_context")):
+            return True
+        if self._float(score_breakdown.get("intent_governing_rule_parent")) > 0.0:
+            return True
+        return any(
+            "intent_governing_rule_parent_context:labor_contract_modification" in reason
+            for reason in why_ranked
+        )
+
+    def _is_contract_modification_scope_parent(self, haystack: str) -> bool:
+        has_contract_scope = self._phrase_present(
+            "modificarea contractului individual de munca",
+            haystack,
+        ) or self._phrase_present(
+            "modificare contract individual munca",
+            haystack,
+        )
+        has_scope_marker = any(
+            self._phrase_present(marker, haystack)
+            for marker in (
+                "elemente",
+                "elementele",
+                "urmatoarele elemente",
+                "poate privi",
+                "se refera",
+                "modificarea",
+                "modificare",
+            )
+        )
+        return has_contract_scope and has_scope_marker
+
+    def _has_salary_target(self, haystack: str) -> bool:
+        return any(
+            self._phrase_present(term, haystack)
+            for term in ("salariu", "salariul", "salarizare")
+        )
+
+    def _is_atomic_salary_target(self, unit: dict[str, Any]) -> bool:
+        unit_type = normalize_legal_issue_text(str(unit.get("type") or ""))
+        if not (
+            unit.get("letter_number")
+            or unit.get("point_number")
+            or unit_type in {"litera", "letter", "punct", "point"}
+        ):
+            return False
+        raw_text = str(unit.get("raw_text") or unit.get("text") or "")
+        tokens = re.findall(r"[a-z0-9]+", normalize_legal_issue_text(raw_text))
+        if not tokens:
+            return False
+        salary_tokens = {"salariu", "salariul", "salarizare"}
+        if not salary_tokens.intersection(tokens):
+            return False
+        allowed_markers = {
+            normalize_legal_issue_text(str(unit.get("letter_number") or "")),
+            normalize_legal_issue_text(str(unit.get("point_number") or "")),
+        }
+        allowed = {*salary_tokens, *allowed_markers}
+        return all(
+            token in allowed or len(token) <= 2
+            for token in tokens
+        )
+
+    def _float(self, value: Any) -> float:
+        try:
+            return float(value)
+        except (TypeError, ValueError):
+            return 0.0
 
     def _match_requirement(
         self,

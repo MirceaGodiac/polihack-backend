@@ -234,6 +234,58 @@ def test_answer_repair_leaves_fully_supported_answer_unchanged():
     assert ANSWER_REPAIRED_UNSUPPORTED_CLAIMS_REMOVED not in result.warnings
 
 
+def test_answer_repair_keeps_valid_cited_labor_contract_modification_answer():
+    original = answer(
+        "Contractul individual de munca poate fi modificat numai prin acordul "
+        "partilor [Codul muncii, art. 41 alin. (1); "
+        "evidence:ro.codul_muncii.art_41.alin_1]. "
+        "Modificarea contractului individual de munca poate privi elementele "
+        "contractului, inclusiv salariul [Codul muncii, art. 41 alin. (3); "
+        "evidence:ro.codul_muncii.art_41.alin_3]."
+    )
+    first_claim = claim(
+        claim_id="claim:1",
+        text="Contractul individual de munca poate fi modificat numai prin acordul partilor.",
+        citation_ids=["citation:1"],
+    )
+    second_claim = claim(
+        claim_id="claim:2",
+        text=(
+            "Modificarea contractului individual de munca poate privi "
+            "elementele contractului, inclusiv salariul."
+        ),
+        citation_ids=["citation:2"],
+    )
+
+    result = AnswerRepair().repair(
+        answer=original,
+        citations=[
+            citation(
+                citation_id="citation:1",
+                unit_id="ro.codul_muncii.art_41.alin_1",
+            ),
+            citation(
+                citation_id="citation:2",
+                unit_id="ro.codul_muncii.art_41.alin_3",
+            ),
+        ],
+        evidence_units=[
+            evidence_unit("ro.codul_muncii.art_41.alin_1"),
+            evidence_unit("ro.codul_muncii.art_41.alin_3"),
+        ],
+        verifier=verifier([first_claim, second_claim], passed=True),
+        debug=True,
+    )
+
+    assert result.answer.short_answer == original.short_answer
+    assert [item.legal_unit_id for item in result.citations] == [
+        "ro.codul_muncii.art_41.alin_1",
+        "ro.codul_muncii.art_41.alin_3",
+    ]
+    assert result.repair_applied is False
+    assert result.debug["repair_action"] == "none"
+
+
 def test_answer_repair_removes_invalid_citations():
     valid = citation(citation_id="citation:1", verified=True)
     invalid = citation(

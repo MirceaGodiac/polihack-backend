@@ -19,6 +19,7 @@ from ingestion.imports import (
     ImportRepositoryResult,
     ImportRunRepositoryResult,
 )
+from ingestion.normalizer import normalize_legal_text, repair_romanian_mojibake
 
 
 MIGRATIONS_DIR = (
@@ -583,6 +584,12 @@ def _migration_statements() -> list[str]:
 def _legal_unit_params(record: Mapping[str, Any]) -> tuple[Any, ...]:
     unit_id = _required_text(record, "id", artifact="legal_units")
     law_id = _text(record.get("law_id")) or "unknown"
+    repaired_raw_text = repair_romanian_mojibake(_text(record.get("raw_text")) or "") or ""
+    normalized_text = _text(record.get("normalized_text"))
+    if normalized_text is None:
+        normalized_text = normalize_legal_text(repaired_raw_text)
+    else:
+        normalized_text = normalize_legal_text(normalized_text)
     return (
         unit_id,
         _text(record.get("canonical_id")),
@@ -601,8 +608,8 @@ def _legal_unit_params(record: Mapping[str, Any]) -> tuple[Any, ...]:
         _text(record.get("paragraph_number")),
         _text(record.get("letter_number")),
         _text(record.get("point_number")),
-        _text(record.get("raw_text")) or "",
-        _text(record.get("normalized_text")),
+        repaired_raw_text,
+        normalized_text,
         _text(record.get("legal_domain")),
         _json_param(record.get("legal_concepts")),
         _text(record.get("source_url")),

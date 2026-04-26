@@ -1,3 +1,4 @@
+import re
 import unicodedata
 
 from ..schemas import ExactCitation, QueryPlan, QueryRequest
@@ -8,6 +9,7 @@ from .exact_citation_detector import ExactCitationDetector
 def normalize_ro_text(text: str) -> str:
     text = text.replace("ş", "ș").replace("Ş", "Ș")
     text = text.replace("ţ", "ț").replace("Ţ", "Ț")
+    text = re.sub(r"\badi[?\ufffd]ional(a?)\b", r"aditional\1", text)
     return " ".join(text.lower().split())
 
 

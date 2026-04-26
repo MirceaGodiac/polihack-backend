@@ -7,6 +7,8 @@ import unicodedata
 
 from bs4 import BeautifulSoup, Tag
 
+from ingestion.normalizer import repair_romanian_mojibake
+
 
 NON_TEXT_TAGS = {
     "head",
@@ -108,7 +110,8 @@ def clean_html_to_lines(
             text_hash=None,
         )
 
-    soup = BeautifulSoup(html, "html.parser")
+    repaired_html = repair_romanian_mojibake(html) or html
+    soup = BeautifulSoup(repaired_html, "html.parser")
     warnings: set[str] = set()
     removed_blocks_count = _remove_noise_blocks(soup)
     if removed_blocks_count:
@@ -278,7 +281,7 @@ def _extract_lines(container: Tag, *, config: HtmlCleanConfig) -> list[str]:
     raw_text = container.get_text(separator=separator, strip=False)
     lines: list[str] = []
     for raw_line in raw_text.splitlines():
-        line = raw_line.strip()
+        line = repair_romanian_mojibake(raw_line.strip()) or ""
         if config.collapse_spaces:
             line = re.sub(r"[ \t\f\v]+", " ", line)
         if config.drop_empty_lines and not line:
