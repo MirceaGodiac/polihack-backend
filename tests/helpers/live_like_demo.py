@@ -13,10 +13,10 @@ LIVE_LIKE_UNITS = [
         "paragraph_number": "1",
         "letter_number": None,
         "raw_text": (
-            "Contractul individual de munca se incheie in baza "
-            "consimtamantului partilor, in forma scrisa, in limba romana, "
-            "anterior inceperii activitatii. Obligatia de incheiere a "
-            "contractului individual de munca in forma scrisa revine "
+            "Contractul individual de muncă se încheie în baza "
+            "consimțământului părților, în forma scrisă, în limba română, "
+            "anterior începerii activității. Obligația de încheiere a "
+            "contractului individual de muncă în forma scrisă revine "
             "angajatorului."
         ),
     },
@@ -26,10 +26,10 @@ LIVE_LIKE_UNITS = [
         "paragraph_number": "2",
         "letter_number": None,
         "raw_text": (
-            "Modalitatea concreta de formare profesionala, drepturile si "
-            "obligatiile partilor, durata formarii profesionale, precum si "
-            "orice alte aspecte legate de formarea profesionala fac obiectul "
-            "unor acte aditionale la contractele individuale de munca."
+            "Modalitatea concretă de formare profesională, drepturile și "
+            "obligațiile părților, durata formării profesionale, precum și "
+            "orice alte aspecte legate de formarea profesională fac obiectul "
+            "unor acte adiționale la contractele individuale de muncă."
         ),
     },
     {
@@ -38,9 +38,9 @@ LIVE_LIKE_UNITS = [
         "paragraph_number": "1",
         "letter_number": None,
         "raw_text": (
-            "Locul muncii poate fi modificat unilateral de catre angajator "
-            "prin delegarea sau detasarea salariatului intr-un alt loc de "
-            "munca decat cel prevazut in contractul individual de munca."
+            "Locul muncii poate fi modificat unilateral de către angajator "
+            "prin delegarea sau detașarea salariatului într-un alt loc de "
+            "muncă decât cel prevăzut în contractul individual de muncă."
         ),
     },
     {
@@ -49,11 +49,11 @@ LIVE_LIKE_UNITS = [
         "paragraph_number": "3",
         "letter_number": None,
         "raw_text": (
-            "In situatia in care angajatorul constata ca salariatul sau a "
-            "provocat o paguba din vina si in legatura cu munca sa, va putea "
-            "solicita salariatului, printr-o nota de constatare si evaluare "
+            "În situația în care angajatorul constată că salariatul său a "
+            "provocat o pagubă din vina și în legătură cu munca sa, va putea "
+            "solicita salariatului, printr-o notă de constatare și evaluare "
             "a pagubei, recuperarea contravalorii acesteia, prin acordul "
-            "partilor."
+            "părților."
         ),
     },
     {
@@ -62,8 +62,8 @@ LIVE_LIKE_UNITS = [
         "paragraph_number": "1",
         "letter_number": None,
         "raw_text": (
-            "Contractul individual de munca poate fi modificat numai prin "
-            "acordul partilor."
+            "Contractul individual de muncă poate fi modificat numai prin "
+            "acordul părților."
         ),
     },
     {
@@ -72,10 +72,10 @@ LIVE_LIKE_UNITS = [
         "paragraph_number": "3",
         "letter_number": None,
         "raw_text": (
-            "Modificarea contractului individual de munca se refera la "
-            "oricare dintre urmatoarele elemente: durata contractului, locul "
-            "muncii, felul muncii, conditiile de munca, salariul, timpul de "
-            "munca si timpul de odihna."
+            "Modificarea contractului individual de muncă se referă la "
+            "oricare dintre următoarele elemente: durata contractului, locul "
+            "muncii, felul muncii, condițiile de muncă, salariul, timpul de "
+            "muncă și timpul de odihnă."
         ),
     },
     {
@@ -85,6 +85,45 @@ LIVE_LIKE_UNITS = [
         "letter_number": "e",
         "parent_id": "ro.codul_muncii.art_41.alin_3",
         "raw_text": "e) salariul;",
+    },
+    {
+        "id": "ro.codul_muncii.art_17.alin_3.lit_b",
+        "article_number": "17",
+        "paragraph_number": "3",
+        "letter_number": "b",
+        "parent_id": "ro.codul_muncii.art_17.alin_3",
+        "raw_text": (
+            "b) locul muncii sau, in lipsa unui loc de munca fix, "
+            "posibilitatea ca salariatul sa munceasca in diverse locuri;"
+        ),
+    },
+    {
+        "id": "ro.codul_muncii.art_35.alin_1",
+        "article_number": "35",
+        "paragraph_number": "1",
+        "letter_number": None,
+        "raw_text": (
+            "Orice salariat are dreptul de a munci la angajatori diferiti "
+            "sau la acelasi angajator, in baza unor contracte individuale de munca."
+        ),
+    },
+    {
+        "id": "ro.codul_muncii.art_166",
+        "article_number": "166",
+        "paragraph_number": None,
+        "letter_number": None,
+        "raw_text": "Salariul se plateste in bani cel putin o data pe luna.",
+    },
+    {
+        "id": "ro.codul_muncii.art_260.alin_1.lit_a",
+        "article_number": "260",
+        "paragraph_number": "1",
+        "letter_number": "a",
+        "parent_id": "ro.codul_muncii.art_260.alin_1",
+        "raw_text": (
+            "a) primirea la munca a uneia sau a mai multor persoane fara "
+            "incheierea unui contract individual de munca constituie contraventie."
+        ),
     },
 ]
 

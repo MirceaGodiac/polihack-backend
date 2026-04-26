@@ -3,10 +3,21 @@ from fastapi.testclient import TestClient
 
 import apps.api.app.routes.query as query_route
 from apps.api.app.main import app
-from apps.api.app.schemas import EvidenceUnit, QueryRequest, RawRetrievalResponse, RetrievalCandidate
+from apps.api.app.schemas import (
+    EvidenceUnit,
+    ExpandedCandidate,
+    GraphExpansionResult,
+    LegalRankerResult,
+    QueryRequest,
+    RawRetrievalResponse,
+    RankedCandidate,
+    RankerFeatureBreakdown,
+    RetrievalCandidate,
+)
 from apps.api.app.services.query_orchestrator import QueryOrchestrator
 from apps.api.app.services.generation_adapter import GenerationAdapter
 from apps.api.app.services.raw_retriever_client import RawRetrieverClient
+from apps.api.app.services.evidence_pack_compiler import EvidencePackCompiler
 
 
 VALID_QUERY = {
@@ -216,9 +227,30 @@ def test_post_api_query_demo_uses_raw_retriever_client_internal_candidates():
         "ro.codul_muncii.art_41.alin_1",
         "ro.codul_muncii.art_41.alin_3",
     }.issubset(evidence_ids)
+    assert len(payload["evidence_units"]) <= 8
     evidence_by_id = {unit["id"]: unit for unit in payload["evidence_units"]}
     assert evidence_by_id["ro.codul_muncii.art_41.alin_1"]["support_role"] == "direct_basis"
-    assert evidence_by_id["ro.codul_muncii.art_41.alin_3"]["support_role"] == "direct_basis"
+    assert evidence_by_id["ro.codul_muncii.art_41.alin_3"]["support_role"] in {
+        "condition",
+        "direct_basis",
+    }
+    direct_basis_ids = {
+        unit_id
+        for unit_id, unit in evidence_by_id.items()
+        if unit["support_role"] == "direct_basis"
+    }
+    assert direct_basis_ids <= {
+        "ro.codul_muncii.art_41.alin_1",
+        "ro.codul_muncii.art_41.alin_3",
+    }
+    for forbidden_direct_basis_id in {
+        "ro.codul_muncii.art_17.alin_3.lit_b",
+        "ro.codul_muncii.art_35.alin_1",
+        "ro.codul_muncii.art_166",
+        "ro.codul_muncii.art_260.alin_1.lit_a",
+    }:
+        if forbidden_direct_basis_id in evidence_by_id:
+            assert evidence_by_id[forbidden_direct_basis_id]["support_role"] != "direct_basis"
     assert payload["evidence_units"]
     first = payload["evidence_units"][0]
     assert first["raw_text"]
@@ -242,7 +274,13 @@ def test_post_api_query_demo_uses_raw_retriever_client_internal_candidates():
     assert "art. 41" in payload["answer"]["short_answer"]
     assert "art. 264" not in payload["answer"]["short_answer"]
     normalized_answer = payload["answer"]["short_answer"].casefold()
-    assert "acordul partilor" in normalized_answer
+    assert "muncă" in normalized_answer
+    assert "regulă" in normalized_answer
+    assert "părților" in normalized_answer
+    assert "excepțiile" in normalized_answer
+    assert "munca " not in normalized_answer
+    assert "partilor" not in normalized_answer
+    assert "exceptiile" not in normalized_answer
     assert "remuneratie restanta" not in normalized_answer
     assert "persoane angajate ilegal" not in normalized_answer
     citation_unit_ids = {
@@ -253,9 +291,43 @@ def test_post_api_query_demo_uses_raw_retriever_client_internal_candidates():
         "ro.codul_muncii.art_41.alin_1",
         "ro.codul_muncii.art_41.alin_3",
     }.issubset(citation_unit_ids)
+    assert all(citation["verified"] is True for citation in payload["citations"])
     assert all(unit_id.startswith("ro.codul_muncii.art_41") for unit_id in citation_unit_ids)
-    assert "ro.codul_muncii.art_264.lit_a" in evidence_ids
+    if "ro.codul_muncii.art_264.lit_a" in evidence_by_id:
+        assert evidence_by_id["ro.codul_muncii.art_264.lit_a"]["support_role"] != "direct_basis"
     assert "ro.codul_muncii.art_264.lit_a" not in citation_unit_ids
+    assert "ro.codul_muncii.art_17.alin_3.lit_b" not in citation_unit_ids
+    assert "ro.codul_muncii.art_35.alin_1" not in citation_unit_ids
+    assert "ro.codul_muncii.art_166" not in citation_unit_ids
+    assert "ro.codul_muncii.art_260.alin_1.lit_a" not in citation_unit_ids
+    assert "muncă" in evidence_by_id["ro.codul_muncii.art_41.alin_1"]["raw_text"]
+    assert "părților" in evidence_by_id["ro.codul_muncii.art_41.alin_1"]["raw_text"]
+    for unit_id in (
+        "ro.codul_muncii.art_41.alin_1",
+        "ro.codul_muncii.art_41.alin_3",
+    ):
+        raw_text = evidence_by_id[unit_id]["raw_text"]
+        assert "muncÄ" not in raw_text
+        assert "pÄ" not in raw_text
+        assert "È" not in raw_text
+    coverage = payload["debug"]["evidence_pack"]["requirement_coverage"]
+    assert coverage["intent_id"] == "labor_contract_modification"
+    assert coverage["required_requirements_total"] == 2
+    assert coverage["required_requirements_covered"] == 2
+    assert coverage["coverage_passed"] is True
+    assert coverage["missing_required_requirements"] == []
+    with TestClient(app) as client:
+        graph_response = client.get(f"/api/query/{payload['query_id']}/graph")
+    assert graph_response.status_code == 200
+    graph_payload = graph_response.json()
+    assert graph_payload["highlighted_edge_ids"]
+    assert {
+        "ro.codul_muncii.art_41.alin_1",
+        "ro.codul_muncii.art_41.alin_3",
+    }.issubset(set(graph_payload["cited_unit_ids"]))
+    assert "cited_in_answer" in {
+        edge["type"] for edge in graph_payload["graph"]["edges"]
+    }
     retrieval_debug = payload["debug"]["retrieval"]
     assert retrieval_debug["backend"] == "internal"
     assert retrieval_debug["response_summary"]["candidate_count"] >= 6
@@ -291,7 +363,7 @@ class FakeRawRetrieverClient:
                         "status": "active",
                         "hierarchy_path": ["Codul muncii", "art. 41"],
                         "article_number": "41",
-                        "raw_text": "Contractul individual de munca poate fi modificat prin acordul partilor.",
+                        "raw_text": "Contractul individual de muncă poate fi modificat prin acordul părților.",
                         "legal_domain": "munca",
                         "legal_concepts": ["contract", "salariu"],
                         "source_url": "https://legislatie.just.ro/test",
@@ -388,6 +460,67 @@ def _art41_units():
         },
         {
             **base,
+            "id": "ro.codul_muncii.art_17.alin_3.lit_b",
+            "hierarchy_path": ["Codul muncii", "Art. 17", "Alin. (3)", "Lit. b)"],
+            "article_number": "17",
+            "paragraph_number": "3",
+            "letter_number": "b",
+            "point_number": None,
+            "parent_id": "ro.codul_muncii.art_17.alin_3",
+            "raw_text": (
+                "b) locul muncii sau, in lipsa unui loc de munca fix, "
+                "posibilitatea ca salariatul sa munceasca in diverse locuri;"
+            ),
+            "normalized_text": "locul muncii loc munca fix salariat munceasca diverse locuri",
+            "type": "litera",
+        },
+        {
+            **base,
+            "id": "ro.codul_muncii.art_35.alin_1",
+            "hierarchy_path": ["Codul muncii", "Art. 35", "Alin. (1)"],
+            "article_number": "35",
+            "paragraph_number": "1",
+            "letter_number": None,
+            "point_number": None,
+            "parent_id": "ro.codul_muncii.art_35",
+            "raw_text": (
+                "Orice salariat are dreptul de a munci la angajatori diferiti "
+                "sau la acelasi angajator, in baza unor contracte individuale de munca."
+            ),
+            "normalized_text": "salariat dreptul munci angajatori diferiti contracte individuale munca",
+            "type": "alineat",
+        },
+        {
+            **base,
+            "id": "ro.codul_muncii.art_166",
+            "hierarchy_path": ["Codul muncii", "Art. 166"],
+            "article_number": "166",
+            "paragraph_number": None,
+            "letter_number": None,
+            "point_number": None,
+            "parent_id": None,
+            "raw_text": "Salariul se plateste in bani cel putin o data pe luna.",
+            "normalized_text": "salariul plateste bani luna",
+            "type": "articol",
+        },
+        {
+            **base,
+            "id": "ro.codul_muncii.art_260.alin_1.lit_a",
+            "hierarchy_path": ["Codul muncii", "Art. 260", "Alin. (1)", "Lit. a)"],
+            "article_number": "260",
+            "paragraph_number": "1",
+            "letter_number": "a",
+            "point_number": None,
+            "parent_id": "ro.codul_muncii.art_260.alin_1",
+            "raw_text": (
+                "a) primirea la munca a uneia sau a mai multor persoane fara "
+                "incheierea unui contract individual de munca constituie contraventie."
+            ),
+            "normalized_text": "primirea munca persoane fara incheiere contract individual munca constituie contraventie",
+            "type": "litera",
+        },
+        {
+            **base,
             "id": "ro.codul_muncii.art_41.alin_1",
             "hierarchy_path": ["Codul muncii", "Art. 41", "Alin. (1)"],
             "article_number": "41",
@@ -395,7 +528,7 @@ def _art41_units():
             "letter_number": None,
             "point_number": None,
             "parent_id": "ro.codul_muncii.art_41",
-            "raw_text": "(1) Contractul individual de munca poate fi modificat numai prin acordul partilor.",
+            "raw_text": "(1) Contractul individual de muncă poate fi modificat numai prin acordul părților.",
             "normalized_text": "contract individual munca modificat acord parti act aditional salariu",
             "type": "alineat",
         },
@@ -408,7 +541,7 @@ def _art41_units():
             "letter_number": None,
             "point_number": None,
             "parent_id": None,
-            "raw_text": "Articolul 41\nContractul individual de munca poate fi modificat numai prin acordul partilor.",
+            "raw_text": "Articolul 41\nContractul individual de muncă poate fi modificat numai prin acordul părților.",
             "normalized_text": "contract individual munca modificat acord parti",
             "type": "articol",
         },
@@ -421,7 +554,7 @@ def _art41_units():
             "letter_number": None,
             "point_number": None,
             "parent_id": "ro.codul_muncii.art_41",
-            "raw_text": "(2) Modificarea contractului individual de munca se refera la elementele contractuale.",
+            "raw_text": "(2) Modificarea contractului individual de muncă se referă la elementele contractuale.",
             "normalized_text": "modificare contract individual munca elemente contractuale",
             "type": "alineat",
         },
@@ -434,7 +567,7 @@ def _art41_units():
             "letter_number": None,
             "point_number": None,
             "parent_id": "ro.codul_muncii.art_41",
-            "raw_text": "(3) Modificarea contractului individual de munca poate privi durata, locul muncii, felul muncii, conditiile de munca, salariul si timpul de munca.",
+            "raw_text": "(3) Modificarea contractului individual de muncă poate privi durata, locul muncii, felul muncii, condițiile de muncă, salariul și timpul de muncă.",
             "normalized_text": "modificare contract individual munca durata loc fel conditii salariu timp",
             "type": "alineat",
         },
@@ -452,6 +585,292 @@ def _art41_units():
             "type": "litera",
         },
     ]
+
+
+class AgreementOnlyRetriever:
+    async def retrieve(self, request):
+        units = {unit["id"]: unit for unit in _art41_units()}
+        agreement = dict(units["ro.codul_muncii.art_41.alin_1"])
+        agreement["normalized_text"] = (
+            "contract individual munca poate fi modificat numai prin acordul partilor"
+        )
+        ordered = [
+            agreement,
+            units["ro.codul_muncii.art_264.lit_a"],
+        ]
+        candidates = []
+        for index, unit in enumerate(ordered, start=1):
+            candidates.append(
+                RetrievalCandidate(
+                    unit_id=unit["id"],
+                    rank=index,
+                    retrieval_score=round(0.94 - index * 0.05, 6),
+                    score_breakdown={
+                        "bm25": round(0.98 - index * 0.05, 6),
+                        "dense": 0.0,
+                        "domain_match": 1.0,
+                        "metadata_validity": 1.0,
+                    },
+                    matched_terms=["salariu", "contract", "act aditional"],
+                    why_retrieved="agreement_only_fixture",
+                    unit=unit,
+                )
+            )
+        return RawRetrievalResponse(
+            candidates=candidates,
+            retrieval_methods=["agreement_only_fixture"],
+            warnings=[],
+            debug={"candidate_count": len(candidates)},
+        )
+
+
+class BackfillExpandedGraphPolicy:
+    async def expand(self, *, plan, retrieval_response, debug=False):
+        units = {unit["id"]: unit for unit in _art41_units()}
+        scope = dict(units["ro.codul_muncii.art_41.alin_3"])
+        scope["raw_text"] = (
+            "(3) Modificarea contractului individual de munca se refera la "
+            "oricare dintre urmatoarele elemente:"
+        )
+        scope["normalized_text"] = (
+            "modificarea contractului individual de munca se refera la "
+            "oricare dintre urmatoarele elemente"
+        )
+        salary_child = units["ro.codul_muncii.art_41.alin_3.lit_e"]
+        expanded = [
+            ExpandedCandidate(
+                unit_id=scope["id"],
+                source="graph_expansion",
+                graph_distance=1,
+                graph_proximity=0.92,
+                expansion_edge_type="contains_child",
+                expansion_reason="fixture_graph:contains_child",
+                retrieval_candidate=RetrievalCandidate(
+                    unit_id=scope["id"],
+                    rank=3,
+                    retrieval_score=0.52,
+                    score_breakdown={
+                        "bm25": 0.52,
+                        "dense": 0.0,
+                        "domain_match": 1.0,
+                        "graph_proximity": 0.45,
+                    },
+                    matched_terms=["modificare", "contract", "elemente"],
+                    why_retrieved="graph_expansion_scope_fixture",
+                    unit=scope,
+                ),
+                score_breakdown={"graph_proximity": 0.45},
+            ),
+            ExpandedCandidate(
+                unit_id=salary_child["id"],
+                source="graph_expansion",
+                graph_distance=1,
+                graph_proximity=0.62,
+                expansion_edge_type="contains_child",
+                expansion_reason="fixture_graph:contains_child",
+                retrieval_candidate=RetrievalCandidate(
+                    unit_id=salary_child["id"],
+                    rank=4,
+                    retrieval_score=0.48,
+                    score_breakdown={
+                        "bm25": 0.48,
+                        "dense": 0.0,
+                        "domain_match": 1.0,
+                        "graph_proximity": 0.62,
+                    },
+                    matched_terms=["salariu"],
+                    why_retrieved="graph_expansion_salary_child_fixture",
+                    unit=salary_child,
+                ),
+                score_breakdown={"graph_proximity": 0.62},
+            ),
+        ]
+        return GraphExpansionResult(
+            seed_candidates=[],
+            expanded_candidates=expanded,
+            warnings=[],
+            debug={
+                "fallback_used": False,
+                "expanded_candidate_count": len(expanded),
+            }
+            if debug
+            else None,
+        )
+
+
+class MissingRawTextGraphPolicy:
+    async def expand(self, *, plan, retrieval_response, debug=False):
+        units = {unit["id"]: unit for unit in _art41_units()}
+        broken_scope = dict(units["ro.codul_muncii.art_41.alin_3"])
+        broken_scope["raw_text"] = ""
+        broken_scope["normalized_text"] = ""
+        expanded = [
+            ExpandedCandidate(
+                unit_id=broken_scope["id"],
+                source="graph_expansion",
+                graph_distance=1,
+                graph_proximity=0.91,
+                expansion_edge_type="contains_child",
+                expansion_reason="fixture_graph:contains_child",
+                retrieval_candidate=RetrievalCandidate(
+                    unit_id=broken_scope["id"],
+                    rank=3,
+                    retrieval_score=0.72,
+                    score_breakdown={
+                        "bm25": 0.72,
+                        "dense": 0.0,
+                        "domain_match": 1.0,
+                        "graph_proximity": 0.91,
+                    },
+                    matched_terms=["modificare", "contract", "salariu"],
+                    why_retrieved="graph_expansion_broken_scope_fixture",
+                    unit=broken_scope,
+                ),
+                score_breakdown={"graph_proximity": 0.91},
+            )
+        ]
+        return GraphExpansionResult(
+            seed_candidates=[],
+            expanded_candidates=expanded,
+            warnings=[],
+            debug={
+                "fallback_used": False,
+                "expanded_candidate_count": len(expanded),
+            }
+            if debug
+            else None,
+        )
+
+
+def _backfill_ranked_candidate(
+    unit: dict,
+    *,
+    rank: int,
+    rerank_score: float,
+    retrieval_score: float,
+    why_ranked: list[str] | None = None,
+    source: str = "fixture_backfill_ranker",
+) -> RankedCandidate:
+    return RankedCandidate(
+        unit_id=unit["id"],
+        rank=rank,
+        rerank_score=rerank_score,
+        retrieval_score=retrieval_score,
+        unit=unit,
+        score_breakdown=RankerFeatureBreakdown(
+            bm25_score=rerank_score,
+            dense_score=0.0,
+            domain_match=1.0,
+            temporal_validity=1.0,
+        ),
+        why_ranked=why_ranked or [source],
+        source=source,
+    )
+
+
+class BackfillLegalRanker:
+    def rank(
+        self,
+        *,
+        question,
+        plan,
+        retrieval_response,
+        graph_expansion,
+        query_frame=None,
+        debug=False,
+    ):
+        raw_units = {candidate.unit_id: candidate.unit for candidate in retrieval_response.candidates}
+        expanded_units = {
+            candidate.unit_id: candidate.retrieval_candidate.unit
+            for candidate in graph_expansion.expanded_candidates
+            if candidate.retrieval_candidate is not None and candidate.retrieval_candidate.unit
+        }
+        ranked_candidates = [
+            _backfill_ranked_candidate(
+                raw_units["ro.codul_muncii.art_41.alin_1"],
+                rank=1,
+                rerank_score=0.93,
+                retrieval_score=0.93,
+                why_ranked=["agreement_rule_seed"],
+            ),
+            _backfill_ranked_candidate(
+                raw_units["ro.codul_muncii.art_264.lit_a"],
+                rank=2,
+                rerank_score=0.71,
+                retrieval_score=0.71,
+                why_ranked=["salary_distractor"],
+            ),
+            _backfill_ranked_candidate(
+                expanded_units["ro.codul_muncii.art_41.alin_3"],
+                rank=3,
+                rerank_score=0.62,
+                retrieval_score=0.62,
+                why_ranked=["scope_available_in_backfill_pool"],
+            ),
+            _backfill_ranked_candidate(
+                expanded_units["ro.codul_muncii.art_41.alin_3.lit_e"],
+                rank=4,
+                rerank_score=0.54,
+                retrieval_score=0.54,
+                why_ranked=["salary_child_available_in_backfill_pool"],
+            ),
+        ]
+        return LegalRankerResult(
+            ranked_candidates=ranked_candidates,
+            warnings=[],
+            debug={
+                "fallback_used": False,
+                "ranked_candidate_count": len(ranked_candidates),
+                "ranked_candidates": [
+                    candidate.model_dump(mode="json") for candidate in ranked_candidates
+                ],
+            }
+            if debug
+            else None,
+        )
+
+
+class NoScopeBackfillLegalRanker:
+    def rank(
+        self,
+        *,
+        question,
+        plan,
+        retrieval_response,
+        graph_expansion,
+        query_frame=None,
+        debug=False,
+    ):
+        raw_units = {candidate.unit_id: candidate.unit for candidate in retrieval_response.candidates}
+        ranked_candidates = [
+            _backfill_ranked_candidate(
+                raw_units["ro.codul_muncii.art_41.alin_1"],
+                rank=1,
+                rerank_score=0.93,
+                retrieval_score=0.93,
+                why_ranked=["agreement_rule_seed"],
+            ),
+            _backfill_ranked_candidate(
+                raw_units["ro.codul_muncii.art_264.lit_a"],
+                rank=2,
+                rerank_score=0.71,
+                retrieval_score=0.71,
+                why_ranked=["salary_distractor"],
+            ),
+        ]
+        return LegalRankerResult(
+            ranked_candidates=ranked_candidates,
+            warnings=[],
+            debug={
+                "fallback_used": False,
+                "ranked_candidate_count": len(ranked_candidates),
+                "ranked_candidates": [
+                    candidate.model_dump(mode="json") for candidate in ranked_candidates
+                ],
+            }
+            if debug
+            else None,
+        )
 
 
 def _evidence_unit(
@@ -509,8 +928,8 @@ async def test_query_orchestrator_populates_evidence_units_with_fake_candidates(
     evidence = response.evidence_units[0]
     assert evidence.id == "ro.codul_muncii.art_41"
     assert evidence.law_title == "Codul muncii"
-    assert evidence.raw_text == "Contractul individual de munca poate fi modificat prin acordul partilor."
-    assert evidence.excerpt == "Contractul individual de munca poate fi modificat prin acordul partilor."
+    assert evidence.raw_text == "Contractul individual de muncă poate fi modificat prin acordul părților."
+    assert evidence.excerpt == "Contractul individual de muncă poate fi modificat prin acordul părților."
     assert evidence.retrieval_score == 0.78
     assert evidence.rerank_score is not None
     assert evidence.support_role in {"direct_basis", "condition"}
@@ -545,6 +964,82 @@ async def test_query_orchestrator_populates_evidence_units_with_fake_candidates(
     assert response.debug.verifier["claim_extraction"]["claims_total"] > 0
     assert response.debug.answer_repair["repair_action"] == "none"
     assert response.debug.answer_repair["removed_citation_ids"] == []
+
+
+def test_post_api_query_backfills_missing_salary_scope_before_generation():
+    orchestrator = QueryOrchestrator(
+        raw_retriever_client=RawRetrieverClient(
+            base_url=None,
+            internal_retriever_factory=lambda: AgreementOnlyRetriever(),
+        ),
+        graph_expansion_policy=BackfillExpandedGraphPolicy(),
+        legal_ranker=BackfillLegalRanker(),
+        evidence_pack_compiler=EvidencePackCompiler(
+            candidate_pool_size=1,
+            target_evidence_units=1,
+            max_evidence_units=3,
+        ),
+    )
+
+    response = post_query({**VALID_QUERY, "debug": True}, orchestrator=orchestrator)
+
+    assert response.status_code == 200
+    payload = response.json()
+    evidence_ids = {unit["id"] for unit in payload["evidence_units"]}
+    citation_ids = {citation["legal_unit_id"] for citation in payload["citations"]}
+    assert "ro.codul_muncii.art_41.alin_1" in evidence_ids
+    assert "ro.codul_muncii.art_41.alin_3" in evidence_ids
+    assert {
+        "ro.codul_muncii.art_41.alin_1",
+        "ro.codul_muncii.art_41.alin_3",
+    }.issubset(citation_ids)
+    assert "ro.codul_muncii.art_264.lit_a" not in citation_ids
+    assert "art. 264" not in payload["answer"]["short_answer"]
+    backfill = payload["debug"]["requirement_backfill"]
+    assert backfill["enabled"] is True
+    assert backfill["coverage_before"]["coverage_passed"] is False
+    assert backfill["coverage_before"]["missing_required_requirements"] == [
+        "contract_modification_salary_scope"
+    ]
+    assert "ro.codul_muncii.art_41.alin_3" in backfill["added_unit_ids"]
+    assert backfill["coverage_after"]["coverage_passed"] is True
+
+
+def test_post_api_query_keeps_refusal_when_backfill_has_no_real_scope_text():
+    orchestrator = QueryOrchestrator(
+        raw_retriever_client=RawRetrieverClient(
+            base_url=None,
+            internal_retriever_factory=lambda: AgreementOnlyRetriever(),
+        ),
+        graph_expansion_policy=MissingRawTextGraphPolicy(),
+        legal_ranker=NoScopeBackfillLegalRanker(),
+        evidence_pack_compiler=EvidencePackCompiler(
+            candidate_pool_size=1,
+            target_evidence_units=1,
+            max_evidence_units=3,
+        ),
+    )
+
+    response = post_query({**VALID_QUERY, "debug": True}, orchestrator=orchestrator)
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["answer"]["refusal_reason"] in {
+        "insufficient_evidence",
+        "no_verifiable_legal_claims",
+    }
+    assert payload["citations"] == []
+    assert "ro.codul_muncii.art_41.alin_3" not in {
+        unit["id"] for unit in payload["evidence_units"]
+    }
+    backfill = payload["debug"]["requirement_backfill"]
+    assert backfill["enabled"] is True
+    assert backfill["coverage_after"]["coverage_passed"] is False
+    assert backfill["coverage_after"]["missing_required_requirements"] == [
+        "contract_modification_salary_scope"
+    ]
+    assert "requirement_backfill_unresolved:contract_modification_salary_scope" in payload["warnings"]
+    assert "requirement_backfill_unresolved:contract_modification_salary_scope" in backfill["warnings"]
 
 
 def test_generation_adapter_scores_focused_contract_modification_over_distractor():

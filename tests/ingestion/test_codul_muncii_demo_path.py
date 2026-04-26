@@ -286,7 +286,8 @@ def test_evidence_pack_compiler_consumes_codul_muncii_fixture_units():
     evidence_by_id = {unit.id: unit for unit in result.evidence_units}
     assert "ro.codul_muncii.art_41.alin_4" in evidence_by_id
     assert "ro.codul_muncii.art_41" in evidence_by_id
-    assert "ro.codul_muncii.art_17.alin_3.lit_k" in evidence_by_id
+    if "ro.codul_muncii.art_17.alin_3.lit_k" in evidence_by_id:
+        assert evidence_by_id["ro.codul_muncii.art_17.alin_3.lit_k"].support_role != "direct_basis"
     assert (
         evidence_by_id["ro.codul_muncii.art_41.alin_4"].raw_text
         == units["ro.codul_muncii.art_41.alin_4"]["raw_text"]

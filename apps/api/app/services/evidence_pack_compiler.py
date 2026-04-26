@@ -119,6 +119,27 @@ SALARY_CONTEXT_TERMS = (
 
 DIRECT_BASIS_KINDS = ("agreement_rule", "modification_scope")
 
+SUPPORT_ROLE_PRIORITY_SCORE = {
+    "direct_basis": 1.0,
+    "condition": 0.85,
+    "exception": 0.65,
+    "definition": 0.55,
+    "procedure": 0.50,
+    "sanction": 0.45,
+    "context": 0.35,
+}
+
+CONTRACT_MODIFICATION_GENERIC_CONTEXT_TERMS = (
+    "anterior incheierii contractului individual de munca",
+    "persoana selectata",
+    "informarea persoanei selectate",
+    "elementele din contract",
+    "locul muncii",
+    "felul muncii",
+    "durata contractului",
+    "drepturile si obligatiile partilor",
+)
+
 
 @dataclass
 class _EvidenceCandidate:
@@ -177,10 +198,22 @@ class EvidencePackCompiler:
             )
 
         selected = self._select_with_mmr(candidate_pool, plan=plan)
-        self._ensure_role_candidate(selected, candidate_pool, "exception")
-        self._ensure_role_candidate(selected, candidate_pool, "definition")
-        self._ensure_role_candidate(selected, candidate_pool, "sanction")
+        if self._is_contract_modification_query(plan):
+            self._ensure_role_candidate(selected, candidate_pool, "exception")
+        else:
+            self._ensure_role_candidate(selected, candidate_pool, "exception")
+            self._ensure_role_candidate(selected, candidate_pool, "definition")
+            self._ensure_role_candidate(selected, candidate_pool, "sanction")
         self._include_parent_context(selected, candidate_pool)
+        selected = self._compact_contract_modification_selection(
+            selected,
+            candidate_pool,
+            plan=plan,
+        )
+        selected = self._normalize_contract_modification_roles(
+            selected,
+            plan=plan,
+        )
 
         if len(selected) < min(self.target_evidence_units, 8):
             warnings.append(EVIDENCE_PACK_PARTIAL)
@@ -207,6 +240,8 @@ class EvidencePackCompiler:
                 input_ranked_candidate_count=len(ranked_candidates),
                 candidate_pool_size=len(candidate_pool),
                 selected=selected,
+                plan=plan,
+                query_frame=query_frame,
                 warnings=result.warnings,
             )
         return result
@@ -332,8 +367,20 @@ class EvidencePackCompiler:
         *,
         plan: QueryPlan | None,
     ) -> list[_EvidenceCandidate]:
-        target = min(self.target_evidence_units, len(candidate_pool))
+        target = self._selection_target(candidate_pool, plan=plan)
         selected = self._priority_direct_basis_candidates(
+            candidate_pool,
+            plan=plan,
+            target=target,
+        )
+        self._include_contract_modification_salary_scope(
+            selected,
+            candidate_pool,
+            plan=plan,
+            target=target,
+        )
+        self._include_contract_modification_salary_target(
+            selected,
             candidate_pool,
             plan=plan,
             target=target,
@@ -360,6 +407,33 @@ class EvidencePackCompiler:
             selected.append(best)
             remaining.remove(best)
         return selected
+
+    def _selection_target(
+        self,
+        candidate_pool: list[_EvidenceCandidate],
+        *,
+        plan: QueryPlan | None,
+    ) -> int:
+        target = min(self.target_evidence_units, len(candidate_pool))
+        if not self._is_contract_modification_query(plan):
+            return target
+        required_covered = sum(
+            1
+            for requirement_id in (
+                "contract_modification_agreement_rule",
+                "contract_modification_salary_scope",
+            )
+            if any(
+                self._candidate_covers_requirement(candidate, requirement_id)
+                for candidate in candidate_pool
+            )
+        )
+        target = min(target, 8)
+        if len(candidate_pool) >= 6:
+            target = max(target, 6)
+        if required_covered:
+            target = max(target, required_covered)
+        return min(target, self.max_evidence_units, len(candidate_pool))
 
     def _include_contract_modification_condition(
         self,
@@ -399,6 +473,126 @@ class EvidencePackCompiler:
         self._append_reason(best, "contract_modification_condition")
         self._append_reason(best, "priority_condition:act_additional")
         selected.append(best)
+
+    def _include_contract_modification_salary_scope(
+        self,
+        selected: list[_EvidenceCandidate],
+        candidate_pool: list[_EvidenceCandidate],
+        *,
+        plan: QueryPlan | None,
+        target: int,
+    ) -> None:
+        if (
+            len(selected) >= target
+            or not self._is_contract_modification_query(plan)
+            or any(
+                self._candidate_covers_requirement(
+                    candidate,
+                    "contract_modification_salary_scope",
+                )
+                for candidate in selected
+            )
+        ):
+            return
+        selected_ids = {candidate.ranked.unit_id for candidate in selected}
+        candidates = [
+            candidate
+            for candidate in candidate_pool
+            if candidate.ranked.unit_id not in selected_ids
+            and self._candidate_covers_requirement(
+                candidate,
+                "contract_modification_salary_scope",
+            )
+        ]
+        if not candidates:
+            return
+        best = max(
+            candidates,
+            key=lambda candidate: (
+                candidate.support_role == "direct_basis",
+                candidate.ranked.rerank_score,
+                candidate.ranked.retrieval_score or 0.0,
+                self._unit_specificity(candidate.unit),
+                -candidate.ranked.rank,
+                candidate.ranked.unit_id,
+            ),
+        )
+        if best.support_role == "context":
+            best.support_role = "condition"
+        best.mmr_score = self._mmr_score(best, selected)
+        self._append_reason(best, "contract_modification_salary_scope")
+        self._append_reason(best, "priority_requirement:contract_modification_salary_scope")
+        selected.append(best)
+
+    def _include_contract_modification_salary_target(
+        self,
+        selected: list[_EvidenceCandidate],
+        candidate_pool: list[_EvidenceCandidate],
+        *,
+        plan: QueryPlan | None,
+        target: int,
+    ) -> None:
+        if (
+            len(selected) >= target
+            or not self._is_contract_modification_query(plan)
+        ):
+            return
+        selected_ids = {candidate.ranked.unit_id for candidate in selected}
+        scope_parent_ids = {
+            candidate.ranked.unit_id
+            for candidate in selected
+            if self._is_contract_modification_scope_parent(
+                self._haystack(candidate.ranked, candidate.unit)
+            )
+        }
+        if not scope_parent_ids:
+            return
+        candidates = [
+            candidate
+            for candidate in candidate_pool
+            if candidate.ranked.unit_id not in selected_ids
+            and self._is_salary_target_child(candidate, parent_ids=scope_parent_ids)
+        ]
+        if not candidates:
+            return
+        best = max(
+            candidates,
+            key=lambda candidate: (
+                candidate.ranked.rerank_score,
+                candidate.ranked.retrieval_score or 0.0,
+                -candidate.ranked.rank,
+                candidate.ranked.unit_id,
+            ),
+        )
+        best.support_role = "condition"
+        best.mmr_score = self._mmr_score(best, selected)
+        self._append_reason(best, "contract_modification_salary_target_child")
+        self._append_reason(best, "priority_condition:salary_target_element")
+        selected.append(best)
+
+    def _candidate_covers_requirement(
+        self,
+        candidate: _EvidenceCandidate,
+        requirement_id: str,
+    ) -> bool:
+        if candidate.role_decision is not None and (
+            requirement_id in candidate.role_decision.matched_requirement_ids
+        ):
+            return True
+        haystack = self._haystack(candidate.ranked, candidate.unit)
+        if requirement_id == "contract_modification_agreement_rule":
+            return self._is_contract_modification_agreement_rule(haystack)
+        if requirement_id == "contract_modification_salary_scope":
+            return (
+                self._is_contract_modification_salary_scope(haystack)
+                or self._is_contract_modification_scope_parent(haystack)
+                and (
+                    candidate.ranked.score_breakdown.intent_governing_rule_parent > 0
+                    or "intent_governing_rule_parent_context:labor_contract_modification"
+                    in candidate.ranked.why_ranked
+                )
+            )
+        return False
 
     def _priority_direct_basis_candidates(
         self,
@@ -457,8 +651,13 @@ class EvidencePackCompiler:
         self,
         candidate: _EvidenceCandidate,
         selected: list[_EvidenceCandidate],
-    ) -> tuple[float, float, int, str]:
+    ) -> tuple[float, float, float, int, str]:
+        final_score, _ = self._evidence_final_score(
+            candidate,
+            selected=selected,
+        )
         return (
+            final_score,
             self._mmr_score(candidate, selected),
             candidate.ranked.rerank_score,
             -candidate.ranked.rank,
@@ -481,6 +680,401 @@ class EvidencePackCompiler:
             - (1.0 - self.mmr_lambda) * max_similarity,
             6,
         )
+
+    def _compact_contract_modification_selection(
+        self,
+        selected: list[_EvidenceCandidate],
+        candidate_pool: list[_EvidenceCandidate],
+        *,
+        plan: QueryPlan | None,
+    ) -> list[_EvidenceCandidate]:
+        if not self._is_contract_modification_query(plan):
+            return selected
+
+        target = self._selection_target(candidate_pool, plan=plan)
+        required_ids = {
+            "contract_modification_agreement_rule",
+            "contract_modification_salary_scope",
+        }
+        required: list[_EvidenceCandidate] = []
+        optional: list[_EvidenceCandidate] = []
+        for candidate in selected:
+            if any(
+                self._candidate_covers_requirement(candidate, requirement_id)
+                for requirement_id in required_ids
+            ):
+                required.append(candidate)
+            else:
+                optional.append(candidate)
+
+        required = self._dedupe_candidates(required)
+        optional = self._dedupe_candidates(optional)
+        kept: list[_EvidenceCandidate] = []
+        for candidate in sorted(
+            required,
+            key=lambda item: self._evidence_final_sort_key(item, kept),
+            reverse=True,
+        ):
+            if candidate.ranked.unit_id not in {item.ranked.unit_id for item in kept}:
+                self._append_reason(candidate, "contract_modification_required_coverage")
+                kept.append(candidate)
+
+        salary_parent_ids = {
+            candidate.ranked.unit_id
+            for candidate in kept
+            if self._candidate_covers_requirement(
+                candidate,
+                "contract_modification_salary_scope",
+            )
+        }
+        salary_children = [
+            candidate
+            for candidate in optional
+            if self._is_salary_target_child(candidate, parent_ids=salary_parent_ids)
+        ]
+        for candidate in sorted(
+            salary_children,
+            key=lambda item: self._evidence_final_sort_key(item, kept),
+            reverse=True,
+        ):
+            if len(kept) >= target:
+                break
+            if candidate.ranked.unit_id not in {item.ranked.unit_id for item in kept}:
+                self._append_reason(candidate, "contract_modification_optional_salary_target")
+                kept.append(candidate)
+
+        remaining = [
+            candidate
+            for candidate in optional
+            if candidate.ranked.unit_id not in {item.ranked.unit_id for item in kept}
+        ]
+        remaining.sort(
+            key=lambda item: self._evidence_final_sort_key(item, kept),
+            reverse=True,
+        )
+        for candidate in remaining:
+            if len(kept) >= target:
+                break
+            score, breakdown = self._evidence_final_score(candidate, selected=kept)
+            if (
+                candidate.support_role == "context"
+                and breakdown["generic_context_penalty"] >= 0.7
+                and len(kept) >= max(2, len(required))
+            ):
+                continue
+            self._append_reason(candidate, "contract_modification_compact_selection")
+            kept.append(candidate)
+
+        if len(kept) < len(selected):
+            for candidate in kept:
+                self._append_reason(candidate, "contract_modification_pruned_generic_context")
+        return kept
+
+    def _normalize_contract_modification_roles(
+        self,
+        selected: list[_EvidenceCandidate],
+        *,
+        plan: QueryPlan | None,
+    ) -> list[_EvidenceCandidate]:
+        if not self._is_contract_modification_query(plan):
+            return selected
+
+        scope_parent_ids = {
+            candidate.ranked.unit_id
+            for candidate in selected
+            if self._candidate_covers_requirement(
+                candidate,
+                "contract_modification_salary_scope",
+            )
+        }
+        for candidate in selected:
+            original_role = candidate.support_role
+            normalized_role = self._normalized_contract_modification_role(
+                candidate,
+                selected=selected,
+                scope_parent_ids=scope_parent_ids,
+            )
+            if normalized_role == original_role:
+                continue
+            candidate.support_role = normalized_role
+            self._append_reason(
+                candidate,
+                f"role_normalized:{original_role}->{normalized_role}",
+            )
+        return selected
+
+    def _normalized_contract_modification_role(
+        self,
+        candidate: _EvidenceCandidate,
+        *,
+        selected: list[_EvidenceCandidate],
+        scope_parent_ids: set[str],
+    ) -> str:
+        if self._candidate_covers_requirement(
+            candidate,
+            "contract_modification_agreement_rule",
+        ):
+            if self._has_more_specific_requirement_candidate(
+                candidate,
+                selected=selected,
+                requirement_id="contract_modification_agreement_rule",
+            ):
+                return "context"
+            return "direct_basis"
+        if self._candidate_covers_requirement(
+            candidate,
+            "contract_modification_salary_scope",
+        ):
+            return "condition"
+        if self._is_salary_target_child(candidate, parent_ids=scope_parent_ids):
+            return "condition"
+
+        haystack = self._haystack(candidate.ranked, candidate.unit)
+        if self._is_sanction_support(candidate, haystack):
+            return "sanction"
+        if self._is_exception_support(candidate, haystack):
+            return "exception"
+        if candidate.support_role in {"definition", "procedure"}:
+            return candidate.support_role
+        return "context"
+
+    def _has_more_specific_requirement_candidate(
+        self,
+        candidate: _EvidenceCandidate,
+        *,
+        selected: list[_EvidenceCandidate],
+        requirement_id: str,
+    ) -> bool:
+        candidate_specificity = self._unit_specificity(candidate.unit)
+        candidate_law = str(candidate.unit.get("law_id") or "")
+        candidate_article = self._optional_str(candidate.unit.get("article_number"))
+        for other in selected:
+            if other.ranked.unit_id == candidate.ranked.unit_id:
+                continue
+            if not self._candidate_covers_requirement(other, requirement_id):
+                continue
+            if self._unit_specificity(other.unit) <= candidate_specificity:
+                continue
+            other_law = str(other.unit.get("law_id") or "")
+            other_article = self._optional_str(other.unit.get("article_number"))
+            if candidate_law and candidate_article and (
+                candidate_law == other_law and candidate_article == other_article
+            ):
+                return True
+            if self._optional_str(other.unit.get("parent_id")) == candidate.ranked.unit_id:
+                return True
+        return False
+
+    def _is_sanction_support(
+        self,
+        candidate: _EvidenceCandidate,
+        haystack: str,
+    ) -> bool:
+        score = candidate.ranked.score_breakdown
+        if score.is_sanction > 0.0:
+            return True
+        return self._contains_any(
+            haystack,
+            (
+                "amenda",
+                "amenzii",
+                "contraventie",
+                "contraventionala",
+                "sanctiune",
+                "sanction",
+                "constituie contraventie",
+            ),
+        )
+
+    def _is_exception_support(
+        self,
+        candidate: _EvidenceCandidate,
+        haystack: str,
+    ) -> bool:
+        score = candidate.ranked.score_breakdown
+        if score.is_exception > 0.0:
+            return True
+        return self._contains_any(
+            haystack,
+            (
+                "exceptie",
+                "exceptii",
+                "cu titlu de exceptie",
+                "locul muncii poate fi modificat unilateral",
+                "poate fi modificat unilateral",
+                "delegarea",
+                "detasarea",
+                "derogare",
+            ),
+        )
+
+    def _dedupe_candidates(
+        self,
+        candidates: list[_EvidenceCandidate],
+    ) -> list[_EvidenceCandidate]:
+        seen: set[str] = set()
+        deduped: list[_EvidenceCandidate] = []
+        for candidate in candidates:
+            if candidate.ranked.unit_id in seen:
+                continue
+            seen.add(candidate.ranked.unit_id)
+            deduped.append(candidate)
+        return deduped
+
+    def _evidence_final_sort_key(
+        self,
+        candidate: _EvidenceCandidate,
+        selected: list[_EvidenceCandidate],
+    ) -> tuple[float, float, float, int, str]:
+        score, _ = self._evidence_final_score(candidate, selected=selected)
+        return (
+            score,
+            candidate.ranked.rerank_score,
+            candidate.ranked.retrieval_score or 0.0,
+            -candidate.ranked.rank,
+            candidate.ranked.unit_id,
+        )
+
+    def _evidence_final_score(
+        self,
+        candidate: _EvidenceCandidate,
+        *,
+        selected: list[_EvidenceCandidate],
+    ) -> tuple[float, dict[str, float]]:
+        mmr = self._mmr_score(candidate, selected)
+        required_requirement_coverage = self._required_requirement_coverage_score(candidate)
+        same_article_as_core = self._same_article_as_core_score(candidate, selected)
+        support_role_priority = SUPPORT_ROLE_PRIORITY_SCORE.get(
+            candidate.support_role,
+            0.35,
+        )
+        generic_context_penalty = self._generic_context_penalty(candidate, selected)
+        distractor_penalty = self._evidence_distractor_penalty(candidate)
+        final_score = self._clamp(
+            mmr
+            + 0.20 * required_requirement_coverage
+            + 0.10 * same_article_as_core
+            + 0.08 * support_role_priority
+            - 0.15 * generic_context_penalty
+            - 0.20 * distractor_penalty
+        )
+        return (
+            round(final_score, 6),
+            {
+                "mmr": round(mmr, 6),
+                "required_requirement_coverage": round(required_requirement_coverage, 6),
+                "same_article_as_core": round(same_article_as_core, 6),
+                "support_role_priority": round(support_role_priority, 6),
+                "generic_context_penalty": round(generic_context_penalty, 6),
+                "distractor_penalty": round(distractor_penalty, 6),
+            },
+        )
+
+    def _required_requirement_coverage_score(
+        self,
+        candidate: _EvidenceCandidate,
+    ) -> float:
+        if self._candidate_covers_requirement(
+            candidate,
+            "contract_modification_agreement_rule",
+        ):
+            return 1.0
+        if self._candidate_covers_requirement(
+            candidate,
+            "contract_modification_salary_scope",
+        ):
+            return 1.0
+        if candidate.role_decision is not None and (
+            "salary_target_element" in candidate.role_decision.matched_requirement_ids
+        ):
+            return 0.35
+        return 0.0
+
+    def _same_article_as_core_score(
+        self,
+        candidate: _EvidenceCandidate,
+        selected: list[_EvidenceCandidate],
+    ) -> float:
+        core_units = [
+            item
+            for item in selected
+            if self._candidate_covers_requirement(
+                item,
+                "contract_modification_agreement_rule",
+            )
+            or self._candidate_covers_requirement(
+                item,
+                "contract_modification_salary_scope",
+            )
+        ]
+        if not core_units:
+            return 1.0 if self._required_requirement_coverage_score(candidate) else 0.0
+
+        candidate_law = str(candidate.unit.get("law_id") or "")
+        candidate_article = self._optional_str(candidate.unit.get("article_number"))
+        candidate_parent = self._optional_str(candidate.unit.get("parent_id"))
+        for core in core_units:
+            core_law = str(core.unit.get("law_id") or "")
+            core_article = self._optional_str(core.unit.get("article_number"))
+            if (
+                candidate_law
+                and candidate_article
+                and candidate_law == core_law
+                and candidate_article == core_article
+            ):
+                return 1.0
+            if candidate_parent and candidate_parent == core.ranked.unit_id:
+                return 0.5
+            core_parent = self._optional_str(core.unit.get("parent_id"))
+            if core_parent and core_parent == candidate.ranked.unit_id:
+                return 0.5
+        return 0.0
+
+    def _generic_context_penalty(
+        self,
+        candidate: _EvidenceCandidate,
+        selected: list[_EvidenceCandidate],
+    ) -> float:
+        if self._required_requirement_coverage_score(candidate) > 0:
+            return 0.0
+        haystack = self._haystack(candidate.ranked, candidate.unit)
+        same_article = self._same_article_as_core_score(candidate, selected)
+        has_core = (
+            self._is_contract_modification_agreement_rule(haystack)
+            or self._is_contract_modification_salary_scope(haystack)
+            or self._is_contract_modification_scope_parent(haystack)
+        )
+        if has_core:
+            return 0.0
+        if candidate.support_role == "context" and same_article == 0.0:
+            return 1.0
+        if self._contains_any(haystack, CONTRACT_MODIFICATION_GENERIC_CONTEXT_TERMS):
+            return 0.8 if same_article == 0.0 else 0.4
+        if (
+            self._contains_any(haystack, CONTRACT_MODIFICATION_TARGET_TERMS)
+            and same_article == 0.0
+        ):
+            return 0.7
+        if candidate.support_role == "context":
+            return 0.5
+        return 0.0
+
+    def _evidence_distractor_penalty(
+        self,
+        candidate: _EvidenceCandidate,
+    ) -> float:
+        haystack = self._haystack(candidate.ranked, candidate.unit)
+        score = candidate.ranked.score_breakdown
+        if score.distractor_penalty >= 0.7:
+            return 1.0
+        if self._is_salary_context(haystack):
+            return 0.0 if self._required_requirement_coverage_score(candidate) else 1.0
+        if (
+            self._contains_any(haystack, CONTRACT_MODIFICATION_TARGET_TERMS)
+            and not self._required_requirement_coverage_score(candidate)
+        ):
+            return 0.5
+        return 0.0
 
     def _ensure_role_candidate(
         self,
@@ -534,7 +1128,18 @@ class EvidencePackCompiler:
             parent = pool_by_unit_id.get(parent_id)
             if parent is None:
                 continue
-            parent.support_role = "context"
+            if self._candidate_covers_requirement(
+                parent,
+                "contract_modification_salary_scope",
+            ):
+                if parent.support_role == "context":
+                    parent.support_role = "condition"
+                self._append_reason(
+                    parent,
+                    "parent_context_requirement:contract_modification_salary_scope",
+                )
+            else:
+                parent.support_role = "context"
             parent.mmr_score = self._mmr_score(parent, selected)
             self._append_reason(parent, "parent_context_candidate")
             self._append_reason(parent, "selected_parent_context")
@@ -755,6 +1360,8 @@ class EvidencePackCompiler:
             return "context"
         if self._graph_node_type(unit) in {"root", "domain", "legal_act", "title", "chapter", "section"}:
             return "context"
+        if contract_modification_query:
+            return "context"
         return "direct_basis"
 
     def _is_contract_modification_query(self, plan: QueryPlan | None) -> bool:
@@ -783,10 +1390,7 @@ class EvidencePackCompiler:
         return has_reduction and has_target
 
     def _is_contract_modification_direct_basis(self, haystack: str) -> bool:
-        agreement = any(
-            self._normalize_text(term) in haystack
-            for term in AGREEMENT_RULE_TERMS
-        )
+        agreement = self._is_contract_modification_agreement_rule(haystack)
         scope = any(
             self._normalize_text(term) in haystack
             for term in MODIFICATION_SCOPE_TERMS
@@ -797,6 +1401,51 @@ class EvidencePackCompiler:
             haystack,
             ("modificarea", "modificare", "poate privi", "salariul", "elementele"),
         )
+
+    def _is_contract_modification_agreement_rule(self, haystack: str) -> bool:
+        return any(
+            self._normalize_text(term) in haystack
+            for term in AGREEMENT_RULE_TERMS
+        )
+
+    def _is_contract_modification_scope_parent(self, haystack: str) -> bool:
+        scope = any(
+            self._normalize_text(term) in haystack
+            for term in MODIFICATION_SCOPE_TERMS
+        )
+        return scope and self._contains_any(
+            haystack,
+            (
+                "modificarea",
+                "modificare",
+                "se refera",
+                "poate privi",
+                "elemente",
+                "elementele",
+                "urmatoarele elemente",
+            ),
+        )
+
+    def _is_contract_modification_salary_scope(self, haystack: str) -> bool:
+        return self._is_contract_modification_scope_parent(
+            haystack
+        ) and self._contains_any(haystack, CONTRACT_MODIFICATION_TARGET_TERMS)
+
+    def _is_salary_target_child(
+        self,
+        candidate: _EvidenceCandidate,
+        *,
+        parent_ids: set[str],
+    ) -> bool:
+        parent_id = str(candidate.unit.get("parent_id") or "")
+        if not parent_id or parent_id not in parent_ids:
+            return False
+        if not (candidate.unit.get("letter_number") or candidate.unit.get("point_number")):
+            return False
+        haystack = self._haystack(candidate.ranked, candidate.unit)
+        if not self._contains_any(haystack, CONTRACT_MODIFICATION_TARGET_TERMS):
+            return False
+        return not self._is_salary_context(haystack)
 
     def _is_contract_modification_condition(self, haystack: str) -> bool:
         return (
@@ -931,6 +1580,8 @@ class EvidencePackCompiler:
         input_ranked_candidate_count: int,
         candidate_pool_size: int,
         selected: list[_EvidenceCandidate],
+        plan: QueryPlan | None,
+        query_frame: QueryFrame | None,
         warnings: list[str],
     ) -> dict[str, Any]:
         return {
@@ -946,16 +1597,132 @@ class EvidencePackCompiler:
                     "unit_id": candidate.ranked.unit_id,
                     "rerank_score": candidate.ranked.rerank_score,
                     "mmr_score": candidate.mmr_score,
+                    "evidence_final_score": self._evidence_final_score(
+                        candidate,
+                        selected=selected,
+                    )[0],
+                    "evidence_final_score_breakdown": self._evidence_final_score(
+                        candidate,
+                        selected=selected,
+                    )[1],
                     "support_role": candidate.support_role,
                     "why_selected": self._dedupe(candidate.why_selected),
+                    "matched_requirement_ids": (
+                        candidate.role_decision.matched_requirement_ids
+                        if candidate.role_decision is not None
+                        else []
+                    ),
                     "role_decision": candidate.role_decision.model_dump(mode="json")
                     if candidate.role_decision is not None
                     else None,
                 }
                 for candidate in selected
             ],
+            "requirement_coverage": self._requirement_coverage(
+                selected,
+                plan=plan,
+                query_frame=query_frame,
+            ),
             "warnings": warnings,
         }
+
+    def _requirement_coverage(
+        self,
+        selected: list[_EvidenceCandidate],
+        *,
+        plan: QueryPlan | None,
+        query_frame: QueryFrame | None,
+    ) -> dict[str, Any]:
+        required_ids: list[str] = []
+        if self._should_use_role_classifier(query_frame):
+            required_ids = [
+                "contract_modification_agreement_rule",
+                "contract_modification_salary_scope",
+            ]
+        elif self._is_contract_modification_query(plan):
+            required_ids = [
+                "contract_modification_agreement_rule",
+                "contract_modification_salary_scope",
+            ]
+        if not required_ids:
+            return {
+                "enabled": False,
+                "intent_id": None,
+                "required_requirement_ids": [],
+                "required_requirements_total": 0,
+                "required_requirements_covered": 0,
+                "covered_requirement_ids": [],
+                "missing_required_requirements": [],
+                "missing_required_requirement_ids": [],
+                "coverage_passed": True,
+            }
+
+        covered: list[str] = []
+        if self._contract_modification_agreement_covered(selected):
+            covered.append("contract_modification_agreement_rule")
+        if self._contract_modification_salary_scope_covered(selected):
+            covered.append("contract_modification_salary_scope")
+        missing = [
+            requirement_id
+            for requirement_id in required_ids
+            if requirement_id not in covered
+        ]
+        return {
+            "enabled": True,
+            "intent_id": "labor_contract_modification",
+            "required_requirement_ids": required_ids,
+            "required_requirements_total": len(required_ids),
+            "required_requirements_covered": len(covered),
+            "covered_requirement_ids": covered,
+            "missing_required_requirements": missing,
+            "missing_required_requirement_ids": missing,
+            "coverage_passed": not missing,
+        }
+
+    def _contract_modification_agreement_covered(
+        self,
+        selected: list[_EvidenceCandidate],
+    ) -> bool:
+        for candidate in selected:
+            if candidate.role_decision is not None and (
+                "contract_modification_agreement_rule"
+                in candidate.role_decision.matched_requirement_ids
+            ):
+                return True
+            if self._is_contract_modification_agreement_rule(
+                self._haystack(candidate.ranked, candidate.unit)
+            ):
+                return True
+        return False
+
+    def _contract_modification_salary_scope_covered(
+        self,
+        selected: list[_EvidenceCandidate],
+    ) -> bool:
+        for candidate in selected:
+            if candidate.role_decision is not None and (
+                "contract_modification_salary_scope"
+                in candidate.role_decision.matched_requirement_ids
+            ):
+                return True
+            if self._is_contract_modification_salary_scope(
+                self._haystack(candidate.ranked, candidate.unit)
+            ):
+                return True
+
+        scope_parent_ids = {
+            candidate.ranked.unit_id
+            for candidate in selected
+            if self._is_contract_modification_scope_parent(
+                self._haystack(candidate.ranked, candidate.unit)
+            )
+        }
+        if not scope_parent_ids:
+            return False
+        return any(
+            self._is_salary_target_child(candidate, parent_ids=scope_parent_ids)
+            for candidate in selected
+        )
 
     def _candidate_text(self, unit: dict[str, Any]) -> str:
         value = unit.get("raw_text")

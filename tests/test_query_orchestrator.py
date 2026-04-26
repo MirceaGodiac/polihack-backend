@@ -95,7 +95,8 @@ async def test_query_orchestrator_generates_grounded_draft_with_debug():
     assert "art. 264" not in response.answer.short_answer
     assert all("art_264" not in citation_id for citation_id in citation_ids)
     normalized_answer = response.answer.short_answer.casefold()
-    assert "acordul partilor" in normalized_answer
+    assert "părților" in normalized_answer
+    assert "partilor" not in normalized_answer
     assert "remuneratie restanta" not in normalized_answer
     assert "persoane angajate ilegal" not in normalized_answer
     for citation in response.citations:
@@ -205,7 +206,10 @@ async def test_query_orchestrator_live_like_demo_uses_art_41_not_topical_distrac
 
     evidence_by_id = {unit.id: unit for unit in response.evidence_units}
     assert evidence_by_id["ro.codul_muncii.art_41.alin_1"].support_role == "direct_basis"
-    assert evidence_by_id["ro.codul_muncii.art_41.alin_3"].support_role == "direct_basis"
+    assert evidence_by_id["ro.codul_muncii.art_41.alin_3"].support_role in {
+        "condition",
+        "direct_basis",
+    }
     for unit_id in {
         "ro.codul_muncii.art_16.alin_1",
         "ro.codul_muncii.art_196.alin_2",
