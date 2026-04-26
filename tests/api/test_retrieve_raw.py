@@ -3,7 +3,17 @@ from fastapi.testclient import TestClient
 
 from apps.api.app.main import app
 from apps.api.app.routes import retrieve_raw as retrieve_raw_route
-from apps.api.app.services.raw_retriever import EmptyRawRetrievalStore, RawRetriever
+from apps.api.app.services.raw_retriever import (
+    EmptyRawRetrievalStore,
+    PostgresRawRetrievalStore,
+    RawRetriever,
+    _detect_fallback_intent,
+    _expanded_query_terms,
+    _fallback_search_terms,
+    _lexical_ilike_score_for_text,
+    _query_terms,
+    _weighted_fallback_terms,
+)
 
 
 def test_endpoint_schema_valid_with_dependency_override():
@@ -120,6 +130,273 @@ async def test_fts_query_returns_codul_muncii_candidates():
     assert response.candidates[0].unit["law_id"] == "ro.codul_muncii"
     assert response.candidates[0].score_breakdown["bm25"] > 0.0
     assert "lexical match" in response.candidates[0].why_retrieved
+
+
+def test_endpoint_natural_labor_query_without_exact_citations_uses_lexical_fallback():
+    async def override_retriever():
+        return RawRetriever(FallbackProbeStore())
+
+    app.dependency_overrides[retrieve_raw_route.get_raw_retriever] = override_retriever
+    try:
+        with TestClient(app) as client:
+            response = client.post(
+                "/api/retrieve/raw",
+                json={
+                    "question": "Poate angajatorul să-mi scadă salariul fără act adițional?",
+                    "filters": {"legal_domain": "munca", "status": "active"},
+                    "top_k": 10,
+                    "debug": True,
+                },
+            )
+    finally:
+        app.dependency_overrides.clear()
+
+    payload = response.json()
+    assert response.status_code == 200
+    candidate_ids = {candidate["unit_id"] for candidate in payload["candidates"]}
+    assert candidate_ids.intersection(
+        {
+            "ro.codul_muncii.art_41.alin_1",
+            "ro.codul_muncii.art_41.alin_2",
+            "ro.codul_muncii.art_41.alin_3",
+            "ro.codul_muncii.art_41.alin_3.lit_e",
+        }
+    )
+    assert payload["debug"]["fts_fallback_used"] is True
+    assert "salariul" in payload["debug"]["lexical_terms"]
+    assert "modificare contract" in payload["debug"]["expanded_terms"]
+    assert "acordul partilor" in payload["debug"]["expanded_terms"]
+
+
+@pytest.mark.anyio
+async def test_fallback_lexical_only_runs_when_strict_fts_returns_no_candidates():
+    strict_store = FallbackProbeStore(strict_rows=[{**_UNITS[0], "bm25_score": 1.0}])
+    strict_rows = await strict_store.lexical_search(
+        "salariu act aditional",
+        filters={"legal_domain": "munca", "status": "active"},
+        limit=10,
+    )
+
+    assert strict_rows[0]["id"] == "ro.codul_muncii.art_41"
+    assert strict_store.strict_called is True
+    assert strict_store.fallback_called is False
+    assert strict_store.last_lexical_debug["fts_fallback_used"] is False
+
+    fallback_store = FallbackProbeStore()
+    fallback_rows = await fallback_store.lexical_search(
+        "Poate angajatorul să-mi scadă salariul fără act adițional?",
+        filters={"legal_domain": "munca", "status": "active"},
+        limit=10,
+    )
+
+    assert fallback_rows
+    assert fallback_store.strict_called is True
+    assert fallback_store.fallback_called is True
+    assert fallback_store.last_lexical_debug["fts_fallback_used"] is True
+
+
+@pytest.mark.anyio
+async def test_debug_includes_lexical_terms_expanded_terms_and_fallback_flag():
+    response = await RawRetriever(FallbackProbeStore()).retrieve(
+        _request(
+            question="Poate angajatorul să-mi scadă salariul fără act adițional?",
+            exact_citations=[],
+            debug=True,
+        )
+    )
+
+    assert response.debug is not None
+    assert response.debug["fts_fallback_used"] is True
+    assert response.debug["fallback_intent"] == "labor_contract_modification"
+    assert response.debug["scoring_strategy"] == "intent_grouped_lexical_fallback"
+    assert "salariul" in response.debug["lexical_terms"]
+    assert "modificare contract" in response.debug["expanded_terms"]
+    assert "contract individual de munca" in response.debug["expanded_terms"]
+
+
+def test_stopwords_are_removed_from_lexical_terms():
+    terms = _query_terms("Poate angajatorul să-mi scadă salariul fără act adițional?")
+
+    assert "poate" not in terms
+    assert "sa" not in terms
+    assert "mi" not in terms
+    assert "fara" not in terms
+    assert {"angajatorul", "scada", "salariul", "act", "aditional"}.issubset(terms)
+
+
+@pytest.mark.parametrize("text", ["act adi\u021bional", "act adi\u0163ional"])
+def test_query_terms_transliterates_romanian_diacritics(text):
+    terms = _query_terms(text)
+
+    assert "act" in terms
+    assert "aditional" in terms
+    assert "adi" not in terms
+    assert "ional" not in terms
+
+
+def test_query_terms_repairs_windows_replacement_mark_in_act_aditional():
+    terms = _query_terms("act adi?ional")
+
+    assert "act" in terms
+    assert "aditional" in terms
+    assert "adi" not in terms
+    assert "ional" not in terms
+
+
+def test_labor_query_expansion_is_conservative_and_domain_aware():
+    expanded_terms = _expanded_query_terms(
+        "Poate angajatorul să-mi scadă salariul fără act adițional?",
+        {"legal_domain": "munca"},
+    )
+
+    assert "salariu" in expanded_terms
+    assert "salariul" in expanded_terms
+    assert "salarizare" in expanded_terms
+    assert "modificare contract" in expanded_terms
+    assert "acordul partilor" in expanded_terms
+    assert "contract individual de munca" in expanded_terms
+    assert "contractul individual de munca" in expanded_terms
+    assert "modificarea contractului individual de munca" in expanded_terms
+    assert "contractului individual de munca" in expanded_terms
+    assert "numai prin acordul partilor" in expanded_terms
+    assert "poate fi modificat" in expanded_terms
+    assert "modificat numai prin acordul partilor" in expanded_terms
+
+
+def test_labor_query_expansion_repairs_windows_replacement_mark():
+    expanded_terms = _expanded_query_terms(
+        "Poate angajatorul sa-mi scada salariul fara act adi?ional?",
+        {"legal_domain": "munca"},
+    )
+
+    assert "modificare contract" in expanded_terms
+    assert "contract individual de munca" in expanded_terms
+    assert "contractul individual de munca" in expanded_terms
+    assert "acordul partilor" in expanded_terms
+
+
+@pytest.mark.anyio
+async def test_fallback_weighted_phrase_scoring_ranks_relevant_text_above_generic_contract():
+    base = {
+        **_UNITS[0],
+        "law_id": "ro.codul_muncii",
+        "law_title": "Codul muncii",
+        "status": "active",
+        "legal_domain": "munca",
+        "source_url": "https://legislatie.just.ro/test",
+    }
+    units = [
+        {
+            **base,
+            "id": "fixture.generic_contract",
+            "canonical_id": "fixture.generic_contract",
+            "article_number": "10",
+            "raw_text": "Contractul produce efecte intre parti potrivit actului semnat.",
+            "normalized_text": "contract act acord parti",
+        },
+        {
+            **base,
+            "id": "fixture.relevant_contract_change",
+            "canonical_id": "fixture.relevant_contract_change",
+            "article_number": "41",
+            "raw_text": "Modificarea contractului individual de munca poate privi salariul.",
+            "normalized_text": "modificarea contractului individual de munca salariul",
+        },
+    ]
+    response = await RawRetriever(FallbackProbeStore(units=units)).retrieve(
+        _request(
+            question="Poate angajatorul sa-mi scada salariul fara act aditional?",
+            exact_citations=[],
+            filters={"legal_domain": "munca", "status": "active"},
+            top_k=2,
+            debug=True,
+        )
+    )
+
+    assert [candidate.unit_id for candidate in response.candidates] == [
+        "fixture.relevant_contract_change",
+        "fixture.generic_contract",
+    ]
+    assert response.candidates[0].score_breakdown["bm25"] > response.candidates[1].score_breakdown["bm25"]
+
+
+@pytest.mark.anyio
+async def test_fallback_central_contract_match_beats_many_salary_employer_matches():
+    base = {
+        **_UNITS[0],
+        "law_id": "ro.codul_muncii",
+        "law_title": "Codul muncii",
+        "status": "active",
+        "legal_domain": "munca",
+        "source_url": "https://legislatie.just.ro/test",
+    }
+    units = [
+        {
+            **base,
+            "id": "fixture.salary_employer_contract",
+            "canonical_id": "fixture.salary_employer_contract",
+            "article_number": "160",
+            "raw_text": "Angajatorul stabileste salariul in contract si poate discuta salarizarea.",
+            "normalized_text": "angajator angajatorul salariu salariul contract salarizare",
+        },
+        {
+            **base,
+            "id": "fixture.central_contract_change",
+            "canonical_id": "fixture.central_contract_change",
+            "article_number": "41",
+            "raw_text": "Contractul individual de munca poate fi modificat numai prin acordul partilor.",
+            "normalized_text": "contract individual munca poate fi modificat numai prin acord parti",
+        },
+    ]
+    response = await RawRetriever(FallbackProbeStore(units=units)).retrieve(
+        _request(
+            question="Poate angajatorul sa-mi scada salariul fara act aditional?",
+            exact_citations=[],
+            filters={"legal_domain": "munca", "status": "active"},
+            top_k=2,
+            debug=True,
+        )
+    )
+
+    assert [candidate.unit_id for candidate in response.candidates] == [
+        "fixture.central_contract_change",
+        "fixture.salary_employer_contract",
+    ]
+    assert response.candidates[0].score_breakdown["bm25"] > response.candidates[1].score_breakdown["bm25"]
+
+
+@pytest.mark.anyio
+async def test_fallback_lexical_respects_filters():
+    units = [
+        *_UNITS,
+        {
+            **_UNITS[2],
+            "id": "ro.codul_muncii.art_41.repealed_fixture",
+            "canonical_id": "ro.codul_muncii.art_41.repealed_fixture",
+            "status": "repealed",
+        },
+        {
+            **_UNITS[2],
+            "id": "ro.codul_civil.art_1.fixture",
+            "canonical_id": "ro.codul_civil.art_1.fixture",
+            "law_id": "ro.codul_civil",
+            "law_title": "Codul civil",
+            "legal_domain": "civil",
+        },
+    ]
+    response = await RawRetriever(FallbackProbeStore(units=units)).retrieve(
+        _request(
+            question="Poate angajatorul să-mi scadă salariul fără act adițional?",
+            exact_citations=[],
+            filters={"legal_domain": "munca", "status": "active"},
+            debug=True,
+        )
+    )
+
+    candidate_ids = {candidate.unit_id for candidate in response.candidates}
+    assert "ro.codul_muncii.art_41.repealed_fixture" not in candidate_ids
+    assert "ro.codul_civil.art_1.fixture" not in candidate_ids
+    assert response.debug["fts_fallback_used"] is True
 
 
 @pytest.mark.anyio
@@ -270,6 +547,60 @@ class FakeStore:
         ][:limit]
 
 
+class FallbackProbeStore(PostgresRawRetrievalStore):
+    def __init__(self, strict_rows=None, units=None):
+        self.strict_rows = strict_rows or []
+        self.units = units or _UNITS
+        self.strict_called = False
+        self.fallback_called = False
+        self.fallback_terms = []
+        self.last_lexical_debug = {}
+        self._unit_columns = set(_UNITS[0].keys())
+
+    async def _get_unit_columns(self):
+        return self._unit_columns
+
+    async def _strict_fts_search(
+        self,
+        *,
+        select_columns,
+        search_document,
+        clauses,
+        params,
+    ):
+        self.strict_called = True
+        return [dict(row) for row in self.strict_rows]
+
+    async def _lexical_ilike_fallback(
+        self,
+        question,
+        *,
+        filters,
+        limit,
+        available_columns=None,
+        terms=None,
+    ):
+        self.fallback_called = True
+        fallback_intent = _detect_fallback_intent(question, filters)
+        self.fallback_terms = _fallback_search_terms(terms or [], fallback_intent)
+        weighted_terms = _weighted_fallback_terms(self.fallback_terms)
+        rows = []
+        for unit in _filtered_units_from(self.units, filters):
+            score = _lexical_ilike_score_for_text(
+                f"{unit['raw_text']} {unit['normalized_text']}",
+                weighted_terms,
+                intent=fallback_intent,
+            )
+            if score > 0.0:
+                rows.append(
+                    {
+                        **unit,
+                        "bm25_score": score,
+                    }
+                )
+        return sorted(rows, key=lambda row: row["bm25_score"], reverse=True)[:limit]
+
+
 class FailingExactStore(FakeStore):
     async def exact_citation_lookup(self, citations, *, filters, limit):
         raise RuntimeError(
@@ -279,8 +610,12 @@ class FailingExactStore(FakeStore):
 
 
 def _filtered_units(filters):
+    return _filtered_units_from(_UNITS, filters)
+
+
+def _filtered_units_from(units, filters):
     rows = []
-    for unit in _UNITS:
+    for unit in units:
         if filters.get("legal_domain") and unit["legal_domain"] != filters["legal_domain"]:
             continue
         if filters.get("status") and unit["status"] != filters["status"]:
