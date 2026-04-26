@@ -491,9 +491,9 @@ def _write_bundle(
                 source_dir / "embeddings_output.jsonl",
                 embedding_output_records or [_embedding_output_record()],
             )
-        if "validated_embeddings_manifest.json" not in missing:
+        if "embeddings_manifest.json" not in missing:
             _write_json(
-                source_dir / "validated_embeddings_manifest.json",
+                source_dir / "embeddings_manifest.json",
                 {
                     "ready_for_pgvector_import": True,
                     "embedding_dim": 2,

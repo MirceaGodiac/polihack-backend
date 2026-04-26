@@ -129,6 +129,36 @@ def test_with_embeddings_validates_manifest_and_counts_records(tmp_path):
     assert plan.validation.pair_validation_assumed_from_manifest is True
 
 
+def test_with_embeddings_accepts_official_embeddings_manifest_filename(tmp_path):
+    source_dir = _write_bundle(
+        tmp_path,
+        with_embeddings=True,
+        embedding=[0.0] * 2560,
+        manifest_embedding_dim=2560,
+    )
+
+    plan = build_import_plan(source_dir, with_embeddings=True, embedding_dim=2560)
+
+    assert plan.safe_for_db_import is True
+    assert plan.errors == []
+    assert plan.counts.embedding_records == 1
+    assert Path(plan.artifact_paths.embeddings_manifest).name == "embeddings_manifest.json"
+
+
+def test_with_embeddings_accepts_legacy_embeddings_import_manifest_filename(tmp_path):
+    source_dir = _write_bundle(
+        tmp_path,
+        with_embeddings=True,
+        manifest_filename="embeddings_import_manifest.json",
+    )
+
+    plan = build_import_plan(source_dir, with_embeddings=True, embedding_dim=2)
+
+    assert plan.safe_for_db_import is True
+    assert plan.errors == []
+    assert Path(plan.artifact_paths.embeddings_manifest).name == "embeddings_import_manifest.json"
+
+
 def test_embedding_dim_mismatch_produces_error_without_logging_vector(tmp_path):
     source_dir = _write_bundle(
         tmp_path,
@@ -221,6 +251,7 @@ def _write_bundle(
     embedding: list[float] | None = None,
     embedding_output_records: list[dict] | None = None,
     manifest_embedding_dim: int = 2,
+    manifest_filename: str = "embeddings_manifest.json",
 ) -> Path:
     source_dir = tmp_path / "bundle"
     source_dir.mkdir(parents=True, exist_ok=True)
@@ -258,7 +289,7 @@ def _write_bundle(
             embedding_output_records or [output_record],
         )
         _write_json(
-            source_dir / "validated_embeddings_manifest.json",
+            source_dir / manifest_filename,
             {
                 "input_path": str(source_dir / "embeddings_input.jsonl"),
                 "output_path": str(source_dir / "embeddings_output.jsonl"),

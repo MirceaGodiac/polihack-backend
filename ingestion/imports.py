@@ -13,7 +13,13 @@ from pydantic import BaseModel, ConfigDict, Field
 ImportMode = Literal["validate_only", "dry_run", "apply"]
 IMPORT_PLAN_VERSION = "h08.phase_d1.import_plan.v1"
 DEFAULT_EMBEDDING_DIM = 2560
-EMBEDDINGS_MANIFEST_FILENAME = "validated_embeddings_manifest.json"
+EMBEDDINGS_MANIFEST_FILENAME = "embeddings_manifest.json"
+EMBEDDINGS_MANIFEST_FILENAMES = (
+    "embeddings_manifest.json",
+    "embeddings_import_manifest.json",
+    "embeddings_readiness_manifest.json",
+    "validated_embeddings_manifest.json",
+)
 
 
 class ImportArtifactPaths(BaseModel):
@@ -417,6 +423,13 @@ def discover_import_artifacts(source_dir: str | Path) -> ImportArtifactPaths:
         path = source_path / filename
         return str(path) if path.is_file() else None
 
+    def first_existing(filenames: Iterable[str]) -> str | None:
+        for filename in filenames:
+            path = existing(filename)
+            if path is not None:
+                return path
+        return None
+
     return ImportArtifactPaths(
         source_dir=str(source_path),
         legal_units=existing("legal_units.json"),
@@ -427,7 +440,7 @@ def discover_import_artifacts(source_dir: str | Path) -> ImportArtifactPaths:
         embeddings_output=existing("embeddings_output.jsonl"),
         validation_report=existing("validation_report.json"),
         corpus_manifest=existing("corpus_manifest.json"),
-        embeddings_manifest=existing(EMBEDDINGS_MANIFEST_FILENAME),
+        embeddings_manifest=first_existing(EMBEDDINGS_MANIFEST_FILENAMES),
     )
 
 
