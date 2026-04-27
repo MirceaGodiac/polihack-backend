@@ -3,56 +3,79 @@
     "id": "ro.codul_muncii.art_17",
     "type": "articol",
     "raw_text": "Art. 17\nAnterior incheierii sau modificarii contractului individual de munca, angajatorul are obligatia de a informa persoana selectata in vederea angajarii ori, dupa caz, salariatul cu privire la clauzele esentiale pe care intentioneaza sa le inscrie in contract sau sa le modifice.\n(3) Persoana selectata in vederea angajarii ori salariatul, dupa caz, va fi informata cu privire la cel putin urmatoarele elemente:\nk) salariul de baza, alte elemente constitutive ale veniturilor salariale, precum si periodicitatea platii salariului la care salariatul are dreptul.",
-    "hierarchy_path": ["17"],
+    "hierarchy_path": [
+      "17"
+    ],
     "corpus_id": "ro.codul_muncii"
   },
   {
     "id": "ro.codul_muncii.art_17.alin_3",
     "type": "alineat",
     "raw_text": "(3) Persoana selectata in vederea angajarii ori salariatul, dupa caz, va fi informata cu privire la cel putin urmatoarele elemente:",
-    "hierarchy_path": ["17", "3"],
+    "hierarchy_path": [
+      "17",
+      "3"
+    ],
     "corpus_id": "ro.codul_muncii"
   },
   {
     "id": "ro.codul_muncii.art_17.alin_3.lit_k",
     "type": "litera",
     "raw_text": "k) salariul de baza, alte elemente constitutive ale veniturilor salariale, precum si periodicitatea platii salariului la care salariatul are dreptul.",
-    "hierarchy_path": ["17", "3", "k"],
+    "hierarchy_path": [
+      "17",
+      "3",
+      "k"
+    ],
     "corpus_id": "ro.codul_muncii"
   },
   {
     "id": "ro.codul_muncii.art_41",
     "type": "articol",
-    "raw_text": "Art. 41\n(1) Contractul individual de munca poate fi modificat numai prin acordul partilor.\n(2) Cu titlu de exceptie, modificarea unilaterala a contractului individual de munca este posibila numai in cazurile si in conditiile prevazute de prezentul cod.\n(3) Modificarea contractului individual de munca se refera la oricare dintre urmatoarele elemente: durata contractului; locul muncii; felul muncii; conditiile de munca; salariul; timpul de munca si timpul de odihna.\n(4) Orice modificare a unuia dintre elementele prevazute la alin. (3), in timpul executarii contractului individual de munca, impune incheierea unui act aditional la contract, intr-un termen de 20 de zile lucratoare de la data aparitiei modificarii, cu exceptia situatiilor in care o asemenea modificare este prevazuta in mod expres de lege sau in contractul colectiv de munca aplicabil.",
-    "hierarchy_path": ["41"],
+    "raw_text": "Art. 41\n(1) Contractul individual de muncă poate fi modificat numai prin acordul părților.\n(2) Cu titlu de excepție, modificarea unilaterală a contractului individual de muncă este posibilă numai în cazurile și în condițiile prevăzute de prezentul cod.\n(3) Modificarea contractului individual de muncă se referă la oricare dintre următoarele elemente: durata contractului; locul muncii; felul muncii; condițiile de muncă; salariul; timpul de muncă și timpul de odihnă.\n(4) Orice modificare a unuia dintre elementele prevăzute la alin. (3), în timpul executării contractului individual de muncă, impune încheierea unui act adițional la contract, într-un termen de 20 de zile lucrătoare de la data apariției modificării, cu excepția situațiilor în care o asemenea modificare este prevăzută în mod expres de lege sau în contractul colectiv de muncă aplicabil.",
+    "hierarchy_path": [
+      "41"
+    ],
     "corpus_id": "ro.codul_muncii"
   },
   {
     "id": "ro.codul_muncii.art_41.alin_1",
     "type": "alineat",
-    "raw_text": "(1) Contractul individual de munca poate fi modificat numai prin acordul partilor.",
-    "hierarchy_path": ["41", "1"],
+    "raw_text": "(1) Contractul individual de muncă poate fi modificat numai prin acordul părților.",
+    "hierarchy_path": [
+      "41",
+      "1"
+    ],
     "corpus_id": "ro.codul_muncii"
   },
   {
     "id": "ro.codul_muncii.art_41.alin_2",
     "type": "alineat",
     "raw_text": "(2) Cu titlu de exceptie, modificarea unilaterala a contractului individual de munca este posibila numai in cazurile si in conditiile prevazute de prezentul cod.",
-    "hierarchy_path": ["41", "2"],
+    "hierarchy_path": [
+      "41",
+      "2"
+    ],
     "corpus_id": "ro.codul_muncii"
   },
   {
     "id": "ro.codul_muncii.art_41.alin_3",
     "type": "alineat",
-    "raw_text": "(3) Modificarea contractului individual de munca se refera la oricare dintre urmatoarele elemente: durata contractului; locul muncii; felul muncii; conditiile de munca; salariul; timpul de munca si timpul de odihna.",
-    "hierarchy_path": ["41", "3"],
+    "raw_text": "(3) Modificarea contractului individual de muncă se referă la oricare dintre următoarele elemente: durata contractului; locul muncii; felul muncii; condițiile de muncă; salariul; timpul de muncă și timpul de odihnă.",
+    "hierarchy_path": [
+      "41",
+      "3"
+    ],
     "corpus_id": "ro.codul_muncii"
   },
   {
     "id": "ro.codul_muncii.art_41.alin_4",
     "type": "alineat",
-    "raw_text": "(4) Orice modificare a unuia dintre elementele prevazute la alin. (3), in timpul executarii contractului individual de munca, impune incheierea unui act aditional la contract, intr-un termen de 20 de zile lucratoare de la data aparitiei modificarii, cu exceptia situatiilor in care o asemenea modificare este prevazuta in mod expres de lege sau in contractul colectiv de munca aplicabil.",
-    "hierarchy_path": ["41", "4"],
+    "raw_text": "(4) Orice modificare a unuia dintre elementele prevăzute la alin. (3), în timpul executării contractului individual de muncă, impune încheierea unui act adițional la contract, într-un termen de 20 de zile lucrătoare de la data apariției modificării, cu excepția situațiilor în care o asemenea modificare este prevăzută în mod expres de lege sau în contractul colectiv de muncă aplicabil.",
+    "hierarchy_path": [
+      "41",
+      "4"
+    ],
     "corpus_id": "ro.codul_muncii"
   }
 ]

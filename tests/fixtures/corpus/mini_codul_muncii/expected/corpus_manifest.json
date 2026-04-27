@@ -30,8 +30,8 @@
     "validation_report": "validation_report.json",
     "reference_candidates": "reference_candidates.json"
   },
-  "content_hash": "73b83900dee7754ae7dc6725edb86a0109cf44e2f2d145a02c531bdf48bb69e3",
-  "bundle_hash": "9155131bc20c8cab42f84509e70911fb8fced1172b49e2ae5006f64ed262d9c3",
+  "content_hash": "7f3ea8a4700a7891ea2366b013db3d3d7819a9188f4bfca4d2885923426d3f89",
+  "bundle_hash": "f7089fd3a2ddcfdd72e1198a8d9cc5b8f082cbdd701bf1bc63d6ad3f75a8171a",
   "warnings": [
     "codul_muncii_demo_path_missing_critical_units",
     "contextual_retrieval_context_derived_not_citable",

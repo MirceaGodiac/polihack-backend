@@ -1,58 +1,84 @@
-# Query API
+# Query API and Runtime Endpoints
 
-Phase 7 exposes the `/api/query` contract, deterministic QueryUnderstanding,
-DomainRouter debug data, ExactCitationDetector output, RawRetrieverClient
-request construction, GraphExpansionPolicy debug data, LegalRanker debug data,
-and EvidencePackCompiler MMR selection. It is intended for frontend and API
-integration work before real retrieval, graph traversal, answer generation, and
-citation verification are available.
+This document describes the current FastAPI surface in `apps/api/app/routes/`. All registered routers are mounted under `/api` by `apps/api/app/main.py`, except the compatibility alias `GET /health`.
 
-Not implemented yet:
+## App Entry Point
 
-- database-backed retrieval
-- `/api/retrieve/raw`, which is owned by Handoff 04
-- graph/neighbors endpoints, which are owned by Handoff 04
-- database-backed graph expansion
-- answer generation
-- citation verification
+Run the API with:
 
-The query understanding layer is rule-based and inspectable. It does not call an
-LLM and it does not retrieve legal text. Exact citations are parsed only into
-future lookup hints; they are not resolved against `legal_units` yet.
-RawRetrieverClient prepares the future raw retrieval payload. GraphExpansionPolicy
-turns raw retrieval candidates into graph expansion seeds and policy metadata.
-LegalRanker reranks raw and expanded candidates deterministically when they
-exist. EvidencePackCompiler selects and diversifies ranked candidates with MMR
-when candidates include LegalUnit text. If raw retrieval or graph neighbors are
-not configured, `/api/query` returns a safe fallback with empty evidence,
-`confidence: 0.0`, `verifier_passed: false`, and explicit warnings.
-
-## Request
-
-```bash
-curl -X POST http://localhost:8000/api/query \
-  -H "Content-Type: application/json" \
-  -d '{
-    "question": "Poate angajatorul sa-mi scada salariul fara act aditional?",
-    "jurisdiction": "RO",
-    "date": "current",
-    "mode": "strict_citations",
-    "debug": true
-  }'
+```powershell
+python -m uvicorn apps.api.app.main:app --host 127.0.0.1 --port 8010 --reload
 ```
 
-## Response Excerpt
+The app is created by `create_app()` and includes:
+
+- CORS configured from `API_CORS_ORIGINS`;
+- health routes;
+- query routes;
+- ingest/admin/debug routes;
+- legal-unit file routes;
+- raw retrieval route.
+
+## Endpoint Summary
+
+| Method | Path | Owner | Purpose |
+| --- | --- | --- | --- |
+| `GET` | `/api/health` | `routes/health.py` | Basic service liveness. |
+| `GET` | `/health` | `routes/health.py` | Compatibility liveness alias. |
+| `GET` | `/api/health/config` | `routes/health.py` | Safe config visibility. |
+| `GET` | `/api/health/db` | `routes/health.py` | DB reachability, extension, and table status. |
+| `POST` | `/api/health/retrieval-demo` | `routes/health.py` | Demo retrieval readiness check. |
+| `POST` | `/api/health/query-demo` | `routes/health.py` | Demo answer/citation readiness check. |
+| `POST` | `/api/health/query-graph-demo` | `routes/health.py` | Demo graph readiness check. |
+| `POST` | `/api/query` | `routes/query.py` | Full Ask Mode query pipeline. |
+| `GET` | `/api/query/{query_id}` | `routes/query.py` | Retrieve recent in-memory query response. |
+| `GET` | `/api/query/{query_id}/graph` | `routes/query.py` | Retrieve enriched graph response for recent query. |
+| `POST` | `/api/retrieve/raw` | `routes/retrieve_raw.py` | DB-backed raw retrieval. |
+| `POST` | `/api/ingest/` | `routes/ingest.py` | Background single URL parser pipeline. |
+| `GET` | `/api/legal-units/{corpus_id}` | `routes/legal_units.py` | File-based legal units from `ingestion/output`. |
+| `POST` | `/api/admin/ingest/batch` | `routes/admin.py` | Protected batch parser pipeline. |
+| `GET` | `/api/admin/ingest/batch/{run_id}` | `routes/admin.py` | Protected in-memory batch status. |
+| `GET` | `/api/admin/debug` | `routes/admin.py` | Protected debug path info. |
+| `GET` | `/api/debug/embeddings-health` | `routes/debug.py` | Protected embedding provider health check. |
+
+Empty or placeholder route modules exist for future `corpus`, `domains`, `explore`, and `search` APIs. They do not currently expose registered product endpoints.
+
+## `POST /api/query`
+
+`/api/query` runs `QueryOrchestrator` and returns the full user-facing answer package.
+
+Request schema: `apps/api/app/schemas/query.py::QueryRequest`
 
 ```json
 {
-  "query_id": "9f8d85df-8d8b-59d5-b905-f76c351c7f10",
   "question": "Poate angajatorul sa-mi scada salariul fara act aditional?",
+  "jurisdiction": "RO",
+  "date": "current",
+  "mode": "strict_citations",
+  "debug": true
+}
+```
+
+Constraints:
+
+- `question`: 10 to 4000 characters.
+- `jurisdiction`: currently only `RO`.
+- `date`: arbitrary string, defaults to `current`.
+- `mode`: currently only `strict_citations`.
+- `debug`: when true, includes inspectable internals.
+
+Response schema: `QueryResponse`
+
+```json
+{
+  "query_id": "...",
+  "question": "...",
   "answer": {
-    "short_answer": "Phase 1 mock response only. No verified legal conclusion is provided; Phase 7 may compile evidence units separately, but generation is not configured.",
-    "detailed_answer": null,
+    "short_answer": "...",
+    "detailed_answer": "...",
     "confidence": 0.0,
     "not_legal_advice": true,
-    "refusal_reason": "mock_evidence_pack_not_verified"
+    "refusal_reason": null
   },
   "citations": [],
   "evidence_units": [],
@@ -65,279 +91,200 @@ curl -X POST http://localhost:8000/api/query \
     "citations_checked": 0,
     "verifier_passed": false,
     "claim_results": [],
-    "warnings": [
-      "mock_unverified_answer: Phase 7 keeps answer generation and citation verification mocked; compiled evidence, if present, is not converted into a verified legal conclusion."
-    ],
+    "warnings": [],
     "repair_applied": false,
-    "refusal_reason": "mock_evidence_pack_not_verified"
-  }
+    "refusal_reason": null
+  },
+  "graph": {
+    "nodes": [],
+    "edges": []
+  },
+  "debug": null,
+  "warnings": []
 }
 ```
 
-When ranked candidates contain LegalUnit text, `evidence_units` use a flat
-LegalUnit-plus-evidence shape. The LegalUnit fields are not nested under
-`legal_unit`.
+`answer.confidence` is currently conservative. The verifier and warnings are more important than the answer confidence number.
+
+## Query Debug Shape
+
+When `debug=true`, `debug` includes:
+
+- `orchestrator`
+- `evidence_service`
+- `retrieval_mode`
+- `query_understanding`
+- `query_frame`
+- `query_decomposer`
+- `query_embedding`
+- `retrieval`
+- `graph_expansion`
+- `legal_ranker`
+- `evidence_pack`
+- `requirement_backfill`
+- `generation`
+- `verifier`
+- `answer_repair`
+- evidence/citation/graph counts
+- notes
+
+The debug payload is meant for development and frontend inspection. It should not expose large vectors or secrets. Query embeddings are summarized as present/dimension rather than returned in full.
+
+## Query Response Store
+
+`GET /api/query/{query_id}` and `GET /api/query/{query_id}/graph` read from `QueryResponseStore`, an in-memory bounded store created in `routes/query.py`.
+
+Implications:
+
+- results disappear on process restart;
+- the store is local to one API process;
+- this is not durable persistence;
+- missing IDs return `404` with `query_not_found`.
+
+## `POST /api/retrieve/raw`
+
+`/api/retrieve/raw` runs the raw retrieval subsystem directly. It is useful for retrieval tests and debugging before full answer generation.
+
+Request schema: `RawRetrievalRequest`
 
 ```json
 {
-  "evidence_units": [
+  "question": "Ce spune art. 41 alin. (1) din Codul muncii?",
+  "retrieval_filters": {
+    "legal_domain": "munca",
+    "status": "active"
+  },
+  "exact_citations": [
     {
-      "id": "ro.codul_muncii.art_41",
       "law_id": "ro.codul_muncii",
-      "law_title": "Codul muncii",
-      "status": "active",
-      "hierarchy_path": ["Codul muncii", "art. 41"],
       "article_number": "41",
-      "paragraph_number": null,
-      "raw_text": "Contractul individual de munca poate fi modificat prin acordul partilor.",
-      "normalized_text": null,
-      "legal_domain": "munca",
-      "legal_concepts": ["contract", "salariu"],
-      "source_url": "https://legislatie.just.ro/test",
-      "evidence_id": "evidence:ro.codul_muncii.art_41",
-      "excerpt": "Contractul individual de munca poate fi modificat prin acordul partilor.",
+      "paragraph_number": "1"
+    }
+  ],
+  "query_embedding": null,
+  "top_k": 50,
+  "debug": true
+}
+```
+
+Response schema: `RawRetrievalResponse`
+
+```json
+{
+  "candidates": [
+    {
+      "unit_id": "ro.codul_muncii.art_41.alin_1",
       "rank": 1,
-      "relevance_score": 0.86,
-      "retrieval_method": "raw_retrieval",
-      "retrieval_score": 0.78,
-      "rerank_score": 0.86,
-      "mmr_score": 0.645,
-      "support_role": "direct_basis",
-      "why_selected": ["domain_match:munca", "selected_by_mmr"],
+      "retrieval_score": 0.93,
       "score_breakdown": {
-        "bm25_score": 0.9,
-        "dense_score": 0.7,
-        "domain_match": 1.0,
-        "graph_proximity": 1.0
+        "bm25": 0.8,
+        "dense": 0.0,
+        "rrf": 1.0,
+        "exact_citation_boost": 1.0
       },
-      "warnings": []
+      "matched_terms": [],
+      "why_retrieved": "exact_citation",
+      "unit": {}
     }
-  ]
+  ],
+  "retrieval_methods": ["exact_citation", "fts"],
+  "warnings": [],
+  "debug": {}
 }
 ```
 
-When `debug` is `true`, the response includes a `debug` object with mock service
-counts, notes, `query_understanding`, `retrieval`, `graph_expansion`,
-`legal_ranker`, and `evidence_pack`. When `debug` is `false`, `debug` is
-`null`.
+If `DATABASE_URL` is missing or unreachable, route dependency setup yields `EmptyRawRetrievalStore` and returns no candidates with database warnings instead of crashing.
 
-Example debug excerpt:
+## Health Endpoints
+
+`GET /api/health`
 
 ```json
 {
-  "debug": {
-    "query_understanding": {
-      "legal_domain": "muncă",
-      "domain_confidence": 1.0,
-      "query_types": ["right", "prohibition", "obligation"],
-      "exact_citations": [],
-      "temporal_context": "current",
-      "retrieval_filters": {
-        "legal_domain": "muncă",
-        "status": "active",
-        "date_context": "current"
-      },
-      "expansion_policy": {
-        "max_depth": 2,
-        "max_expanded_nodes": 80
-      }
-    }
-  }
+  "status": "ok",
+  "service": "lexai-api"
 }
 ```
 
-LegalRanker debug excerpt when no candidates are available:
+`GET /api/health/config` reports whether important settings are configured, without revealing secrets.
+
+`GET /api/health/db` checks:
+
+- `DATABASE_URL` configured;
+- DB reachable;
+- `SELECT 1`;
+- server version;
+- installed extensions;
+- existence/counts for `legal_units`, `legal_edges`, and `legal_embeddings`.
+
+Demo health endpoints run real internal pipeline checks for the standard labor salary modification question.
+
+## Ingestion and Admin Endpoints
+
+`POST /api/ingest/` starts a background single-URL file-based ingestion job:
 
 ```json
 {
-  "debug": {
-    "legal_ranker": {
-      "fallback_used": true,
-      "input_candidate_count": 0,
-      "ranked_candidate_count": 0,
-      "weights": {
-        "bm25_score": 0.16,
-        "dense_score": 0.16,
-        "exact_citation_match": 0.1,
-        "domain_match": 0.1,
-        "graph_proximity": 0.1,
-        "concept_overlap": 0.08,
-        "legal_term_overlap": 0.07,
-        "temporal_validity": 0.07,
-        "source_reliability": 0.05,
-        "parent_relevance": 0.05,
-        "is_exception": 0.03,
-        "is_definition": 0.02,
-        "is_sanction": 0.01
-      },
-      "ranked_candidates": [],
-      "rows": [],
-      "warnings": ["legal_ranker_no_candidates"]
-    }
-  }
+  "url": "https://legislatie.just.ro/Public/DetaliiDocument/123456",
+  "law_id": "ro.example",
+  "law_title": "Example law",
+  "out_dir": "ingestion/output/auto_ingest"
 }
 ```
 
-EvidencePackCompiler debug excerpt when no ranked candidates are available:
+This endpoint runs `scripts/run_parser_pipeline.py`. It writes a bundle to disk and does not import to DB.
 
-```json
-{
-  "debug": {
-    "evidence_pack": {
-      "fallback_used": true,
-      "input_ranked_candidate_count": 0,
-      "candidate_pool_size": 0,
-      "selected_evidence_count": 0,
-      "lambda": 0.75,
-      "target_evidence_units": 12,
-      "max_evidence_units": 14,
-      "selected_units": [],
-      "warnings": ["evidence_pack_no_ranked_candidates"]
-    }
-  }
-}
+Admin endpoints require `X-Admin-Secret` matching `ADMIN_INGEST_SECRET`:
+
+- `POST /api/admin/ingest/batch`
+- `GET /api/admin/ingest/batch/{run_id}`
+- `GET /api/admin/debug`
+
+The admin batch status is also in-memory and process-local.
+
+## Legal Units File Endpoint
+
+`GET /api/legal-units/{corpus_id}?skip=0&limit=100` reads:
+
+```text
+ingestion/output/{corpus_id}/legal_units.json
 ```
 
-EvidencePackCompiler debug excerpt with ranked fixture candidates:
+This is a file-bundle endpoint, not a DB legal-unit endpoint. It uses legacy schemas in `apps/api/app/schemas/legal.py`, which differ from the main `QueryResponse` LegalUnit schema.
 
-```json
-{
-  "debug": {
-    "evidence_pack": {
-      "fallback_used": false,
-      "input_ranked_candidate_count": 1,
-      "candidate_pool_size": 1,
-      "selected_evidence_count": 1,
-      "selected_units": [
-        {
-          "unit_id": "ro.codul_muncii.art_41",
-          "rerank_score": 0.86,
-          "mmr_score": 0.645,
-          "support_role": "direct_basis",
-          "why_selected": [
-            "domain_match:munca",
-            "high_bm25_score",
-            "selected_by_mmr"
-          ]
-        }
-      ],
-      "warnings": ["evidence_pack_partial"]
-    }
-  }
-}
+## Embedding Debug Endpoint
+
+`GET /api/debug/embeddings-health?secret=...` checks an OpenAI-compatible embeddings provider using:
+
+- `EMBEDDING_BASE_URL`
+- `EMBEDDING_MODEL`
+- `EMBEDDING_DIM`
+- optional `ADMIN_INGEST_SECRET`
+
+In production, `ADMIN_INGEST_SECRET` is required.
+
+## Windows UTF-8 Check
+
+PowerShell `Invoke-RestMethod` can display UTF-8 text incorrectly. For decisive checks, write bytes with `curl.exe` and decode manually:
+
+```powershell
+curl.exe -s `
+  -X POST "http://127.0.0.1:8010/api/query" `
+  -H "Content-Type: application/json; charset=utf-8" `
+  --data-binary "@body.json" `
+  -o response.json
+
+$json = [System.Text.Encoding]::UTF8.GetString(
+  [System.IO.File]::ReadAllBytes("$PWD\response.json")
+)
 ```
 
-Exact citation example:
+## Current API Limitations
 
-```json
-{
-  "debug": {
-    "query_understanding": {
-      "legal_domain": "muncă",
-      "exact_citations": [
-        {
-          "raw_text": "art. 41 alin. (1) din Codul muncii",
-          "citation_type": "compound",
-          "article": "41",
-          "paragraph": "1",
-          "letter": null,
-          "act_hint": "Codul muncii",
-          "law_id_hint": "ro.codul_muncii",
-          "confidence": 0.98,
-          "is_relative": false,
-          "needs_resolution": false,
-          "lookup_filters": {
-            "law_id": "ro.codul_muncii",
-            "article_number": "41",
-            "paragraph_number": "1",
-            "status": "active"
-          }
-        }
-      ]
-    }
-  }
-}
-```
-
-Raw retrieval debug excerpt when `/api/retrieve/raw` is not configured:
-
-```json
-{
-  "debug": {
-    "retrieval": {
-      "request_payload": {
-        "question": "Ce spune art. 41 alin. (1) din Codul muncii?",
-        "retrieval_filters": {
-          "legal_domain": "muncă",
-          "exact_citation_filters": [
-            {
-              "law_id": "ro.codul_muncii",
-              "article_number": "41",
-              "paragraph_number": "1",
-              "status": "active"
-            }
-          ]
-        },
-        "exact_citations": [
-          {
-            "article": "41",
-            "paragraph": "1",
-            "act_hint": "Codul muncii"
-          }
-        ],
-        "top_k": 50,
-        "debug": true
-      },
-      "response_summary": {
-        "candidate_count": 0,
-        "retrieval_methods": [],
-        "warnings": ["raw_retrieval_not_configured"]
-      },
-      "fallback_used": true
-    }
-  }
-}
-```
-
-Graph expansion debug excerpt when raw retrieval has no seed candidates:
-
-```json
-{
-  "debug": {
-    "graph_expansion": {
-      "fallback_used": true,
-      "reason": "graph expansion has no seed candidates",
-      "policy": {
-        "max_depth": 2,
-        "max_expanded_nodes": 80,
-        "lambda_decay": 0.7,
-        "allowed_edge_types": [
-          "contains_parent",
-          "contains_child",
-          "references",
-          "defines",
-          "exception_to",
-          "sanctions",
-          "creates_obligation",
-          "creates_right",
-          "creates_prohibition",
-          "procedure_step"
-        ],
-        "priority_edge_types": [
-          "exception_to",
-          "sanctions",
-          "creates_obligation",
-          "creates_prohibition",
-          "creates_right"
-        ]
-      },
-      "seed_candidate_count": 0,
-      "expanded_candidate_count": 0,
-      "expanded_candidates": [],
-      "graph_node_count": 0,
-      "graph_edge_count": 0,
-      "warnings": ["graph_expansion_no_seed_candidates"]
-    }
-  }
-}
-```
+- No durable query-response store.
+- No default DB graph-neighbor endpoint/client.
+- Some route modules are empty placeholders.
+- `/api/legal-units/{corpus_id}` is file-based and legacy-shaped.
+- `/api/ingest/` writes bundles but does not import them into PostgreSQL.
+- Admin job tracking is in-memory.
+- External model integrations are optional and must be treated as retrieval aids, not legal authorities.

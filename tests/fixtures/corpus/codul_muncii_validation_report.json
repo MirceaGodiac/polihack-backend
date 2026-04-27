@@ -13,6 +13,7 @@
   "quality_metrics": {
     "unit_completeness": 1.0,
     "raw_text_non_empty_rate": 1.0,
+    "raw_text_mojibake_free_rate": 1.0,
     "stable_id_rate": 1.0,
     "hierarchy_integrity": 1.0,
     "edge_endpoint_integrity": 1.0,
